@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGE — Sistema de Gestão de Estampas</title>
+<title>SGE — Sistema para Estampa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -18,28 +18,6 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px}
-
-/* CONFIG */
-#config-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(140deg,var(--navy) 0%,var(--navy2) 55%,#1A4A2A 100%);padding:20px}
-.config-card{background:#fff;border-radius:20px;padding:36px;width:100%;max-width:500px;box-shadow:var(--shadow-lg)}
-.cfg-logo{text-align:center;margin-bottom:22px}
-.cfg-logo-mark{width:48px;height:48px;border-radius:12px;background:var(--navy);display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
-.cfg-logo h1{font-family:'Source Serif 4',serif;font-size:24px;color:var(--navy)}
-.cfg-logo p{font-size:12px;color:var(--ink3);margin-top:3px}
-.cfg-step{display:flex;align-items:flex-start;gap:11px;background:var(--navy-pale);border-radius:10px;padding:12px 14px;margin-bottom:9px}
-.cfg-step-num{width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.cfg-step p{font-size:12px;color:var(--ink2);line-height:1.5}
-.cfg-step a{color:var(--green);font-weight:700;text-decoration:none}
-.cfg-sep{text-align:center;font-size:11px;color:var(--ink3);margin:14px 0 10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
-.fl{display:flex;flex-direction:column;gap:11px}
-.fl .fg{display:flex;flex-direction:column;gap:4px}
-.fl label,.fg label{font-size:11px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:0.4px}
-.fi{padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Source Sans 3',sans-serif;font-size:13px;color:var(--ink);background:var(--bg);outline:none;width:100%;transition:all 0.14s}
-.fi:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-pale);background:#fff}
-.big-btn{width:100%;padding:11px;background:var(--navy);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Source Sans 3',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:background 0.14s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px}
-.big-btn:hover{background:var(--navy2)}.big-btn:disabled{opacity:0.6;cursor:not-allowed}
-.msg-err{background:var(--red-pale);color:var(--red);border-radius:var(--radius-sm);padding:9px 13px;font-size:13px;font-weight:600;margin-bottom:11px;display:none}
-.msg-ok{background:var(--green-pale);color:var(--green);border-radius:var(--radius-sm);padding:9px 13px;font-size:13px;font-weight:600;margin-bottom:11px;display:none}
 
 /* LOGIN */
 #login-screen{display:none;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(140deg,var(--navy) 0%,var(--navy2) 55%,#1A4A2A 100%);padding:20px}
@@ -267,7 +245,7 @@ tr:hover td{background:var(--bg)}
 
 @media print{
   nav,.page:not(.active),.mo,.btn,.sw,.tabs,.stats-row,.ph,.fu-kpis,
-  #login-screen,#config-screen,.ld-overlay{display:none!important}
+  #login-screen,.ld-overlay{display:none!important}
   .page.active{padding-top:0}
   .rep-card{border:none;box-shadow:none;max-width:100%}
 }
@@ -283,38 +261,14 @@ tr:hover td{background:var(--bg)}
 </head>
 <body>
 <!-- LOADING -->
-<div class="ld-overlay" id="ld"><div class="ld-box"><div class="spinner"></div><p id="ld-msg">Carregando...</p></div></div>
 
-<!-- CONFIG -->
-<div id="config-screen">
-  <div class="config-card">
-    <div class="cfg-logo">
-      <div class="cfg-logo-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div>
-      <h1>SGE</h1><p>Configuração do Supabase</p>
-    </div>
-    <div class="cfg-step"><div class="cfg-step-num">1</div><p>Acesse <a href="https://supabase.com" target="_blank">supabase.com</a>, crie um projeto e aguarde inicializar (~2 min).</p></div>
-    <div class="cfg-step"><div class="cfg-step-num">2</div><p>No <strong>SQL Editor</strong>, cole e execute o arquivo <strong>stampos_setup.sql</strong> fornecido junto com este sistema.</p></div>
-    <div class="cfg-step"><div class="cfg-step-num">3</div><p>Vá em <strong>Settings → API</strong> e copie a <strong>Project URL</strong> e a <strong>anon public key</strong>.</p></div>
-    <div class="cfg-sep">Cole suas credenciais</div>
-    <div id="cfg-err" class="msg-err"></div>
-    <div id="cfg-ok" class="msg-ok"></div>
-    <div class="fl">
-      <div class="fg"><label>Project URL</label><input type="text" class="fi" id="cfg-url" placeholder="https://xxxxxxxxxxx.supabase.co"></div>
-      <div class="fg"><label>Anon Public Key</label><input type="text" class="fi" id="cfg-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."></div>
-      <button class="big-btn" id="cfg-btn" onclick="saveConfig()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        Conectar e Continuar
-      </button>
-    </div>
-  </div>
-</div>
 
 <!-- LOGIN -->
 <div id="login-screen">
   <div class="login-card">
     <div class="lg-logo">
       <div class="lg-logo-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div>
-      <h1>SGE</h1><p>Sistema de Gestão de Estampas</p>
+      <h1>SGE</h1><p>Sistema de Gestão de Estampa</p>
     </div>
     <div id="lg-err" class="msg-err"></div>
     <div class="fl">
@@ -325,8 +279,8 @@ tr:hover td{background:var(--bg)}
         Entrar
       </button>
     </div>
-    <div class="lg-footer">SGE  — v2.0</div>
-    <div class="lg-reset"><button onclick="resetConfig()">Reconfigurar conexão</button></div>
+    <div class="lg-footer">SGE — v2.0</div>
+    
   </div>
 </div>
 
@@ -359,7 +313,7 @@ tr:hover td{background:var(--bg)}
 <!-- HOME -->
 <div class="page active" id="page-home">
   <div class="home-hero">
-    <h1>Gestão de <em>Estampas</em><br>.</h1>
+    <h1>Gestão de <em>Estamparia</em><br>Terceirizada</h1>
     <p>Rastreabilidade completa com alertas, follow-up e relatórios técnicos — dados no Supabase.</p>
   </div>
   <div class="hcards">
@@ -611,45 +565,7 @@ let SB = null;
 function initSB(url, key) {
   SB = window.supabase.createClient(url, key);
 }
-function loadCfg() {
-  return { url: localStorage.getItem('sb_url')||'', key: localStorage.getItem('sb_key')||'' };
-}
-function saveCfgLocal(u, k) {
-  localStorage.setItem('sb_url', u);
-  localStorage.setItem('sb_key', k);
-}
-function resetConfig() {
-  localStorage.removeItem('sb_url');
-  localStorage.removeItem('sb_key');
-  location.reload();
-}
 
-async function saveConfig() {
-  const url = document.getElementById('cfg-url').value.trim();
-  const key = document.getElementById('cfg-key').value.trim();
-  const err = document.getElementById('cfg-err');
-  const ok  = document.getElementById('cfg-ok');
-  const btn = document.getElementById('cfg-btn');
-  err.style.display = 'none'; ok.style.display = 'none';
-  if (!url || !key) { err.textContent = 'Preencha a URL e a chave.'; err.style.display='block'; return; }
-  if (!url.includes('supabase.co')) { err.textContent = 'URL inválida. Deve conter supabase.co'; err.style.display='block'; return; }
-  btn.disabled = true;
-  btn.innerHTML = '<div class="spinner" style="width:15px;height:15px;margin:0;border-width:2px"></div> Conectando...';
-  try {
-    initSB(url, key);
-    const { error } = await SB.from('usuarios').select('id').limit(1);
-    if (error) throw new Error(error.message);
-    saveCfgLocal(url, key);
-    ok.textContent = '✅ Conectado! Redirecionando...';
-    ok.style.display = 'block';
-    setTimeout(() => showLogin(), 900);
-  } catch(e) {
-    err.textContent = 'Erro: ' + e.message;
-    err.style.display = 'block';
-    btn.disabled = false;
-    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Conectar e Continuar';
-  }
-}
 
 // ═══════════════════════════════════════
 // LOADING
@@ -665,7 +581,6 @@ function hp(p){ let h=0; for(let i=0;i<p.length;i++){h=((h<<5)-h)+p.charCodeAt(i
 let CU = null; // current user
 
 function showLogin() {
-  document.getElementById('config-screen').style.display = 'none';
   document.getElementById('login-screen').style.display  = 'flex';
   document.getElementById('app').style.display           = 'none';
 }
@@ -736,6 +651,11 @@ function openM(id) {
 function closeM(id) { document.getElementById(id).classList.remove('open'); }
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.mo').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); }));
+  // Conexão automática com Supabase
+  const SB_URL = 'https://pihxaodqwtrndsyskxte.supabase.co';
+  const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpaHhhb2Rxd3RybmRzeXNreHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2OTMyODAsImV4cCI6MjA5NjI2OTI4MH0.C-q6EsQzBv9FR_ueIp4_lRkJlcHEdSRt71MwDXmoJwI';
+  initSB(SB_URL, SB_KEY);
+  showLogin();
 });
 
 function swTab(tid, btn) {
@@ -1316,16 +1236,6 @@ async function importBk(input) {
 // ═══════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
-  const cfg = loadCfg();
-  if (cfg.url && cfg.key) {
-    if (!window.supabase) { document.getElementById('config-screen').style.display='flex'; return; }
-    initSB(cfg.url, cfg.key);
-    showLogin();
-  } else {
-    document.getElementById('config-screen').style.display = 'flex';
-  }
-});
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </body>
