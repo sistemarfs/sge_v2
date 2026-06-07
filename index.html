@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SGE — Sistema de Gestão de Estampas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1B3A5C;--navy2:#254D78;--navy-pale:#E8EFF6;
+  --green:#2D7A3A;--green2:#358544;--green-pale:#D8EEDC;
+  --bg:#F2F5F0;--surface:#FFFFFF;--surface2:#EBF0E8;
+  --ink:#1A2B1A;--ink2:#3D5A3E;--ink3:#7A9A7C;
+  --red:#C0392B;--red-pale:#FAEAE8;--yellow:#C07A00;--yellow-pale:#FDF3DC;
+  --border:#C8D8C8;--shadow:0 2px 14px rgba(27,58,92,0.09);--shadow-lg:0 8px 40px rgba(27,58,92,0.15);
+  --radius:12px;--radius-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px}
+
+/* CONFIG */
+#config-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(140deg,var(--navy) 0%,var(--navy2) 55%,#1A4A2A 100%);padding:20px}
+.config-card{background:#fff;border-radius:20px;padding:36px;width:100%;max-width:500px;box-shadow:var(--shadow-lg)}
+.cfg-logo{text-align:center;margin-bottom:22px}
+.cfg-logo-mark{width:48px;height:48px;border-radius:12px;background:var(--navy);display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+.cfg-logo h1{font-family:'Source Serif 4',serif;font-size:24px;color:var(--navy)}
+.cfg-logo p{font-size:12px;color:var(--ink3);margin-top:3px}
+.cfg-step{display:flex;align-items:flex-start;gap:11px;background:var(--navy-pale);border-radius:10px;padding:12px 14px;margin-bottom:9px}
+.cfg-step-num{width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.cfg-step p{font-size:12px;color:var(--ink2);line-height:1.5}
+.cfg-step a{color:var(--green);font-weight:700;text-decoration:none}
+.cfg-sep{text-align:center;font-size:11px;color:var(--ink3);margin:14px 0 10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+.fl{display:flex;flex-direction:column;gap:11px}
+.fl .fg{display:flex;flex-direction:column;gap:4px}
+.fl label,.fg label{font-size:11px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:0.4px}
+.fi{padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Source Sans 3',sans-serif;font-size:13px;color:var(--ink);background:var(--bg);outline:none;width:100%;transition:all 0.14s}
+.fi:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-pale);background:#fff}
+.big-btn{width:100%;padding:11px;background:var(--navy);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Source Sans 3',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:background 0.14s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px}
+.big-btn:hover{background:var(--navy2)}.big-btn:disabled{opacity:0.6;cursor:not-allowed}
+.msg-err{background:var(--red-pale);color:var(--red);border-radius:var(--radius-sm);padding:9px 13px;font-size:13px;font-weight:600;margin-bottom:11px;display:none}
+.msg-ok{background:var(--green-pale);color:var(--green);border-radius:var(--radius-sm);padding:9px 13px;font-size:13px;font-weight:600;margin-bottom:11px;display:none}
+
+/* LOGIN */
+#login-screen{display:none;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(140deg,var(--navy) 0%,var(--navy2) 55%,#1A4A2A 100%);padding:20px}
+.login-card{background:#fff;border-radius:20px;padding:38px 34px;width:100%;max-width:370px;box-shadow:var(--shadow-lg)}
+.lg-logo{text-align:center;margin-bottom:24px}
+.lg-logo-mark{width:50px;height:50px;border-radius:13px;background:var(--navy);display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+.lg-logo h1{font-family:'Source Serif 4',serif;font-size:24px;color:var(--navy)}
+.lg-logo p{font-size:12px;color:var(--ink3);margin-top:3px}
+.login-card .fl{gap:12px}
+.login-btn{width:100%;padding:12px;background:var(--navy);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Source Sans 3',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:background 0.14s;margin-top:2px;display:flex;align-items:center;justify-content:center;gap:8px}
+.login-btn:hover{background:var(--navy2)}.login-btn:disabled{opacity:0.6;cursor:not-allowed}
+.lg-footer{text-align:center;margin-top:14px;font-size:11px;color:var(--ink3)}
+.lg-reset{text-align:center;margin-top:8px}
+.lg-reset button{background:none;border:none;color:var(--ink3);font-size:11px;cursor:pointer;text-decoration:underline}
+
+/* LOADING */
+.ld-overlay{display:none;position:fixed;inset:0;background:rgba(27,58,92,0.45);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.ld-overlay.show{display:flex}
+.ld-box{background:#fff;border-radius:14px;padding:26px 34px;text-align:center;box-shadow:var(--shadow-lg)}
+.spinner{width:36px;height:36px;border:3px solid var(--green-pale);border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 11px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ld-box p{font-size:13px;color:var(--ink2);font-weight:600}
+
+/* APP */
+#app{display:none}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--navy);height:56px;display:flex;align-items:center;padding:0 22px;gap:2px;box-shadow:0 2px 18px rgba(27,58,92,0.35)}
+.nav-logo{font-family:'Source Serif 4',serif;font-size:20px;font-weight:700;color:#fff;margin-right:16px;cursor:pointer;user-select:none;display:flex;align-items:center;gap:7px}
+.nav-logo-mark{width:26px;height:26px;border-radius:6px;background:var(--green);display:flex;align-items:center;justify-content:center}
+.nb{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;border:none;background:transparent;color:rgba(255,255,255,0.62);font-family:'Source Sans 3',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.14s}
+.nb:hover{background:rgba(255,255,255,0.11);color:#fff}
+.nb.active{background:var(--green);color:#fff}
+.nb svg{width:14px;height:14px;flex-shrink:0}
+.nav-spacer{flex:1}
+.nav-user{display:flex;align-items:center;gap:7px;padding:4px 10px;border-radius:6px;background:rgba(255,255,255,0.08)}
+.nav-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.nav-un{font-size:12px;font-weight:600;color:#fff;line-height:1.2}
+.nav-ur{font-size:10px;color:rgba(255,255,255,0.5);line-height:1.2}
+.ni-btn{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.22);background:transparent;color:rgba(255,255,255,0.65);font-family:'Source Sans 3',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.14s;margin-left:4px}
+.ni-btn:hover{border-color:var(--green);color:#7CCC8A}
+.ni-btn svg{width:12px;height:12px}
+
+.page{display:none;padding-top:56px;min-height:100vh}
+.page.active{display:block}
+.ph{padding:20px 28px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;background:var(--surface)}
+.ph-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ph h2{font-family:'Source Serif 4',serif;font-size:19px;font-weight:700;flex:1;color:var(--navy)}
+.pb{padding:20px 28px}
+
+/* HOME */
+.home-hero{background:linear-gradient(140deg,var(--navy) 0%,var(--navy2) 55%,#1A4A2A 100%);padding:48px 44px 40px;text-align:center;position:relative;overflow:hidden}
+.home-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 75% 40%,rgba(45,122,58,0.2) 0%,transparent 55%);pointer-events:none}
+.home-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--green),transparent)}
+.home-hero h1{font-family:'Source Serif 4',serif;font-size:clamp(24px,4vw,42px);font-weight:700;color:#fff;line-height:1.15;margin-bottom:10px;position:relative}
+.home-hero h1 em{color:#7CCC8A;font-style:normal}
+.home-hero p{color:rgba(255,255,255,0.65);font-size:14px;max-width:440px;margin:0 auto;position:relative}
+.hcards{display:flex;gap:15px;flex-wrap:wrap;justify-content:center;padding:30px 36px 14px;max-width:960px;margin:0 auto}
+.hcard{background:var(--surface);border:1.5px solid var(--border);border-radius:15px;padding:24px 20px;width:190px;text-align:center;cursor:pointer;transition:all 0.18s;color:inherit;display:flex;flex-direction:column;align-items:center;gap:10px}
+.hcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--green)}
+.hcard-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center}
+.ic-n{background:var(--navy-pale)}.ic-g{background:var(--green-pale)}.ic-m{background:linear-gradient(135deg,var(--navy-pale),var(--green-pale))}
+.hcard h3{font-family:'Source Serif 4',serif;font-size:14px;font-weight:600;color:var(--ink)}
+.hcard p{font-size:11px;color:var(--ink3);line-height:1.5}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 15px;border-radius:var(--radius-sm);border:none;font-family:'Source Sans 3',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.14s}
+.btn svg{width:13px;height:13px}
+.btn-primary{background:var(--green);color:#fff}.btn-primary:hover{background:var(--green2)}
+.btn-navy{background:var(--navy);color:#fff}.btn-navy:hover{background:var(--navy2)}
+.btn-ghost{background:transparent;color:var(--ink2);border:1.5px solid var(--border)}.btn-ghost:hover{background:var(--surface2)}
+.btn-sm{padding:5px 9px;font-size:12px}
+.btn-danger{background:var(--red-pale);color:var(--red);border:none}
+
+/* SEARCH */
+.sw{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px}
+.st{display:flex;gap:7px;margin-bottom:9px;flex-wrap:wrap}
+.sm{flex:1;min-width:200px;position:relative}
+.sm svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--ink3);pointer-events:none}
+.sm input{width:100%;padding:8px 11px 8px 31px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Source Sans 3',sans-serif;font-size:13px;background:var(--bg);outline:none;transition:all 0.14s;color:var(--ink)}
+.sm input:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-pale)}
+.sf{display:flex;gap:7px;flex-wrap:wrap}
+.sc{display:flex;flex-direction:column;gap:3px}
+.sc label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink3)}
+.sc select,.sc input[type=text]{padding:5px 9px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Source Sans 3',sans-serif;font-size:12px;background:var(--bg);outline:none;color:var(--ink);min-width:120px;transition:border-color 0.14s}
+.sc select:focus,.sc input[type=text]:focus{border-color:var(--green)}
+.sat{display:flex;gap:5px;flex-wrap:wrap}
+.stag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:var(--navy-pale);color:var(--navy);border-radius:20px;font-size:11px;font-weight:600}
+.stag button{border:none;background:none;cursor:pointer;color:var(--navy);font-size:12px;line-height:1;padding:0}
+
+/* STATS */
+.stats-row{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:16px}
+.smi{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;min-width:90px}
+.smi-v{font-family:'Source Serif 4',serif;font-size:20px;font-weight:700;color:var(--navy)}
+.smi-l{font-size:11px;color:var(--ink3);margin-top:2px;font-weight:600}
+
+/* CARDS */
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:13px}
+.sc2{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all 0.14s;cursor:pointer}
+.sc2:hover{box-shadow:var(--shadow);border-color:var(--green)}
+.sc2-img{width:100%;height:142px;background:var(--navy-pale);display:flex;align-items:center;justify-content:center;color:var(--ink3);overflow:hidden}
+.sc2-img img{width:100%;height:100%;object-fit:cover}
+.sc2-body{padding:11px 13px}
+.sc2-ref{font-size:10px;color:var(--ink3);font-weight:700;text-transform:uppercase;letter-spacing:0.6px}
+.sc2-name{font-family:'Source Serif 4',serif;font-size:14px;font-weight:600;margin:3px 0 7px;color:var(--navy)}
+.sc2-tags{display:flex;gap:4px;flex-wrap:wrap}
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:700}
+.t-type{background:var(--navy-pale);color:var(--navy)}
+.t-ok{background:var(--green-pale);color:var(--green)}
+.t-pend{background:var(--yellow-pale);color:var(--yellow)}
+.t-alert{background:var(--red-pale);color:var(--red)}
+
+/* MODAL */
+.mo{display:none;position:fixed;inset:0;background:rgba(27,58,92,0.52);backdrop-filter:blur(3px);z-index:200;align-items:center;justify-content:center;padding:20px}
+.mo.open{display:flex}
+.modal{background:var(--surface);border-radius:16px;width:100%;max-width:730px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.mh{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--navy);border-radius:16px 16px 0 0}
+.mh h3{font-family:'Source Serif 4',serif;font-size:16px;font-weight:700;flex:1;color:#fff}
+.mc{width:27px;height:27px;border-radius:7px;border:none;background:rgba(255,255,255,0.15);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.8);transition:background 0.14s}
+.mc:hover{background:rgba(255,255,255,0.28)}
+.mb{padding:18px 22px}
+.mf{padding:12px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;align-items:center}
+
+/* FORM */
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.fg2 .fg{display:flex;flex-direction:column;gap:4px}
+.fg2 .fg.s2{grid-column:span 2}
+.fl label{font-size:11px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:0.4px}
+.form-input{padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Source Sans 3',sans-serif;font-size:13px;color:var(--ink);background:var(--bg);outline:none;transition:all 0.14s;width:100%}
+.form-input:focus{border-color:var(--green);background:#fff;box-shadow:0 0 0 3px var(--green-pale)}
+textarea.form-input{resize:vertical;min-height:66px}
+
+/* IMAGE UPLOAD */
+.iu{border:2px dashed var(--border);border-radius:var(--radius);padding:18px;text-align:center;cursor:pointer;transition:all 0.14s;background:var(--bg);position:relative}
+.iu:hover{border-color:var(--green);background:var(--green-pale)}
+.iu input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.iu p{color:var(--ink3);font-size:12px;margin-top:5px}
+.iu-prog{font-size:12px;color:var(--green);font-weight:600;margin-top:5px;display:none}
+.img-prev{max-width:100%;max-height:135px;border-radius:7px;display:none;margin:7px auto 0}
+
+/* TABS */
+.tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:16px}
+.tab{padding:8px 13px;border:none;background:transparent;font-family:'Source Sans 3',sans-serif;font-size:12px;font-weight:600;color:var(--ink3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.14s}
+.tab.active{color:var(--navy);border-bottom-color:var(--green)}
+.tab:hover:not(.active){color:var(--ink)}
+.tp{display:none}.tp.active{display:block}
+
+/* TABLE */
+.tw{overflow-x:auto;border-radius:var(--radius);border:1.5px solid var(--border)}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--ink3);background:var(--surface2);border-bottom:1.5px solid var(--border)}
+td{padding:9px 12px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg)}
+.actions{display:flex;gap:4px}
+
+/* TIMELINE */
+.tl{display:flex;flex-direction:column}
+.tl-i{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.tl-i:last-child{border-bottom:none}
+.tl-dot{width:9px;height:9px;border-radius:50%;background:var(--navy2);margin-top:4px;flex-shrink:0}
+.tl-dot.g{background:var(--green)}.tl-dot.y{background:var(--yellow)}
+.tl-date{font-size:11px;color:var(--ink3);width:80px;flex-shrink:0;font-weight:600}
+.tl-txt strong{font-size:13px;color:var(--ink)}
+
+/* ALERTS */
+.al-list{display:flex;flex-direction:column;gap:6px}
+.al-item{display:flex;align-items:flex-start;gap:10px;padding:10px 13px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface)}
+.al-item.alert{border-left:3px solid var(--red)}.al-item.warn{border-left:3px solid var(--yellow)}.al-item.ok{border-left:3px solid var(--green)}
+.al-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.al-dot.r{background:var(--red)}.al-dot.y{background:var(--yellow)}.al-dot.g{background:var(--green)}
+.al-txt strong{font-size:13px;font-weight:700;display:block;color:var(--ink)}
+.al-txt span{font-size:11px;color:var(--ink3)}
+
+/* FOLLOW-UP */
+.fu-sec{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px 18px}
+.fu-ct{font-family:'Source Serif 4',serif;font-size:13px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:7px;margin-bottom:10px}
+.fu-ct .badge{font-family:'Source Sans 3',sans-serif;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px}
+.fu-card{background:var(--surface);border:1.5px solid var(--border);border-radius:9px;padding:10px 12px;margin-bottom:7px;transition:box-shadow 0.14s}
+.fu-card:hover{box-shadow:var(--shadow)}
+.fu-card.fu-ov{border-left:3px solid var(--red)}.fu-card.fu-so{border-left:3px solid var(--yellow)}
+.fu-card.fu-ok{border-left:3px solid var(--green)}.fu-card.fu-in{border-left:3px solid var(--navy)}
+.fu-card-t{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.fu-card-s{font-size:11px;color:var(--ink3)}
+.fu-card-d{font-size:11px;font-weight:700;margin-top:5px}
+.fu-card-d.r{color:var(--red)}.fu-card-d.y{color:var(--yellow)}.fu-card-d.g{color:var(--green)}
+.fu-empty{text-align:center;padding:18px;color:var(--ink3);font-size:12px;background:var(--surface2);border-radius:8px;border:1.5px dashed var(--border)}
+.fu-kpis{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:16px}
+.fu-kpi{flex:1;min-width:80px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;text-align:center}
+.fu-kpi-v{font-family:'Source Serif 4',serif;font-size:23px;font-weight:700;line-height:1}
+.fu-kpi-l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;margin-top:3px;color:var(--ink3)}
+.fu-kpi.r .fu-kpi-v{color:var(--red)}.fu-kpi.y .fu-kpi-v{color:var(--yellow)}
+.fu-kpi.g .fu-kpi-v{color:var(--green)}.fu-kpi.n .fu-kpi-v{color:var(--navy)}
+
+/* MISC */
+.st-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:var(--ink3);margin:16px 0 8px}
+.rep-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:26px;max-width:680px}
+.rep-hb{background:var(--navy);border-radius:8px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:flex-end;justify-content:space-between}
+.rep-hb h2{font-family:'Source Serif 4',serif;font-size:18px;font-weight:700;color:#fff}
+.rep-sl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--green);margin-bottom:6px;margin-top:14px;border-left:3px solid var(--green);padding-left:7px}
+.rep-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rep-f label{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--ink3);letter-spacing:0.4px}
+.rep-f p{font-size:13px;margin-top:2px;font-weight:500;color:var(--ink)}
+.rep-codes{display:flex;flex-direction:column;gap:5px}
+.code-row{display:flex;gap:7px;align-items:center;font-size:13px}
+.code-lbl{width:180px;color:var(--ink3);flex-shrink:0;font-size:12px}
+.code-val{font-weight:700;background:var(--navy-pale);color:var(--navy);padding:2px 8px;border-radius:4px;font-size:12px}
+.empty{text-align:center;padding:40px 20px;color:var(--ink3)}
+.empty-icon{font-size:34px;margin-bottom:10px}
+.empty p{font-size:13px;line-height:1.6}
+.sw-list{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.sw2{width:25px;height:25px;border-radius:4px;border:1px solid var(--border)}
+.usr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:11px}
+.usr-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:13px 15px;display:flex;align-items:center;gap:12px}
+.usr-ci{flex:1}
+.usr-n{font-weight:700;font-size:14px;color:var(--ink)}
+.usr-u{font-size:12px;color:var(--ink3)}
+.usr-r{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;margin-top:3px}
+.r-adm{background:var(--navy-pale);color:var(--navy)}.r-view{background:var(--green-pale);color:var(--green)}
+.bk-opt{display:flex;align-items:center;gap:13px;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all 0.14s;margin-bottom:8px}
+.bk-opt:hover{border-color:var(--green);background:var(--green-pale)}
+.bk-oi{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bk-opt h4{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:2px}
+.bk-opt p{font-size:12px;color:var(--ink3)}
+.bk-info{background:var(--navy-pale);border-radius:8px;padding:10px 13px;font-size:12px;color:var(--ink2);margin-top:12px;line-height:1.6}
+.bk-info strong{color:var(--navy)}
+
+@media print{
+  nav,.page:not(.active),.mo,.btn,.sw,.tabs,.stats-row,.ph,.fu-kpis,
+  #login-screen,#config-screen,.ld-overlay{display:none!important}
+  .page.active{padding-top:0}
+  .rep-card{border:none;box-shadow:none;max-width:100%}
+}
+@media(max-width:640px){
+  .hcards{padding:16px 12px}.hcard{width:100%;max-width:300px}
+  .pb{padding:12px}.ph{padding:10px 12px}
+  .fg2{grid-template-columns:1fr}.fg2 .fg.s2{grid-column:span 1}
+  .rep-grid{grid-template-columns:1fr}
+  nav{padding:0 8px}.nb span{display:none}
+  .nav-un,.nav-ur{display:none}
+}
+</style>
+</head>
+<body>
+<!-- LOADING -->
+<div class="ld-overlay" id="ld"><div class="ld-box"><div class="spinner"></div><p id="ld-msg">Carregando...</p></div></div>
+
+<!-- CONFIG -->
+<div id="config-screen">
+  <div class="config-card">
+    <div class="cfg-logo">
+      <div class="cfg-logo-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div>
+      <h1>SGE</h1><p>Configuração do Supabase</p>
+    </div>
+    <div class="cfg-step"><div class="cfg-step-num">1</div><p>Acesse <a href="https://supabase.com" target="_blank">supabase.com</a>, crie um projeto e aguarde inicializar (~2 min).</p></div>
+    <div class="cfg-step"><div class="cfg-step-num">2</div><p>No <strong>SQL Editor</strong>, cole e execute o arquivo <strong>stampos_setup.sql</strong> fornecido junto com este sistema.</p></div>
+    <div class="cfg-step"><div class="cfg-step-num">3</div><p>Vá em <strong>Settings → API</strong> e copie a <strong>Project URL</strong> e a <strong>anon public key</strong>.</p></div>
+    <div class="cfg-sep">Cole suas credenciais</div>
+    <div id="cfg-err" class="msg-err"></div>
+    <div id="cfg-ok" class="msg-ok"></div>
+    <div class="fl">
+      <div class="fg"><label>Project URL</label><input type="text" class="fi" id="cfg-url" placeholder="https://xxxxxxxxxxx.supabase.co"></div>
+      <div class="fg"><label>Anon Public Key</label><input type="text" class="fi" id="cfg-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."></div>
+      <button class="big-btn" id="cfg-btn" onclick="saveConfig()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Conectar e Continuar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="lg-logo">
+      <div class="lg-logo-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div>
+      <h1>SGE</h1><p>Sistema de Gestão de Estampas</p>
+    </div>
+    <div id="lg-err" class="msg-err"></div>
+    <div class="fl">
+      <div class="fg"><label>Usuário</label><input type="text" class="fi" id="lg-user" placeholder="Digite seu usuário" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('lg-pass').focus()"></div>
+      <div class="fg"><label>Senha</label><input type="password" class="fi" id="lg-pass" placeholder="Digite sua senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="login-btn" id="lg-btn" onclick="doLogin()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Entrar
+      </button>
+    </div>
+    <div class="lg-footer">SGE  — v2.0</div>
+    <div class="lg-reset"><button onclick="resetConfig()">Reconfigurar conexão</button></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+<nav>
+  <div class="nav-logo" onclick="go('home')">
+    <div class="nav-logo-mark"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div>
+    SGE
+  </div>
+  <button class="nb active" id="nb-home" onclick="go('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Início</span></button>
+  <button class="nb" id="nb-estampas" onclick="go('estampas')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span>Estampa</span></button>
+  <button class="nb" id="nb-amostras" onclick="go('amostras')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg><span>Amostras</span></button>
+  <button class="nb" id="nb-followup" onclick="go('followup')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span>Follow-up</span></button>
+  <button class="nb" id="nb-relatorio" onclick="go('relatorio')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span>Relatório</span></button>
+  <button class="nb" id="nb-usuarios" style="display:none" onclick="go('usuarios')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Usuários</span></button>
+  <div class="nav-spacer"></div>
+  <div class="nav-user">
+    <div class="nav-av" id="nav-av" style="background:var(--green)">A</div>
+    <div><div class="nav-un" id="nav-un">—</div><div class="nav-ur" id="nav-ur">—</div></div>
+  </div>
+  <button class="ni-btn" id="btn-bk" onclick="openM('m-backup')" style="display:none">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>Backup
+  </button>
+  <button class="ni-btn" onclick="doLogout()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sair
+  </button>
+</nav>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="home-hero">
+    <h1>Gestão de <em>Estampas</em><br>.</h1>
+    <p>Rastreabilidade completa com alertas, follow-up e relatórios técnicos — dados no Supabase.</p>
+  </div>
+  <div class="hcards">
+    <div class="hcard" onclick="go('estampas')"><div class="hcard-icon ic-n"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div><div><h3>Estampa</h3><p>Cadastro completo com codificações, pantones e timeline.</p></div></div>
+    <div class="hcard" onclick="go('amostras')"><div class="hcard-icon ic-g"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2D7A3A" stroke-width="1.8"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg></div><div><h3>Amostras</h3><p>Controle de amostras, prazos e alertas de atraso.</p></div></div>
+    <div class="hcard" onclick="go('followup')"><div class="hcard-icon ic-m"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><h3>Follow-up</h3><p>Painel de prazos críticos e pendências em aberto.</p></div></div>
+    <div class="hcard" onclick="go('relatorio')"><div class="hcard-icon ic-n"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div><h3>Relatório</h3><p>Ficha técnica completa para impressão.</p></div></div>
+    <div class="hcard" id="hcard-usr" onclick="go('usuarios')" style="display:none"><div class="hcard-icon ic-n"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><h3>Usuários</h3><p>Gestão de acessos e permissões.</p></div></div>
+  </div>
+  <div style="max-width:660px;margin:0 auto;padding:0 36px 52px">
+    <div class="st-title">Alertas Ativos</div>
+    <div class="al-list" id="home-alerts"></div>
+  </div>
+</div>
+
+<!-- ESTAMPAS -->
+<div class="page" id="page-estampas">
+  <div class="ph"><div class="ph-icon ic-n"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div><h2>Estampas</h2>
+    <button class="btn btn-primary adm" onclick="openNovaEstampa()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nova Estampa</button>
+  </div>
+  <div class="pb">
+    <div class="sw">
+      <div class="st">
+        <div class="sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="q-est" placeholder="Ref., código, pantone, fornecedor, artigo..." oninput="renderEstampas()"></div>
+        <button class="btn btn-ghost btn-sm" onclick="clearF()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Limpar</button>
+      </div>
+      <div class="sf">
+        <div class="sc"><label>Tipo</label><select id="f-tipo" onchange="renderEstampas()"><option value="">Todos</option><option>Rotativa</option><option>Digital</option><option>Sublimação</option><option>DTF</option><option>TPU</option><option>Flocagem/Silkscreen</option></select></div>
+        <div class="sc"><label>Status</label><select id="f-status" onchange="renderEstampas()"><option value="">Todos</option><option>Em andamento</option><option>Aprovada</option><option>Reprovada</option><option>Aguardando</option></select></div>
+        <div class="sc"><label>Técnica</label><input type="text" id="f-tec" placeholder="Ex: Pigmento" oninput="renderEstampas()"></div>
+        <div class="sc"><label>Artigo</label><input type="text" id="f-art" placeholder="Ex: Meia Malha" oninput="renderEstampas()"></div>
+        <div class="sc"><label>Rapport</label><input type="text" id="f-rap" placeholder="Ex: 32" oninput="renderEstampas()"></div>
+      </div>
+      <div id="af" class="sat" style="margin-top:7px"></div>
+    </div>
+    <div class="stats-row" id="est-stats"></div>
+    <div class="cg" id="est-grid"></div>
+  </div>
+</div>
+
+<!-- AMOSTRAS -->
+<div class="page" id="page-amostras">
+  <div class="ph"><div class="ph-icon ic-g"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2D7A3A" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg></div><h2>Amostras Solicitadas</h2>
+    <button class="btn btn-primary adm" onclick="openNovaAmostra()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nova Amostra</button>
+  </div>
+  <div class="pb">
+    <div class="sw">
+      <div class="st">
+        <div class="sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="q-am" placeholder="Fornecedor, produto, referência..." oninput="renderAmostras()"></div>
+        <div class="sc" style="gap:3px"><label>Status</label><select id="f-am-st" onchange="renderAmostras()"><option value="">Todos</option><option>Aguardando</option><option>Aprovada</option><option>Reprovada</option><option>Solicitada</option></select></div>
+      </div>
+    </div>
+    <div class="tw"><table><thead><tr><th>Fornecedor</th><th>Produto</th><th>Qtd</th><th>Destino</th><th>Status</th><th>Custo</th><th>Data / Prazo</th><th>Ações</th></tr></thead><tbody id="am-tbody"></tbody></table></div>
+  </div>
+</div>
+
+<!-- FOLLOW-UP -->
+<div class="page" id="page-followup">
+  <div class="ph"><div class="ph-icon ic-m"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><h2>Painel de Follow-up</h2>
+    <button class="btn btn-ghost btn-sm" onclick="renderFollowup()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.08-8.51"/></svg> Atualizar</button>
+  </div>
+  <div class="pb"><div class="fu-kpis" id="fu-kpis"></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px" id="fu-cols"></div></div>
+</div>
+
+<!-- RELATÓRIO -->
+<div class="page" id="page-relatorio">
+  <div class="ph"><div class="ph-icon ic-n"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><h2>Relatório de Estampa</h2>
+    <button class="btn btn-navy" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Imprimir</button>
+  </div>
+  <div class="pb">
+    <div class="sw" style="max-width:640px"><div class="sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="q-rel" placeholder="Ref., código, pantone, artigo, técnica..." oninput="renderRelSearch()"></div></div>
+    <div id="rel-res" class="cg" style="max-width:700px;margin-bottom:20px"></div>
+    <div id="rel-rep"></div>
+  </div>
+</div>
+
+<!-- USUÁRIOS -->
+<div class="page" id="page-usuarios">
+  <div class="ph"><div class="ph-icon ic-n"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><h2>Gestão de Usuários</h2>
+    <button class="btn btn-primary" onclick="openNovoUsuario()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Novo Usuário</button>
+  </div>
+  <div class="pb"><div class="usr-grid" id="usr-grid"></div></div>
+</div>
+</div><!-- end #app -->
+<!-- MODAL: ESTAMPA -->
+<div class="mo" id="m-estampa">
+  <div class="modal">
+    <div class="mh"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7CCC8A" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><h3 id="m-est-title">Nova Estampa</h3><button class="mc" onclick="closeM('m-estampa')">✕</button></div>
+    <div class="mb">
+      <div class="tabs">
+        <button class="tab active" onclick="swTab('t-dados',this)">Dados Gerais</button>
+        <button class="tab" onclick="swTab('t-codigos',this)">Codificações</button>
+        <button class="tab" onclick="swTab('t-cores',this)">Cores & Pantones</button>
+        <button class="tab" onclick="swTab('t-timeline',this)">Timeline</button>
+      </div>
+      <div class="tp active" id="t-dados">
+        <div class="fg2">
+          <div class="fg"><label class="fl">Referência Interna *</label><input type="text" class="form-input" id="e-ref" placeholder="Ex: 23878"></div>
+          <div class="fg"><label class="fl">Nome / Descrição</label><input type="text" class="form-input" id="e-nome"></div>
+          <div class="fg"><label class="fl">Tipo *</label><select class="form-input" id="e-tipo"><option value="">Selecione...</option><option>Rotativa</option><option>Digital</option><option>Sublimação</option><option>DTF</option><option>TPU</option><option>Flocagem/Silkscreen</option></select></div>
+          <div class="fg"><label class="fl">Status</label><select class="form-input" id="e-status"><option>Em andamento</option><option>Aguardando</option><option>Aprovada</option><option>Reprovada</option></select></div>
+          <div class="fg"><label class="fl">Rapport / Dimensões</label><input type="text" class="form-input" id="e-dim" placeholder="Ex: 32cm"></div>
+          <div class="fg"><label class="fl">Nº de Cores</label><input type="number" class="form-input" id="e-ncores" min="1"></div>
+          <div class="fg"><label class="fl">Artigo (Tecido)</label><input type="text" class="form-input" id="e-artigo" placeholder="Ex: Meia Malha"></div>
+          <div class="fg"><label class="fl">Base de Tingimento</label><input type="text" class="form-input" id="e-ting" placeholder="Ex: Tinto na cor Branca"></div>
+          <div class="fg"><label class="fl">Técnica</label><input type="text" class="form-input" id="e-tec" placeholder="Ex: Pigmento, Reativo"></div>
+          <div class="fg"><label class="fl">Mesh do Cilindro</label><input type="text" class="form-input" id="e-mesh" placeholder="Ex: 125 mesh"></div>
+          <div class="fg s2"><label class="fl">Observações</label><textarea class="form-input" id="e-obs"></textarea></div>
+          <div class="fg s2">
+            <label class="fl">Imagem da Estampa</label>
+            <div class="iu" onclick="document.getElementById('e-img-in').click()">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A9A7C" stroke-width="1.5" style="margin:0 auto"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <p>Clique para selecionar imagem (enviada ao Supabase Storage)</p>
+              <div class="iu-prog" id="e-img-prog">⏳ Enviando imagem...</div>
+              <img class="img-prev" id="e-img-prev">
+              <input type="file" id="e-img-in" accept="image/*" onchange="handleImg(this)" style="display:none">
+            </div>
+            <input type="hidden" id="e-img-url">
+          </div>
+        </div>
+      </div>
+      <div class="tp" id="t-codigos">
+        <div class="st-title">Árvore de Codificação</div>
+        <div class="fg2">
+          <div class="fg"><label class="fl">Cód. Interno</label><input type="text" class="form-input" id="e-ci"></div>
+          <div class="fg"><label class="fl">Cód. de Engenharia</label><input type="text" class="form-input" id="e-ce"></div>
+          <div class="fg"><label class="fl">Fornecedor (Gravadora)</label><input type="text" class="form-input" id="e-fg"></div>
+          <div class="fg"><label class="fl">Cód. da Gravadora</label><input type="text" class="form-input" id="e-cg" placeholder="Ex: G-4521"></div>
+          <div class="fg"><label class="fl">Fornecedor (Estamparia)</label><input type="text" class="form-input" id="e-fe"></div>
+          <div class="fg"><label class="fl">Cód. da Estamparia</label><input type="text" class="form-input" id="e-cest" placeholder="Ex: 1456-01"></div>
+          <div class="fg"><label class="fl">Cód. Externo / Cliente</label><input type="text" class="form-input" id="e-cext" placeholder="Ex: BR002"></div>
+          <div class="fg"><label class="fl">Variante</label><input type="text" class="form-input" id="e-var" placeholder="Ex: 01, 02..."></div>
+        </div>
+        <div class="st-title">Cilindros</div>
+        <div class="fg2">
+          <div class="fg"><label class="fl">Nº Cilindros</label><input type="number" class="form-input" id="e-ncil" min="0"></div>
+          <div class="fg"><label class="fl">Status Cilindros</label><select class="form-input" id="e-scil"><option>Em gravação</option><option>Em trânsito</option><option>Na estamparia</option><option>Descartado</option></select></div>
+        </div>
+      </div>
+      <div class="tp" id="t-cores">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px"><div class="st-title" style="margin:0">Relação de Pantones</div><button class="btn btn-ghost btn-sm" onclick="addP()">+ Cor</button></div>
+        <div id="p-list"></div>
+      </div>
+      <div class="tp" id="t-timeline">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px"><div class="st-title" style="margin:0">Histórico</div><button class="btn btn-ghost btn-sm" onclick="addTL()">+ Evento</button></div>
+        <div id="tl-list"></div>
+        <div class="st-title" style="margin-top:14px">Datas Críticas</div>
+        <div class="fg2">
+          <div class="fg"><label class="fl">Aprovação Orçamento</label><input type="date" class="form-input" id="e-dt1"></div>
+          <div class="fg"><label class="fl">Aprovação Arte/Rapport</label><input type="date" class="form-input" id="e-dt2"></div>
+          <div class="fg"><label class="fl">Aprovação Mesa de Amostra</label><input type="date" class="form-input" id="e-dt3"></div>
+          <div class="fg"><label class="fl">Liberação para Produção</label><input type="date" class="form-input" id="e-dt4"></div>
+        </div>
+      </div>
+    </div>
+    <div class="mf"><button class="btn btn-ghost" onclick="closeM('m-estampa')">Cancelar</button><button class="btn btn-primary" onclick="saveEstampa()">Salvar Estampa</button></div>
+  </div>
+</div>
+
+<!-- MODAL: AMOSTRA -->
+<div class="mo" id="m-amostra">
+  <div class="modal">
+    <div class="mh"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7CCC8A" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg><h3 id="m-am-title">Nova Amostra</h3><button class="mc" onclick="closeM('m-amostra')">✕</button></div>
+    <div class="mb">
+      <div class="fg2">
+        <div class="fg"><label class="fl">Fornecedor *</label><input type="text" class="form-input" id="a-forn"></div>
+        <div class="fg"><label class="fl">Produto / Descrição *</label><input type="text" class="form-input" id="a-prod"></div>
+        <div class="fg"><label class="fl">Qtd Solicitada</label><input type="text" class="form-input" id="a-qtd" placeholder="Ex: 5m, 2kg"></div>
+        <div class="fg"><label class="fl">Qtd Mínima</label><input type="text" class="form-input" id="a-qtdm"></div>
+        <div class="fg"><label class="fl">Status</label><select class="form-input" id="a-st"><option>Solicitada</option><option>Aguardando</option><option>Aprovada</option><option>Reprovada</option></select></div>
+        <div class="fg"><label class="fl">Custo (R$)</label><input type="number" class="form-input" id="a-custo" step="0.01"></div>
+        <div class="fg"><label class="fl">Destino</label><select class="form-input" id="a-dest"><option>Referência de cliente</option><option>Mostruário comercial</option><option>Interno</option><option>Outro</option></select></div>
+        <div class="fg"><label class="fl">Ref. do Cliente</label><input type="text" class="form-input" id="a-refc"></div>
+        <div class="fg"><label class="fl">Data de Solicitação</label><input type="date" class="form-input" id="a-dsol"></div>
+        <div class="fg"><label class="fl">Previsão de Recebimento</label><input type="date" class="form-input" id="a-dprev"></div>
+        <div class="fg s2"><label class="fl">Observações</label><textarea class="form-input" id="a-obs"></textarea></div>
+      </div>
+    </div>
+    <div class="mf"><button class="btn btn-ghost" onclick="closeM('m-amostra')">Cancelar</button><button class="btn btn-primary" onclick="saveAmostra()">Salvar Amostra</button></div>
+  </div>
+</div>
+
+<!-- MODAL: DETALHE -->
+<div class="mo" id="m-detalhe">
+  <div class="modal" style="max-width:780px">
+    <div class="mh"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7CCC8A" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><h3 id="m-det-title">Ficha</h3><button class="mc" onclick="closeM('m-detalhe')">✕</button></div>
+    <div class="mb" id="m-det-body"></div>
+    <div class="mf">
+      <button class="btn btn-danger btn-sm adm" id="det-del"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>Excluir</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-ghost" onclick="closeM('m-detalhe')">Fechar</button>
+      <button class="btn btn-primary adm" id="det-edit"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: USUÁRIO -->
+<div class="mo" id="m-usuario">
+  <div class="modal" style="max-width:430px">
+    <div class="mh"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7CCC8A" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><h3 id="m-usr-title">Novo Usuário</h3><button class="mc" onclick="closeM('m-usuario')">✕</button></div>
+    <div class="mb">
+      <div class="fl" style="gap:11px">
+        <div class="fg"><label>Nome Completo *</label><input type="text" class="form-input" id="u-nome" placeholder="Ex: Maria Silva"></div>
+        <div class="fg"><label>Usuário (login) *</label><input type="text" class="form-input" id="u-user" placeholder="Ex: maria.silva"></div>
+        <div class="fg" id="u-pw-wrap"><label>Senha *</label><input type="password" class="form-input" id="u-pass" placeholder="Mínimo 4 caracteres"></div>
+        <div class="fg" id="u-pw-edit" style="display:none"><label>Nova Senha <span style="color:var(--ink3);font-size:10px">(em branco = manter)</span></label><input type="password" class="form-input" id="u-pass2"></div>
+        <div class="fg"><label>Perfil de Acesso</label>
+          <select class="form-input" id="u-role">
+            <option value="admin">👑 Administrador — acesso total</option>
+            <option value="viewer">👁️ Visualizador — somente leitura</option>
+          </select>
+        </div>
+      </div>
+      <div style="background:var(--navy-pale);border-radius:8px;padding:10px 13px;margin-top:12px;font-size:12px;color:var(--ink2);line-height:1.6">
+        <strong style="color:var(--navy)">👑 Admin:</strong> cadastra, edita, exclui, gerencia usuários e backup.<br>
+        <strong style="color:var(--green)">👁️ Visualizador:</strong> consulta estampas, amostras, follow-up e relatórios.
+      </div>
+    </div>
+    <div class="mf"><button class="btn btn-ghost" onclick="closeM('m-usuario')">Cancelar</button><button class="btn btn-primary" onclick="saveUsuario()">Salvar Usuário</button></div>
+  </div>
+</div>
+
+<!-- MODAL: BACKUP -->
+<div class="mo" id="m-backup">
+  <div class="modal" style="max-width:450px">
+    <div class="mh"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7CCC8A" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg><h3>Backup e Recuperação</h3><button class="mc" onclick="closeM('m-backup')">✕</button></div>
+    <div class="mb">
+      <div class="bk-opt" onclick="exportBk()">
+        <div class="bk-oi ic-n"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+        <div><h4>Exportar Backup</h4><p>Baixa todos os dados em arquivo JSON.</p></div>
+      </div>
+      <div class="bk-opt" onclick="document.getElementById('bk-in').click()">
+        <div class="bk-oi ic-g"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2D7A3A" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+        <div><h4>Recuperar Backup</h4><p>Restaura dados a partir de arquivo JSON exportado.</p></div>
+      </div>
+      <input type="file" id="bk-in" accept=".json" onchange="importBk(this)" style="display:none">
+      <div class="bk-info"><strong>ℹ️ Supabase como banco principal</strong><br>Os dados estão seguros na nuvem. O backup JSON é uma cópia adicional recomendada periodicamente.<br><br><strong id="bk-stats">—</strong></div>
+    </div>
+    <div class="mf"><button class="btn btn-ghost" onclick="closeM('m-backup')">Fechar</button></div>
+  </div>
+</div>
+<script>
+// ═══════════════════════════════════════
+// SUPABASE
+// ═══════════════════════════════════════
+const BUCKET = 'estampas-imagens';
+let SB = null;
+
+function initSB(url, key) {
+  SB = window.supabase.createClient(url, key);
+}
+function loadCfg() {
+  return { url: localStorage.getItem('sb_url')||'', key: localStorage.getItem('sb_key')||'' };
+}
+function saveCfgLocal(u, k) {
+  localStorage.setItem('sb_url', u);
+  localStorage.setItem('sb_key', k);
+}
+function resetConfig() {
+  localStorage.removeItem('sb_url');
+  localStorage.removeItem('sb_key');
+  location.reload();
+}
+
+async function saveConfig() {
+  const url = document.getElementById('cfg-url').value.trim();
+  const key = document.getElementById('cfg-key').value.trim();
+  const err = document.getElementById('cfg-err');
+  const ok  = document.getElementById('cfg-ok');
+  const btn = document.getElementById('cfg-btn');
+  err.style.display = 'none'; ok.style.display = 'none';
+  if (!url || !key) { err.textContent = 'Preencha a URL e a chave.'; err.style.display='block'; return; }
+  if (!url.includes('supabase.co')) { err.textContent = 'URL inválida. Deve conter supabase.co'; err.style.display='block'; return; }
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="width:15px;height:15px;margin:0;border-width:2px"></div> Conectando...';
+  try {
+    initSB(url, key);
+    const { error } = await SB.from('usuarios').select('id').limit(1);
+    if (error) throw new Error(error.message);
+    saveCfgLocal(url, key);
+    ok.textContent = '✅ Conectado! Redirecionando...';
+    ok.style.display = 'block';
+    setTimeout(() => showLogin(), 900);
+  } catch(e) {
+    err.textContent = 'Erro: ' + e.message;
+    err.style.display = 'block';
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Conectar e Continuar';
+  }
+}
+
+// ═══════════════════════════════════════
+// LOADING
+// ═══════════════════════════════════════
+function ld(msg='Carregando...') { document.getElementById('ld-msg').textContent=msg; document.getElementById('ld').classList.add('show'); }
+function uld() { document.getElementById('ld').classList.remove('show'); }
+
+// ═══════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════
+function hp(p){ let h=0; for(let i=0;i<p.length;i++){h=((h<<5)-h)+p.charCodeAt(i);h|=0} return h.toString(36); }
+
+let CU = null; // current user
+
+function showLogin() {
+  document.getElementById('config-screen').style.display = 'none';
+  document.getElementById('login-screen').style.display  = 'flex';
+  document.getElementById('app').style.display           = 'none';
+}
+
+async function doLogin() {
+  const u = document.getElementById('lg-user').value.trim().toLowerCase();
+  const p = document.getElementById('lg-pass').value;
+  const err = document.getElementById('lg-err');
+  const btn = document.getElementById('lg-btn');
+  err.style.display = 'none';
+  if (!u || !p) { err.textContent='Preencha usuário e senha.'; err.style.display='block'; return; }
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="width:15px;height:15px;margin:0;border-width:2px"></div>';
+  try {
+    const { data, error } = await SB.from('usuarios').select('*').eq('username',u).eq('pass_hash',hp(p)).single();
+    if (error || !data) throw new Error('Usuário ou senha incorretos.');
+    CU = data;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    applyPerms();
+    go('home');
+  } catch(e) {
+    err.textContent = e.message; err.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Entrar';
+  }
+}
+
+function doLogout() { CU = null; showLogin(); }
+function isAdm() { return CU && CU.role === 'admin'; }
+
+function applyPerms() {
+  document.getElementById('nav-un').textContent = CU.nome;
+  document.getElementById('nav-ur').textContent = isAdm() ? 'Administrador' : 'Visualizador';
+  const colors = ['#1B3A5C','#2D7A3A','#7A4A2A','#4A2A7A','#2A6A7A'];
+  const c = CU.nome.charCodeAt(0) % colors.length;
+  document.getElementById('nav-av').style.background = colors[c];
+  document.getElementById('nav-av').textContent = CU.nome.charAt(0).toUpperCase();
+  document.querySelectorAll('.adm').forEach(el => el.style.display = isAdm() ? '' : 'none');
+  const s = isAdm() ? '' : 'none';
+  document.getElementById('nb-usuarios').style.display = s;
+  document.getElementById('hcard-usr').style.display   = s;
+  document.getElementById('btn-bk').style.display      = s;
+}
+
+// ═══════════════════════════════════════
+// NAV / MODAL / TABS
+// ═══════════════════════════════════════
+function go(name) {
+  if (name==='usuarios' && !isAdm()) return;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  const nb = document.getElementById('nb-'+name); if(nb) nb.classList.add('active');
+  if (name==='estampas')  renderEstampas();
+  if (name==='amostras')  renderAmostras();
+  if (name==='followup')  renderFollowup();
+  if (name==='relatorio') renderRelSearch();
+  if (name==='home')      renderAlerts();
+  if (name==='usuarios')  renderUsuarios();
+}
+
+function openM(id) {
+  document.getElementById(id).classList.add('open');
+  if (id==='m-backup') updateBkStats();
+}
+function closeM(id) { document.getElementById(id).classList.remove('open'); }
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.mo').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); }));
+});
+
+function swTab(tid, btn) {
+  const mb = btn.closest('.mb');
+  mb.querySelectorAll('.tp').forEach(p => p.classList.remove('active'));
+  btn.closest('.tabs').querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(tid).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ═══════════════════════════════════════
+// IMAGE UPLOAD
+// ═══════════════════════════════════════
+async function handleImg(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => { const p=document.getElementById('e-img-prev'); p.src=e.target.result; p.style.display='block'; };
+  reader.readAsDataURL(file);
+  document.getElementById('e-img-prog').style.display = 'block';
+  const ext = file.name.split('.').pop();
+  const fn = `estampa_${Date.now()}.${ext}`;
+  const { error } = await SB.storage.from(BUCKET).upload(fn, file, { upsert:true, contentType:file.type });
+  document.getElementById('e-img-prog').style.display = 'none';
+  if (error) { alert('Erro ao enviar imagem: '+error.message); return; }
+  const { data } = SB.storage.from(BUCKET).getPublicUrl(fn);
+  document.getElementById('e-img-url').value = data.publicUrl;
+}
+
+// ═══════════════════════════════════════
+// PANTONES & TIMELINE
+// ═══════════════════════════════════════
+let pants = [], tlEvts = [];
+
+function addP(p={}) { pants.push({nome:p.nome||'',receita:p.receita||'',cor:p.cor||'#CCCCCC'}); renderP(); }
+function renderP() {
+  const el = document.getElementById('p-list');
+  if (!pants.length) { el.innerHTML='<p style="color:var(--ink3);font-size:13px">Nenhuma cor.</p>'; return; }
+  el.innerHTML = pants.map((p,i)=>`
+    <div style="display:flex;gap:7px;align-items:center;margin-bottom:7px;background:var(--bg);padding:7px;border-radius:7px">
+      <input type="color" value="${p.cor}" onchange="pants[${i}].cor=this.value" style="width:30px;height:30px;border:none;cursor:pointer;border-radius:4px;padding:2px;background:transparent">
+      <input type="text" class="form-input" placeholder="Pantone / Nome" value="${p.nome}" oninput="pants[${i}].nome=this.value" style="flex:1">
+      <input type="text" class="form-input" placeholder="Receita química" value="${p.receita}" oninput="pants[${i}].receita=this.value" style="flex:2">
+      <button class="btn btn-danger btn-sm" onclick="pants.splice(${i},1);renderP()">✕</button>
+    </div>`).join('');
+}
+
+function addTL(ev={}) { tlEvts.push({data:ev.data||new Date().toISOString().slice(0,10),descricao:ev.descricao||'',tipo:ev.tipo||'info'}); renderTL(); }
+function renderTL() {
+  const el = document.getElementById('tl-list');
+  if (!tlEvts.length) { el.innerHTML='<p style="color:var(--ink3);font-size:13px">Nenhum evento.</p>'; return; }
+  el.innerHTML = tlEvts.map((ev,i)=>`
+    <div style="display:flex;gap:7px;align-items:center;margin-bottom:7px;background:var(--bg);padding:7px;border-radius:7px">
+      <input type="date" class="form-input" value="${ev.data}" onchange="tlEvts[${i}].data=this.value" style="max-width:132px">
+      <select class="form-input" onchange="tlEvts[${i}].tipo=this.value" style="max-width:138px">
+        <option value="info" ${ev.tipo==='info'?'selected':''}>Info</option>
+        <option value="ok" ${ev.tipo==='ok'?'selected':''}>✅ Aprovação</option>
+        <option value="warn" ${ev.tipo==='warn'?'selected':''}>⚠️ Alerta</option>
+        <option value="envio" ${ev.tipo==='envio'?'selected':''}>📦 Envio</option>
+      </select>
+      <input type="text" class="form-input" placeholder="Descrição" value="${ev.descricao}" oninput="tlEvts[${i}].descricao=this.value" style="flex:1">
+      <button class="btn btn-danger btn-sm" onclick="tlEvts.splice(${i},1);renderTL()">✕</button>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════
+// ESTAMPAS
+// ═══════════════════════════════════════
+let estCache = [];
+let editEstId = null;
+
+const EF = ['e-ref','e-nome','e-tipo','e-status','e-dim','e-ncores','e-artigo','e-ting','e-tec','e-mesh','e-obs',
+            'e-ci','e-ce','e-fg','e-cg','e-fe','e-cest','e-cext','e-var','e-ncil','e-scil',
+            'e-dt1','e-dt2','e-dt3','e-dt4'];
+
+function gv(id) { const el=document.getElementById(id); return el?el.value:''; }
+
+function openNovaEstampa() {
+  if (!isAdm()) return;
+  editEstId = null; pants = []; tlEvts = [];
+  EF.forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('e-img-url').value = '';
+  document.getElementById('e-img-prev').style.display = 'none';
+  document.getElementById('e-img-prev').src = '';
+  document.getElementById('m-est-title').textContent = 'Nova Estampa';
+  renderP(); renderTL();
+  document.querySelectorAll('#m-estampa .tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+  document.querySelectorAll('#m-estampa .tp').forEach((p,i)=>p.classList.toggle('active',i===0));
+  openM('m-estampa');
+}
+
+async function saveEstampa() {
+  if (!isAdm()) return;
+  const ref = gv('e-ref').trim();
+  if (!ref) { alert('Informe a referência interna.'); return; }
+  ld('Salvando estampa...');
+  const row = {
+    ref, nome:gv('e-nome'), tipo:gv('e-tipo'), status:gv('e-status'),
+    dimensoes:gv('e-dim'), ncores:gv('e-ncores'), artigo:gv('e-artigo'),
+    tingimento:gv('e-ting'), tecnica:gv('e-tec'), mesh:gv('e-mesh'), obs:gv('e-obs'),
+    cod_interno:gv('e-ci'), cod_eng:gv('e-ce'),
+    fornecedor_grav:gv('e-fg'), cod_grav:gv('e-cg'),
+    fornecedor_est:gv('e-fe'), cod_est:gv('e-cest'),
+    cod_ext:gv('e-cext'), variante:gv('e-var'),
+    n_cilindros:gv('e-ncil'), status_cil:gv('e-scil'),
+    dt_orcamento:gv('e-dt1')||null, dt_arte:gv('e-dt2')||null,
+    dt_mesa:gv('e-dt3')||null, dt_producao:gv('e-dt4')||null,
+    img_url:gv('e-img-url')||null,
+    pantones:pants, timeline:tlEvts,
+    updated_by:CU?.nome
+  };
+  try {
+    const { error } = editEstId
+      ? await SB.from('estampas').update(row).eq('id', editEstId)
+      : await SB.from('estampas').insert(row);
+    if (error) throw error;
+    closeM('m-estampa');
+    await renderEstampas();
+  } catch(e) { alert('Erro ao salvar: '+e.message); }
+  finally { uld(); editEstId = null; }
+}
+
+function matchE(e, q, tipo, status, tec, art, rap) {
+  if (q) {
+    const ps = (e.pantones||[]).map(p=>p.nome+' '+p.receita).join(' ');
+    const h = [e.ref,e.nome,e.cod_interno,e.cod_eng,e.cod_grav,e.cod_est,e.cod_ext,e.variante,
+               e.fornecedor_grav,e.fornecedor_est,e.tecnica,e.artigo,e.tingimento,e.dimensoes,e.obs,ps].join(' ').toLowerCase();
+    if (!h.includes(q)) return false;
+  }
+  if (tipo && e.tipo!==tipo) return false;
+  if (status && e.status!==status) return false;
+  if (tec && !(e.tecnica||'').toLowerCase().includes(tec)) return false;
+  if (art && !(e.artigo||'').toLowerCase().includes(art)) return false;
+  if (rap) { const r=rap.replace(/\D/g,''); if (r && !(e.dimensoes||'').replace(/\D/g,'').includes(r)) return false; }
+  return true;
+}
+
+function clearF() {
+  ['q-est','f-tipo','f-status','f-tec','f-art','f-rap'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  renderEstampas();
+}
+
+async function renderEstampas() {
+  ld('Carregando estampas...');
+  const { data } = await SB.from('estampas').select('*').order('created_at',{ascending:false});
+  estCache = data || [];
+  uld();
+  const q    = (document.getElementById('q-est')?.value||'').toLowerCase().trim();
+  const tipo = document.getElementById('f-tipo')?.value||'';
+  const st   = document.getElementById('f-status')?.value||'';
+  const tec  = (document.getElementById('f-tec')?.value||'').toLowerCase().trim();
+  const art  = (document.getElementById('f-art')?.value||'').toLowerCase().trim();
+  const rap  = (document.getElementById('f-rap')?.value||'').trim();
+  const items = estCache.filter(e => matchE(e,q,tipo,st,tec,art,rap));
+  // active filter tags
+  const tags=[];
+  if(q) tags.push({l:`"${q}"`,c:'q-est'});
+  if(tipo) tags.push({l:`Tipo: ${tipo}`,c:'f-tipo'});
+  if(tec)  tags.push({l:`Técnica: ${tec}`,c:'f-tec'});
+  if(art)  tags.push({l:`Artigo: ${art}`,c:'f-art'});
+  if(rap)  tags.push({l:`Rapport: ${rap}cm`,c:'f-rap'});
+  const afEl = document.getElementById('af');
+  if(afEl) afEl.innerHTML = tags.map(t=>`<div class="stag">${t.l}<button onclick="document.getElementById('${t.c}').value='';renderEstampas()">✕</button></div>`).join('');
+  document.getElementById('est-stats').innerHTML=`
+    <div class="smi"><div class="smi-v">${estCache.length}</div><div class="smi-l">Total</div></div>
+    <div class="smi"><div class="smi-v">${estCache.filter(e=>e.status==='Aprovada').length}</div><div class="smi-l">Aprovadas</div></div>
+    <div class="smi"><div class="smi-v">${estCache.filter(e=>e.status==='Em andamento').length}</div><div class="smi-l">Em andamento</div></div>
+    <div class="smi"><div class="smi-v">${items.length}</div><div class="smi-l">Resultados</div></div>`;
+  const grid = document.getElementById('est-grid');
+  if (!items.length) { grid.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><p>Nenhuma estampa encontrada.</p></div>'; return; }
+  grid.innerHTML = items.map(e=>`
+    <div class="sc2" onclick="openDet('${e.id}')">
+      <div class="sc2-img">${e.img_url?`<img src="${e.img_url}" loading="lazy">`:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7A9A7C" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>'}</div>
+      <div class="sc2-body">
+        <div class="sc2-ref">${e.ref}${e.variante?' · '+e.variante:''}</div>
+        <div class="sc2-name">${e.nome||'—'}</div>
+        <div class="sc2-tags">
+          ${e.tipo?`<span class="tag t-type">${e.tipo}</span>`:''}
+          ${e.status==='Aprovada'?'<span class="tag t-ok">✓ Aprovada</span>':e.status==='Reprovada'?'<span class="tag t-alert">✗ Reprovada</span>':e.status==='Em andamento'?'<span class="tag t-pend">⏳ Em andamento</span>':e.status?`<span class="tag t-pend">${e.status}</span>`:''}
+        </div>
+        ${e.fornecedor_est?`<div style="font-size:11px;color:var(--ink3);margin-top:5px;font-weight:600">📍 ${e.fornecedor_est}</div>`:''}
+        ${(e.pantones||[]).filter(p=>p.nome).length?`<div style="font-size:11px;color:var(--ink3);margin-top:2px">🎨 ${(e.pantones||[]).map(p=>p.nome).filter(Boolean).join(', ')}</div>`:''}
+      </div>
+    </div>`).join('');
+}
+
+function openDet(id) {
+  const e = estCache.find(x=>x.id===id); if(!e) return;
+  document.getElementById('m-det-title').textContent = `${e.ref} — ${e.nome||'Ficha'}`;
+  document.getElementById('m-det-body').innerHTML = buildDet(e);
+  document.getElementById('det-edit').onclick = () => { closeM('m-detalhe'); editEst(id); };
+  document.getElementById('det-del').onclick = async () => {
+    if (!isAdm() || !confirm('Excluir esta estampa?')) return;
+    ld('Excluindo...'); await SB.from('estampas').delete().eq('id',id); uld();
+    closeM('m-detalhe'); await renderEstampas();
+  };
+  openM('m-detalhe');
+}
+
+function buildDet(e) {
+  const sw = (e.pantones||[]).map(p=>`<div class="sw2" style="background:${p.cor}" title="${p.nome}"></div>`).join('');
+  const tl = (e.timeline||[]).map(ev=>`
+    <div class="tl-i"><div class="tl-dot ${ev.tipo==='ok'?'g':ev.tipo==='warn'?'y':''}"></div>
+    <div class="tl-date">${ev.data}</div><div class="tl-txt"><strong>${ev.descricao}</strong></div></div>`).join('')||'<p style="color:var(--ink3);font-size:13px">Sem eventos.</p>';
+  return `
+    ${e.img_url?`<img src="${e.img_url}" style="width:100%;max-height:195px;object-fit:cover;border-radius:8px;margin-bottom:12px">`:''}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <div><div style="font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase">Tipo</div><div style="font-size:13px;margin-top:2px;font-weight:600">${e.tipo||'—'}</div></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase">Status</div><div style="font-size:13px;margin-top:2px;font-weight:600">${e.status||'—'}</div></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase">Artigo</div><div style="font-size:13px;margin-top:2px">${e.artigo||'—'}</div></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase">Tingimento</div><div style="font-size:13px;margin-top:2px">${e.tingimento||'—'}</div></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase">Rapport</div><div style="font-size:13px;margin-top:2px">${e.dimensoes||'—'}</div></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase">Técnica</div><div style="font-size:13px;margin-top:2px">${e.tecnica||'—'}</div></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase">Nº Cores</div><div style="font-size:13px;margin-top:2px">${e.ncores||'—'}</div></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase">Mesh</div><div style="font-size:13px;margin-top:2px">${e.mesh||'—'}</div></div>
+    </div>
+    <div class="st-title">Codificações</div>
+    <div class="rep-codes">
+      ${e.cod_interno?`<div class="code-row"><span class="code-lbl">Cód. Interno</span><span class="code-val">${e.cod_interno}</span></div>`:''}
+      ${e.cod_eng?`<div class="code-row"><span class="code-lbl">Cód. Engenharia</span><span class="code-val">${e.cod_eng}</span></div>`:''}
+      ${e.cod_grav?`<div class="code-row"><span class="code-lbl">Cód. Gravadora${e.fornecedor_grav?' ('+e.fornecedor_grav+')':''}</span><span class="code-val">${e.cod_grav}</span></div>`:''}
+      ${e.cod_est?`<div class="code-row"><span class="code-lbl">Cód. Estamparia${e.fornecedor_est?' ('+e.fornecedor_est+')':''}</span><span class="code-val">${e.cod_est}</span></div>`:''}
+      ${e.cod_ext?`<div class="code-row"><span class="code-lbl">Cód. Externo</span><span class="code-val">${e.cod_ext}</span></div>`:''}
+    </div>
+    ${sw?`<div class="st-title" style="margin-top:12px">Pantones</div><div class="sw-list">${sw}</div>`:''}
+    ${(e.pantones||[]).length?`<div style="margin-top:6px">${(e.pantones||[]).map(p=>`<div style="font-size:12px;color:var(--ink2);display:flex;gap:7px;margin-bottom:2px"><span style="width:110px;font-weight:700">${p.nome}</span><span>${p.receita||'—'}</span></div>`).join('')}</div>`:''}
+    <div class="st-title" style="margin-top:12px">Timeline</div>
+    <div class="tl">${tl}</div>
+    ${e.obs?`<div class="st-title" style="margin-top:12px">Observações</div><p style="font-size:13px;color:var(--ink2)">${e.obs}</p>`:''}
+    ${e.updated_by?`<div style="font-size:11px;color:var(--ink3);margin-top:12px;text-align:right">Atualizado por ${e.updated_by}</div>`:''}`;
+}
+
+function editEst(id) {
+  if (!isAdm()) return;
+  const e = estCache.find(x=>x.id===id); if(!e) return;
+  editEstId = id;
+  pants   = e.pantones  ? [...e.pantones]  : [];
+  tlEvts  = e.timeline  ? [...e.timeline]  : [];
+  const m = {
+    'e-ref':e.ref,'e-nome':e.nome,'e-tipo':e.tipo,'e-status':e.status,'e-dim':e.dimensoes,
+    'e-ncores':e.ncores,'e-artigo':e.artigo,'e-ting':e.tingimento,'e-tec':e.tecnica,
+    'e-mesh':e.mesh,'e-obs':e.obs,'e-ci':e.cod_interno,'e-ce':e.cod_eng,
+    'e-fg':e.fornecedor_grav,'e-cg':e.cod_grav,'e-fe':e.fornecedor_est,
+    'e-cest':e.cod_est,'e-cext':e.cod_ext,'e-var':e.variante,
+    'e-ncil':e.n_cilindros,'e-scil':e.status_cil,
+    'e-dt1':e.dt_orcamento,'e-dt2':e.dt_arte,'e-dt3':e.dt_mesa,'e-dt4':e.dt_producao,
+    'e-img-url':e.img_url||''
+  };
+  Object.entries(m).forEach(([k,v])=>{ const el=document.getElementById(k); if(el&&v!=null) el.value=v; });
+  const prev = document.getElementById('e-img-prev');
+  if(e.img_url){prev.src=e.img_url;prev.style.display='block';}else{prev.style.display='none';}
+  renderP(); renderTL();
+  document.getElementById('m-est-title').textContent = 'Editar Estampa';
+  document.querySelectorAll('#m-estampa .tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+  document.querySelectorAll('#m-estampa .tp').forEach((p,i)=>p.classList.toggle('active',i===0));
+  openM('m-estampa');
+}
+
+// ═══════════════════════════════════════
+// AMOSTRAS
+// ═══════════════════════════════════════
+let amCache = [], editAmId = null;
+
+function openNovaAmostra() {
+  if (!isAdm()) return;
+  editAmId = null;
+  ['a-forn','a-prod','a-qtd','a-qtdm','a-st','a-custo','a-dest','a-refc','a-dsol','a-dprev','a-obs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('m-am-title').textContent = 'Nova Amostra';
+  openM('m-amostra');
+}
+
+async function saveAmostra() {
+  if (!isAdm()) return;
+  const forn = gv('a-forn').trim();
+  if (!forn) { alert('Informe o fornecedor.'); return; }
+  ld('Salvando amostra...');
+  const row = {
+    fornecedor:forn, produto:gv('a-prod'), qtd:gv('a-qtd'), qtd_min:gv('a-qtdm'),
+    status:gv('a-st'), custo:parseFloat(gv('a-custo'))||null,
+    destino:gv('a-dest'), ref_cliente:gv('a-refc'),
+    data_sol:gv('a-dsol')||null, data_prev:gv('a-dprev')||null, obs:gv('a-obs')
+  };
+  try {
+    const { error } = editAmId
+      ? await SB.from('amostras').update(row).eq('id',editAmId)
+      : await SB.from('amostras').insert(row);
+    if (error) throw error;
+    closeM('m-amostra'); await renderAmostras();
+  } catch(e) { alert('Erro: '+e.message); }
+  finally { uld(); editAmId = null; }
+}
+
+async function renderAmostras() {
+  ld('Carregando amostras...');
+  const { data } = await SB.from('amostras').select('*').order('created_at',{ascending:false});
+  amCache = data || []; uld();
+  const q  = (document.getElementById('q-am')?.value||'').toLowerCase();
+  const st = document.getElementById('f-am-st')?.value||'';
+  const items = amCache.filter(a=>{
+    if(q && ![a.fornecedor,a.produto,a.ref_cliente,a.obs].join(' ').toLowerCase().includes(q)) return false;
+    if(st && a.status!==st) return false;
+    return true;
+  });
+  const tbody = document.getElementById('am-tbody');
+  if (!items.length) { tbody.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-icon">🧵</div><p>Nenhuma amostra.</p></div></td></tr>'; return; }
+  const today = new Date(); today.setHours(0,0,0,0);
+  tbody.innerHTML = items.map(a=>{
+    const late = a.data_prev && new Date(a.data_prev)<today && a.status==='Aguardando';
+    const sc = a.status==='Aprovada'?'t-ok':a.status==='Reprovada'?'t-alert':'t-pend';
+    const btns = isAdm()
+      ? `<button class="btn btn-ghost btn-sm" onclick="editAm('${a.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="delAm('${a.id}')">✕</button>`
+      : '—';
+    return `<tr>
+      <td style="font-weight:600">${a.fornecedor}</td><td>${a.produto||'—'}</td><td>${a.qtd||'—'}</td>
+      <td><span style="font-size:12px">${a.destino||'—'}</span>${a.ref_cliente?`<br><span style="color:var(--ink3);font-size:11px">${a.ref_cliente}</span>`:''}</td>
+      <td><span class="tag ${sc}">${a.status}</span></td>
+      <td>${a.custo?'R$ '+parseFloat(a.custo).toFixed(2):'—'}</td>
+      <td>${late?'<span style="color:var(--red);font-size:11px;font-weight:700">⚠ ATRASO</span><br>':''}<span style="font-size:12px">${a.data_sol||'—'}${a.data_prev?' → '+a.data_prev:''}</span></td>
+      <td><div class="actions">${btns}</div></td>
+    </tr>`;
+  }).join('');
+}
+
+function editAm(id) {
+  const a = amCache.find(x=>x.id===id); if(!a) return;
+  editAmId = id;
+  const m = {'a-forn':a.fornecedor,'a-prod':a.produto,'a-qtd':a.qtd,'a-qtdm':a.qtd_min,
+    'a-st':a.status,'a-custo':a.custo,'a-dest':a.destino,'a-refc':a.ref_cliente,
+    'a-dsol':a.data_sol,'a-dprev':a.data_prev,'a-obs':a.obs};
+  Object.entries(m).forEach(([k,v])=>{ const el=document.getElementById(k); if(el&&v!=null) el.value=v; });
+  document.getElementById('m-am-title').textContent = 'Editar Amostra';
+  openM('m-amostra');
+}
+
+async function delAm(id) {
+  if (!isAdm()||!confirm('Excluir amostra?')) return;
+  ld('Excluindo...'); await SB.from('amostras').delete().eq('id',id); uld();
+  await renderAmostras();
+}
+
+// ═══════════════════════════════════════
+// FOLLOW-UP
+// ═══════════════════════════════════════
+async function renderFollowup() {
+  ld('Carregando follow-up...');
+  const [{ data: est }, { data: am }] = await Promise.all([
+    SB.from('estampas').select('*').order('created_at',{ascending:false}),
+    SB.from('amostras').select('*').order('created_at',{ascending:false})
+  ]);
+  estCache = est||[]; amCache = am||[]; uld();
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dd = d => Math.ceil((new Date(d)-today)/86400000);
+  const amAt  = amCache.filter(a=>a.data_prev&&new Date(a.data_prev)<today&&a.status==='Aguardando').length;
+  const amVen = amCache.filter(a=>{if(!a.data_prev||a.status!=='Aguardando')return false;const d=dd(a.data_prev);return d>=0&&d<=3;}).length;
+  const smMesa= estCache.filter(e=>e.status==='Em andamento'&&!e.dt_mesa).length;
+  const aprov = estCache.filter(e=>e.status==='Aprovada').length;
+  document.getElementById('fu-kpis').innerHTML=`
+    <div class="fu-kpi r"><div class="fu-kpi-v">${amAt}</div><div class="fu-kpi-l">Amostras em atraso</div></div>
+    <div class="fu-kpi y"><div class="fu-kpi-v">${amVen}</div><div class="fu-kpi-l">Vencem em 3 dias</div></div>
+    <div class="fu-kpi n"><div class="fu-kpi-v">${smMesa}</div><div class="fu-kpi-l">Sem aprov. de mesa</div></div>
+    <div class="fu-kpi g"><div class="fu-kpi-v">${aprov}</div><div class="fu-kpi-l">Estampas aprovadas</div></div>`;
+  const fc=(t,s,dt,cls)=>{const dc=cls==='fu-ov'?'r':cls==='fu-so'?'y':cls==='fu-ok'?'g':'';
+    return `<div class="fu-card ${cls}"><div class="fu-card-t">${t}</div><div class="fu-card-s">${s}</div>${dt?`<div class="fu-card-d ${dc}">📅 ${dt}</div>`:''}</div>`;};
+  const col=(t,bc,cards)=>`<div class="fu-sec"><div class="fu-ct">${t}<span class="badge" style="background:var(--${bc}-pale);color:var(--${bc})">${cards.length}</span></div>${cards.length?cards.join(''):'<div class="fu-empty">✓ Nenhuma pendência</div>'}</div>`;
+  document.getElementById('fu-cols').innerHTML=[
+    col('⚠️ Amostras Atrasadas','red',amCache.filter(a=>a.data_prev&&new Date(a.data_prev)<today&&a.status==='Aguardando').map(a=>fc(a.produto||a.fornecedor,`Forn.: ${a.fornecedor}`,`Previsto: ${a.data_prev} (${Math.abs(dd(a.data_prev))}d atraso)`,'fu-ov'))),
+    col('⏰ Vencem em 7 dias','yellow',amCache.filter(a=>{if(!a.data_prev||a.status!=='Aguardando')return false;const d=dd(a.data_prev);return d>=0&&d<=7;}).map(a=>{const d=dd(a.data_prev);return fc(a.produto||a.fornecedor,`Forn.: ${a.fornecedor}`,`Prazo: ${a.data_prev} (${d===0?'hoje':d+'d'})`,'fu-so');})),
+    col('📋 Sem Aprovação de Mesa','navy',estCache.filter(e=>e.status==='Em andamento'&&!e.dt_mesa).map(e=>fc(`${e.ref} — ${e.nome||''}`,`${e.tipo||''} · ${e.fornecedor_est||'—'}`,'Aguardando aprovação','fu-in'))),
+    col('🚛 Cilindros em Trânsito','navy',estCache.filter(e=>e.status_cil==='Em trânsito').map(e=>fc(`${e.ref} — ${e.nome||''}`,`${e.n_cilindros||'?'} cil. · ${e.fornecedor_grav||'—'}`,'','fu-in'))),
+    col('🟢 Aguardando Liberação','green',estCache.filter(e=>e.dt_mesa&&!e.dt_producao).map(e=>fc(`${e.ref} — ${e.nome||''}`,`Mesa aprovada em ${e.dt_mesa}`,'Aguardando produção','fu-ok'))),
+  ].join('');
+}
+
+// ═══════════════════════════════════════
+// RELATÓRIO
+// ═══════════════════════════════════════
+function renderRelSearch() {
+  const q = (document.getElementById('q-rel')?.value||'').toLowerCase().trim();
+  const ps = e => (e.pantones||[]).map(p=>p.nome+' '+p.receita).join(' ');
+  const items = estCache.filter(e=>!q||[e.ref,e.nome,e.cod_interno,e.cod_eng,e.cod_grav,e.cod_est,e.cod_ext,e.variante,e.tecnica,e.artigo,e.tingimento,e.dimensoes,e.obs,ps(e),e.fornecedor_est].join(' ').toLowerCase().includes(q));
+  const res = document.getElementById('rel-res');
+  if (!q) { res.innerHTML=''; return; }
+  if (!items.length) { res.innerHTML='<p style="color:var(--ink3)">Nenhuma estampa encontrada.</p>'; document.getElementById('rel-rep').innerHTML=''; return; }
+  res.innerHTML = items.slice(0,6).map(e=>`
+    <div class="sc2" onclick="renderRel('${e.id}')">
+      <div class="sc2-img">${e.img_url?`<img src="${e.img_url}">`:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7A9A7C" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>'}</div>
+      <div class="sc2-body"><div class="sc2-ref">${e.ref}</div><div class="sc2-name">${e.nome||'—'}</div><div class="sc2-tags"><span class="tag t-type">${e.tipo||''}</span></div></div>
+    </div>`).join('');
+}
+
+function renderRel(id) {
+  const e = estCache.find(x=>x.id===id); if(!e) return;
+  document.getElementById('rel-res').innerHTML=''; document.getElementById('q-rel').value='';
+  const pRows = (e.pantones||[]).map(p=>`<tr><td style="display:flex;align-items:center;gap:7px"><div style="width:16px;height:16px;border-radius:3px;background:${p.cor};border:1px solid var(--border)"></div>${p.nome}</td><td>${p.receita||'—'}</td></tr>`).join('');
+  document.getElementById('rel-rep').innerHTML=`
+    <div class="rep-card">
+      <div class="rep-hb">
+        <div><div style="font-size:10px;color:#7CCC8A;font-weight:700;margin-bottom:3px;letter-spacing:0.5px">FICHA TÉCNICA DE ESTAMPA</div>
+          <h2>${e.ref}${e.variante?' · '+e.variante:''}</h2>
+          <div style="color:rgba(255,255,255,0.6);font-size:12px;margin-top:3px">${e.nome||''}</div></div>
+        <span class="tag ${e.status==='Aprovada'?'t-ok':e.status==='Reprovada'?'t-alert':'t-pend'}" style="height:fit-content">${e.status||''}</span>
+      </div>
+      ${e.img_url?`<img src="${e.img_url}" style="width:100%;max-height:220px;object-fit:cover;border-radius:8px;margin-bottom:4px">`:''}
+      <div class="rep-sl">Identificação</div>
+      <div class="rep-grid">
+        <div class="rep-f"><label>Tipo</label><p>${e.tipo||'—'}</p></div>
+        <div class="rep-f"><label>Técnica</label><p>${e.tecnica||'—'}</p></div>
+        <div class="rep-f"><label>Artigo</label><p>${e.artigo||'—'}</p></div>
+        <div class="rep-f"><label>Tingimento</label><p>${e.tingimento||'—'}</p></div>
+        <div class="rep-f"><label>Rapport</label><p>${e.dimensoes||'—'}</p></div>
+        <div class="rep-f"><label>Nº de Cores</label><p>${e.ncores||'—'}</p></div>
+        <div class="rep-f"><label>Mesh</label><p>${e.mesh||'—'}</p></div>
+        <div class="rep-f"><label>Cilindros</label><p>${e.n_cilindros||'—'}</p></div>
+      </div>
+      <div class="rep-sl">Árvore de Codificação</div>
+      <div class="rep-codes">
+        ${e.cod_interno?`<div class="code-row"><span class="code-lbl">Cód. Interno</span><span class="code-val">${e.cod_interno}</span></div>`:''}
+        ${e.cod_eng?`<div class="code-row"><span class="code-lbl">Cód. Engenharia</span><span class="code-val">${e.cod_eng}</span></div>`:''}
+        ${e.cod_grav?`<div class="code-row"><span class="code-lbl">Cód. Gravadora${e.fornecedor_grav?' ('+e.fornecedor_grav+')':''}</span><span class="code-val">${e.cod_grav}</span></div>`:''}
+        ${e.cod_est?`<div class="code-row"><span class="code-lbl">Cód. Estamparia${e.fornecedor_est?' ('+e.fornecedor_est+')':''}</span><span class="code-val">${e.cod_est}</span></div>`:''}
+        ${e.cod_ext?`<div class="code-row"><span class="code-lbl">Cód. Externo</span><span class="code-val">${e.cod_ext}</span></div>`:''}
+      </div>
+      ${pRows?`<div class="rep-sl">Pantones & Receitas</div><div class="tw"><table><thead><tr><th>Cor / Pantone</th><th>Receita Química</th></tr></thead><tbody>${pRows}</tbody></table></div>`:''}
+      ${e.obs?`<div class="rep-sl">Observações</div><p style="font-size:13px;color:var(--ink2)">${e.obs}</p>`:''}
+    </div>`;
+}
+
+// ═══════════════════════════════════════
+// HOME ALERTS
+// ═══════════════════════════════════════
+async function renderAlerts() {
+  const [{ data: est }, { data: am }] = await Promise.all([
+    SB.from('estampas').select('id,ref,nome,tipo,status,dt_mesa'),
+    SB.from('amostras').select('id,produto,fornecedor,status,data_prev')
+  ]);
+  estCache = est||[]; amCache = am||[];
+  const today = new Date(); today.setHours(0,0,0,0);
+  const alerts = [];
+  (am||[]).forEach(a=>{
+    if(a.data_prev&&a.status==='Aguardando'){
+      const d=new Date(a.data_prev);
+      if(d<today) alerts.push({level:'alert',text:`Amostra em atraso: ${a.produto}`,sub:`Fornecedor: ${a.fornecedor} · Previsto: ${a.data_prev}`});
+      else if((d-today)<3*86400000) alerts.push({level:'warn',text:`Amostra vence em breve: ${a.produto}`,sub:`Previsão: ${a.data_prev}`});
+    }
+  });
+  (est||[]).forEach(e=>{ if(e.status==='Em andamento'&&!e.dt_mesa) alerts.push({level:'warn',text:`Sem aprovação de mesa: ${e.ref} — ${e.nome||''}`,sub:e.tipo||''}); });
+  const el = document.getElementById('home-alerts');
+  if(!alerts.length){el.innerHTML='<div class="al-item ok"><div class="al-dot g"></div><div class="al-txt"><strong>Sem alertas ativos</strong><span>Tudo em ordem!</span></div></div>';return;}
+  el.innerHTML = alerts.map(a=>`<div class="al-item ${a.level}"><div class="al-dot ${a.level==='alert'?'r':'y'}"></div><div class="al-txt"><strong>${a.text}</strong><span>${a.sub}</span></div></div>`).join('');
+}
+
+// ═══════════════════════════════════════
+// USUÁRIOS
+// ═══════════════════════════════════════
+let editUsrId = null;
+
+async function renderUsuarios() {
+  ld('Carregando usuários...');
+  const { data: users } = await SB.from('usuarios').select('*').order('created_at');
+  uld();
+  const colors=['#1B3A5C','#2D7A3A','#7A4A2A','#4A2A7A','#2A6A7A'];
+  document.getElementById('usr-grid').innerHTML = (users||[]).map(u=>{
+    const ci=u.nome.charCodeAt(0)%colors.length;
+    const isSelf=CU&&u.id===CU.id;
+    return `<div class="usr-card">
+      <div class="nav-av" style="background:${colors[ci]};width:38px;height:38px;font-size:14px;flex-shrink:0">${u.nome.charAt(0).toUpperCase()}</div>
+      <div class="usr-ci">
+        <div class="usr-n">${u.nome}${isSelf?' <span style="font-size:10px;color:var(--ink3)">(você)</span>':''}</div>
+        <div class="usr-u">@${u.username}</div>
+        <span class="usr-r ${u.role==='admin'?'r-adm':'r-view'}">${u.role==='admin'?'👑 Administrador':'👁️ Visualizador'}</span>
+      </div>
+      <div class="actions">
+        <button class="btn btn-ghost btn-sm" onclick="editUsr('${u.id}')">✏️</button>
+        ${!isSelf?`<button class="btn btn-danger btn-sm" onclick="delUsr('${u.id}','${u.nome.replace(/'/g,'')}')">✕</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openNovoUsuario() {
+  editUsrId = null;
+  ['u-nome','u-user','u-pass','u-pass2'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('u-role').value='viewer';
+  document.getElementById('u-pw-wrap').style.display='flex';
+  document.getElementById('u-pw-edit').style.display='none';
+  document.getElementById('m-usr-title').textContent='Novo Usuário';
+  openM('m-usuario');
+}
+
+async function saveUsuario() {
+  const nome = gv('u-nome').trim(), username = gv('u-user').trim().toLowerCase(), role = gv('u-role');
+  if (!nome||!username){alert('Preencha nome e usuário.');return;}
+  ld('Salvando...');
+  try {
+    if (editUsrId) {
+      const row = {nome,username,role};
+      const np = gv('u-pass2'); if(np&&np.length>=4) row.pass_hash=hp(np);
+      const {error}=await SB.from('usuarios').update(row).eq('id',editUsrId);
+      if(error) throw error;
+    } else {
+      const pass=gv('u-pass');
+      if(!pass||pass.length<4){alert('Senha mínima: 4 caracteres.');return;}
+      const {error}=await SB.from('usuarios').insert({nome,username,pass_hash:hp(pass),role});
+      if(error) throw error;
+    }
+    closeM('m-usuario'); await renderUsuarios();
+  } catch(e){alert('Erro: '+e.message);}
+  finally{uld();editUsrId=null;}
+}
+
+async function editUsr(id) {
+  ld('Carregando...');
+  const {data:u}=await SB.from('usuarios').select('*').eq('id',id).single(); uld();
+  if(!u)return; editUsrId=id;
+  document.getElementById('u-nome').value=u.nome;
+  document.getElementById('u-user').value=u.username;
+  document.getElementById('u-role').value=u.role;
+  document.getElementById('u-pass').value='';
+  document.getElementById('u-pass2').value='';
+  document.getElementById('u-pw-wrap').style.display='none';
+  document.getElementById('u-pw-edit').style.display='flex';
+  document.getElementById('m-usr-title').textContent='Editar Usuário';
+  openM('m-usuario');
+}
+
+async function delUsr(id,nome) {
+  if(id===CU?.id){alert('Não é possível excluir seu próprio usuário.');return;}
+  if(!confirm(`Excluir usuário "${nome}"?`))return;
+  ld('Excluindo...'); await SB.from('usuarios').delete().eq('id',id); uld();
+  await renderUsuarios();
+}
+
+// ═══════════════════════════════════════
+// BACKUP
+// ═══════════════════════════════════════
+async function updateBkStats() {
+  const [{ count:ec },{ count:ac }]=await Promise.all([
+    SB.from('estampas').select('*',{count:'exact',head:true}),
+    SB.from('amostras').select('*',{count:'exact',head:true})
+  ]);
+  const el=document.getElementById('bk-stats');
+  if(el) el.textContent=`Dados no Supabase: ${ec||0} estampa(s) e ${ac||0} amostra(s).`;
+}
+
+async function exportBk() {
+  ld('Exportando...');
+  const [{data:est},{data:am},{data:usr}]=await Promise.all([
+    SB.from('estampas').select('*'),
+    SB.from('amostras').select('*'),
+    SB.from('usuarios').select('*')
+  ]); uld();
+  const blob=new Blob([JSON.stringify({estampas:est,amostras:am,usuarios:usr,exportedAt:new Date().toISOString(),version:'2.0-supabase'},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`stampos-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();
+  closeM('m-backup');
+}
+
+async function importBk(input) {
+  const file=input.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=async e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(!d.estampas&&!d.amostras){alert('Arquivo inválido.');return;}
+      const ec=d.estampas?.length||0,ac=d.amostras?.length||0,uc=d.usuarios?.length||0;
+      if(!confirm(`Importar backup de ${new Date(d.exportedAt||0).toLocaleDateString('pt-BR')}?\n\n${ec} estampa(s), ${ac} amostra(s) e ${uc} usuário(s).\n\nRegistros existentes serão atualizados (upsert por ID).`))return;
+      ld('Importando dados...');
+      if(d.estampas?.length) await SB.from('estampas').upsert(d.estampas,{onConflict:'id'});
+      if(d.amostras?.length) await SB.from('amostras').upsert(d.amostras,{onConflict:'id'});
+      if(d.usuarios?.length) await SB.from('usuarios').upsert(d.usuarios,{onConflict:'id'});
+      uld(); input.value=''; closeM('m-backup');
+      alert(`✅ Importação concluída!\n${ec} estampa(s), ${ac} amostra(s) e ${uc} usuário(s).`);
+      await renderAlerts();
+    }catch(err){uld();alert('Erro ao importar: '+err.message);}
+  };
+  r.readAsText(file);
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  const cfg = loadCfg();
+  if (cfg.url && cfg.key) {
+    if (!window.supabase) { document.getElementById('config-screen').style.display='flex'; return; }
+    initSB(cfg.url, cfg.key);
+    showLogin();
+  } else {
+    document.getElementById('config-screen').style.display = 'flex';
+  }
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</body>
+</html>
