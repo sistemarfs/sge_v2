@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGE — Sistema de Estamparia</title>
+<title>SGE — Sistema de Estampa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -21,17 +21,23 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--ink
 
 /* LOGIN */
 #login-screen{display:none;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(140deg,var(--navy) 0%,var(--navy2) 55%,#1A4A2A 100%);padding:20px}
-.login-card{background:#fff;border-radius:20px;padding:38px 34px;width:100%;max-width:370px;box-shadow:var(--shadow-lg)}
+.login-card{background:#fff;border-radius:20px;padding:44px 40px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(27,58,92,0.25)}
 .lg-logo{text-align:center;margin-bottom:24px}
-.lg-logo-mark{width:50px;height:50px;border-radius:13px;background:var(--navy);display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
-.lg-logo h1{font-family:'Source Serif 4',serif;font-size:24px;color:var(--navy)}
+.lg-logo-mark{width:56px;height:56px;border-radius:14px;background:var(--navy);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 4px 16px rgba(27,58,92,0.3)}
+.lg-logo h1{font-family:'Source Serif 4',serif;font-size:26px;font-weight:700;color:var(--navy);margin-bottom:2px}
 .lg-logo p{font-size:12px;color:var(--ink3);margin-top:3px}
 .login-card .fl{gap:12px}
-.login-btn{width:100%;padding:12px;background:var(--navy);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Source Sans 3',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:background 0.14s;margin-top:2px;display:flex;align-items:center;justify-content:center;gap:8px}
+.login-btn{width:100%;padding:13px;background:var(--navy);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Source Sans 3',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:0.2px}
 .login-btn:hover{background:var(--navy2)}.login-btn:disabled{opacity:0.6;cursor:not-allowed}
 .lg-footer{text-align:center;margin-top:14px;font-size:11px;color:var(--ink3)}
 .lg-reset{text-align:center;margin-top:8px}
 .lg-reset button{background:none;border:none;color:var(--ink3);font-size:11px;cursor:pointer;text-decoration:underline}
+.lg-fields{display:flex;flex-direction:column;gap:16px;margin-top:4px}
+.lg-field{display:flex;flex-direction:column;gap:6px}
+.lg-label{font-size:11px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:0.5px}
+.lg-input{padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Source Sans 3',sans-serif;font-size:14px;color:var(--ink);background:var(--bg);outline:none;width:100%;transition:all 0.15s}
+.lg-input:focus{border-color:var(--green);background:#fff;box-shadow:0 0 0 3px var(--green-pale)}
+.lg-input::placeholder{color:var(--ink3)}
 
 /* LOADING */
 .ld-overlay{display:none;position:fixed;inset:0;background:rgba(27,58,92,0.45);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
@@ -271,16 +277,21 @@ tr:hover td{background:var(--bg)}
       <h1>SGE</h1><p>Sistema de Gestão de Estampa</p>
     </div>
     <div id="lg-err" class="msg-err"></div>
-    <div class="fl">
-      <div class="fg"><label>Usuário</label><input type="text" class="fi" id="lg-user" placeholder="Digite seu usuário" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('lg-pass').focus()"></div>
-      <div class="fg"><label>Senha</label><input type="password" class="fi" id="lg-pass" placeholder="Digite sua senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="lg-fields">
+      <div class="lg-field">
+        <label class="lg-label">Usuário</label>
+        <input type="text" class="lg-input" id="lg-user" placeholder="Digite seu usuário" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('lg-pass').focus()">
+      </div>
+      <div class="lg-field">
+        <label class="lg-label">Senha</label>
+        <input type="password" class="lg-input" id="lg-pass" placeholder="Digite sua senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
       <button class="login-btn" id="lg-btn" onclick="doLogin()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
         Entrar
       </button>
     </div>
-    <div class="lg-footer">by ReginaldoF® — SGE — v2.0</div>
-    
+    <div class="lg-footer">by ReginaldoF - SGE - v2.0</div>
   </div>
 </div>
 
@@ -1024,7 +1035,7 @@ async function renderFollowup() {
     col('⏰ Vencem em 7 dias','yellow',amCache.filter(a=>{if(!a.data_prev||a.status!=='Aguardando')return false;const d=dd(a.data_prev);return d>=0&&d<=7;}).map(a=>{const d=dd(a.data_prev);return fc(a.produto||a.fornecedor,`Forn.: ${a.fornecedor}`,`Prazo: ${a.data_prev} (${d===0?'hoje':d+'d'})`,'fu-so');})),
     col('📋 Sem Aprovação de Mesa','navy',estCache.filter(e=>e.status==='Em andamento'&&!e.dt_mesa).map(e=>fc(`${e.ref} — ${e.nome||''}`,`${e.tipo||''} · ${e.fornecedor_est||'—'}`,'Aguardando aprovação','fu-in'))),
     col('🚛 Cilindros em Trânsito','navy',estCache.filter(e=>e.status_cil==='Em trânsito').map(e=>fc(`${e.ref} — ${e.nome||''}`,`${e.n_cilindros||'?'} cil. · ${e.fornecedor_grav||'—'}`,'','fu-in'))),
-    col('🟢 Aguardando Liberação','green',estCache.filter(e=>e.dt_mesa&&!e.dt_producao).map(e=>fc(`${e.ref} — ${e.nome||''}`,`Mesa aprovada em ${e.dt_mesa}`,'Aguardando produção','fu-ok'))),
+    col('🟢 Aguardando Liberação','green',estCache.filter(e=>(e.dt_mesa||e.status==='Aprovada')&&!e.dt_producao).map(e=>fc(`${e.ref} — ${e.nome||''}`,e.dt_mesa?`Mesa aprovada em ${e.dt_mesa}`:`Status: ${e.status||'—'}`,'Aguardando data de produção','fu-ok'))),
   ].join('');
 }
 
