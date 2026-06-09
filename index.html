@@ -291,7 +291,7 @@ tr:hover td{background:var(--bg)}
         Entrar
       </button>
     </div>
-    <div class="lg-footer">by ReginaldoF - SGE - v2.0</div>
+    <div class="lg-footer">by Reginaldo F - SGE v2.0</div>
   </div>
 </div>
 
@@ -1016,11 +1016,16 @@ async function renderFollowup() {
     SB.from('amostras').select('*').order('created_at',{ascending:false})
   ]);
   estCache = est||[]; amCache = am||[]; uld();
+  // Filtra localmente com dados frescos do banco
+  const aguardando  = estCache.filter(e => e.status === 'Aguardando');
+  const semMesaList = estCache.filter(e => e.status === 'Em andamento' && !e.dt_mesa);
+  const cilTransito = estCache.filter(e => e.status_cil === 'Em trânsito');
+  const mesaAprov   = estCache.filter(e => e.dt_mesa && !e.dt_producao);
   const today = new Date(); today.setHours(0,0,0,0);
   const dd = d => Math.ceil((new Date(d)-today)/86400000);
   const amAt  = amCache.filter(a=>a.data_prev&&new Date(a.data_prev)<today&&a.status==='Aguardando').length;
   const amVen = amCache.filter(a=>{if(!a.data_prev||a.status!=='Aguardando')return false;const d=dd(a.data_prev);return d>=0&&d<=3;}).length;
-  const smMesa= estCache.filter(e=>e.status==='Em andamento'&&!e.dt_mesa).length;
+  const smMesa= semMesaList.length;
   const aprov = estCache.filter(e=>e.status==='Aprovada').length;
   document.getElementById('fu-kpis').innerHTML=`
     <div class="fu-kpi r"><div class="fu-kpi-v">${amAt}</div><div class="fu-kpi-l">Amostras em atraso</div></div>
@@ -1033,9 +1038,9 @@ async function renderFollowup() {
   document.getElementById('fu-cols').innerHTML=[
     col('⚠️ Amostras Atrasadas','red',amCache.filter(a=>a.data_prev&&new Date(a.data_prev)<today&&a.status==='Aguardando').map(a=>fc(a.produto||a.fornecedor,`Forn.: ${a.fornecedor}`,`Previsto: ${a.data_prev} (${Math.abs(dd(a.data_prev))}d atraso)`,'fu-ov'))),
     col('⏰ Vencem em 7 dias','yellow',amCache.filter(a=>{if(!a.data_prev||a.status!=='Aguardando')return false;const d=dd(a.data_prev);return d>=0&&d<=7;}).map(a=>{const d=dd(a.data_prev);return fc(a.produto||a.fornecedor,`Forn.: ${a.fornecedor}`,`Prazo: ${a.data_prev} (${d===0?'hoje':d+'d'})`,'fu-so');})),
-    col('📋 Sem Aprovação de Mesa','navy',estCache.filter(e=>e.status==='Em andamento'&&!e.dt_mesa).map(e=>fc(`${e.ref} — ${e.nome||''}`,`${e.tipo||''} · ${e.fornecedor_est||'—'}`,'Aguardando aprovação','fu-in'))),
-    col('🚛 Cilindros em Trânsito','navy',estCache.filter(e=>e.status_cil==='Em trânsito').map(e=>fc(`${e.ref} — ${e.nome||''}`,`${e.n_cilindros||'?'} cil. · ${e.fornecedor_grav||'—'}`,'','fu-in'))),
-    col('🟢 Aguardando Liberação','green',estCache.filter(e=>(e.dt_mesa||e.status==='Aprovada')&&!e.dt_producao).map(e=>fc(`${e.ref} — ${e.nome||''}`,e.dt_mesa?`Mesa aprovada em ${e.dt_mesa}`:`Status: ${e.status||'—'}`,'Aguardando data de produção','fu-ok'))),
+    col('📋 Sem Aprovação de Mesa','navy',semMesaList.map(e=>fc(`${e.ref} — ${e.nome||''}`,`${e.tipo||''} · ${e.fornecedor_est||'—'}`,'Aguardando aprovação de mesa','fu-in'))),
+    col('🚛 Cilindros em Trânsito','navy',cilTransito.map(e=>fc(`${e.ref} — ${e.nome||''}`,`${e.n_cilindros||'?'} cil. · ${e.fornecedor_grav||'—'}`,'','fu-in'))),
+    col('🟢 Aguardando Liberação','green',aguardando.map(e=>fc(`${e.ref} — ${e.nome||''}`,`${e.tipo||''} · ${e.fornecedor_est||'—'}`,e.dt_mesa?`Mesa aprovada em ${e.dt_mesa}`:'Sem mesa aprovada','fu-ok'))),
   ].join('');
 }
 
