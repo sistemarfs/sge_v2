@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGEc — Sistema de Gestão de Estampa</title>
+<title>SGE — Sistema de Estampa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -112,27 +112,30 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--navy);heigh
 .stag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:var(--navy-pale);color:var(--navy);border-radius:20px;font-size:11px;font-weight:600}
 .stag button{border:none;background:none;cursor:pointer;color:var(--navy);font-size:12px;line-height:1;padding:0}
 
-/* ── TOGGLE FILTERS ── */
-.tg-section{margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)}
-.tg-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
-.tg-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--ink3);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
-.tg-label button{font-size:10px;font-weight:600;color:var(--green);background:none;border:none;cursor:pointer;text-decoration:underline;font-family:'Source Sans 3',sans-serif}
-.tg-row{display:flex;gap:5px;flex-wrap:wrap}
-.tg-btn{display:inline-flex;align-items:center;gap:4px;padding:4px 11px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);color:var(--ink2);font-family:'Source Sans 3',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.14s;user-select:none}
-.tg-btn:hover{border-color:var(--green);color:var(--green)}
-.tg-btn.tg-on{border-color:currentColor;background:currentColor}
-.tg-btn.tg-on span{color:#fff}
-.tg-btn.tg-on svg{stroke:#fff}
-.tg-btn svg{width:11px;height:11px;stroke:currentColor;flex-shrink:0}
-/* status colors */
-.tg-btn.c-andamento{color:#C07A00}.tg-btn.c-andamento.tg-on{background:#C07A00;border-color:#C07A00}
-.tg-btn.c-aprovada{color:#2D7A3A}.tg-btn.c-aprovada.tg-on{background:#2D7A3A;border-color:#2D7A3A}
-.tg-btn.c-reprovada{color:#C0392B}.tg-btn.c-reprovada.tg-on{background:#C0392B;border-color:#C0392B}
-.tg-btn.c-aguardando{color:#1B3A5C}.tg-btn.c-aguardando.tg-on{background:#1B3A5C;border-color:#1B3A5C}
-/* tipo colors */
-.tg-btn.c-tipo{color:#254D78}.tg-btn.c-tipo.tg-on{background:#254D78;border-color:#254D78}
-/* fornecedor colors */
-.tg-btn.c-forn{color:#2D7A3A}.tg-btn.c-forn.tg-on{background:#2D7A3A;border-color:#2D7A3A}
+/* ── FILTRO MENU 3 PONTOS ── */
+.fm-wrap{position:relative;display:inline-block}
+.fm-trigger{display:flex;align-items:center;gap:5px;padding:6px 11px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface);color:var(--ink2);font-family:'Source Sans 3',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.14s;user-select:none;white-space:nowrap}
+.fm-trigger:hover{border-color:var(--green);color:var(--green)}
+.fm-trigger.fm-active{border-color:var(--navy);background:var(--navy-pale);color:var(--navy)}
+.fm-trigger svg{width:14px;height:14px;flex-shrink:0}
+.fm-badge{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--navy);color:#fff;font-size:9px;font-weight:700;margin-left:2px}
+.fm-dropdown{display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:300;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);min-width:240px;padding:10px 0}
+.fm-dropdown.open{display:block}
+.fm-section{padding:8px 14px 6px}
+.fm-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--ink3);margin-bottom:7px;display:flex;align-items:center;justify-content:space-between}
+.fm-section-label button{font-size:10px;color:var(--green);background:none;border:none;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-weight:600}
+.fm-row{display:flex;flex-direction:column;gap:2px}
+.fm-item{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;cursor:pointer;transition:background 0.12s;font-family:'Source Sans 3',sans-serif;font-size:13px;color:var(--ink);user-select:none}
+.fm-item:hover{background:var(--bg)}
+.fm-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.12s}
+.fm-item.fm-checked .fm-check{background:var(--navy);border-color:var(--navy)}
+.fm-item.fm-checked .fm-check::after{content:'';display:block;width:9px;height:6px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translateY(-1px)}
+.fm-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.fm-sep{height:1px;background:var(--border);margin:6px 0}
+.fm-footer{padding:6px 14px 2px;display:flex;gap:6px;justify-content:flex-end}
+.fm-footer button{font-size:11px;font-weight:600;font-family:'Source Sans 3',sans-serif;cursor:pointer;border:none;background:none;color:var(--ink3)}
+.fm-footer button.fm-apply{color:var(--green)}
+.fm-footer button:hover{color:var(--navy)}
 
 /* STATS */
 .stats-row{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:16px}
@@ -296,7 +299,7 @@ tr:hover td{background:var(--bg)}
   <div class="login-card">
     <div class="lg-logo">
       <div class="lg-logo-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div>
-      <h1>SGE</h1><p>Sistema de Gestão de Estamparia</p>
+      <h1>SGE</h1><p>Sistema de Gestão de Estampa</p>
     </div>
     <div id="lg-err" class="msg-err"></div>
     <div class="lg-fields">
@@ -346,7 +349,7 @@ tr:hover td{background:var(--bg)}
 <!-- HOME -->
 <div class="page active" id="page-home">
   <div class="home-hero">
-    <h1>Gestão de <em>Estampa</em><br>...</h1>
+    <h1>Gestão de <em>Estamparia</em><br>...</h1>
     <p>Alertas, follow-up e relatórios técnicos.</p>
   </div>
   <div class="hcards">
@@ -369,63 +372,81 @@ tr:hover td{background:var(--bg)}
   </div>
   <div class="pb">
     <div class="sw">
-      <!-- Busca livre -->
       <div class="st">
+        <!-- Busca livre -->
         <div class="sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="q-est" placeholder="Ref., código, pantone, fornecedor, artigo..." oninput="renderEstampas()"></div>
-        <button class="btn btn-ghost btn-sm" onclick="clearF()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Limpar</button>
-      </div>
-      <!-- Filtros ocultos (texto) -->
-      <div class="sf" style="display:none">
-        <div class="sc"><label>Tipo</label><select id="f-tipo" onchange="renderEstampas()"><option value="">Todos</option><option>Rotativa</option><option>Digital</option><option>Sublimação</option><option>DTF</option><option>TPU</option><option>Flocagem/Silkscreen</option></select></div>
-        <div class="sc"><label>Status</label><select id="f-status" onchange="renderEstampas()"><option value="">Todos</option><option>Em andamento</option><option>Aprovada</option><option>Reprovada</option><option>Aguardando</option></select></div>
-        <div class="sc"><label>Técnica</label><input type="text" id="f-tec" placeholder="Ex: Pigmento" oninput="renderEstampas()"></div>
-        <div class="sc"><label>Artigo</label><input type="text" id="f-art" placeholder="Ex: Meia Malha" oninput="renderEstampas()"></div>
-        <div class="sc"><label>Rapport</label><input type="text" id="f-rap" placeholder="Ex: 32" oninput="renderEstampas()"></div>
-      </div>
-      <!-- TOGGLE: STATUS -->
-      <div class="tg-section">
-        <div class="tg-label">Status
-          <button onclick="toggleAllStatus()">Todos / Nenhum</button>
-        </div>
-        <div class="tg-row" id="tg-status">
-          <button class="tg-btn c-andamento tg-on" data-group="status" data-val="Em andamento" onclick="toggleBtn(this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span>Em andamento</span>
+        <!-- Filtros ocultos (texto) usados internamente -->
+        <input type="hidden" id="f-tipo"><input type="hidden" id="f-status">
+        <input type="hidden" id="f-tec"><input type="hidden" id="f-art"><input type="hidden" id="f-rap">
+        <!-- Menu 3 pontos: Status -->
+        <div class="fm-wrap" id="fm-wrap-status">
+          <button class="fm-trigger" id="fm-trig-status" onclick="toggleMenu('status')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Status<span id="fm-badge-status" class="fm-badge" style="display:none">0</span>
           </button>
-          <button class="tg-btn c-aprovada tg-on" data-group="status" data-val="Aprovada" onclick="toggleBtn(this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>Aprovada</span>
+          <div class="fm-dropdown" id="fm-status">
+            <div class="fm-section">
+              <div class="fm-section-label">Status
+                <button onclick="fmToggleAll('status')">Todos / Nenhum</button>
+              </div>
+              <div class="fm-row">
+                <div class="fm-item fm-checked" data-group="status" data-val="Em andamento" onclick="fmToggleItem(this)">
+                  <div class="fm-check"></div><div class="fm-dot" style="background:#C07A00"></div><span>Em andamento</span>
+                </div>
+                <div class="fm-item fm-checked" data-group="status" data-val="Aprovada" onclick="fmToggleItem(this)">
+                  <div class="fm-check"></div><div class="fm-dot" style="background:#2D7A3A"></div><span>Aprovada</span>
+                </div>
+                <div class="fm-item fm-checked" data-group="status" data-val="Reprovada" onclick="fmToggleItem(this)">
+                  <div class="fm-check"></div><div class="fm-dot" style="background:#C0392B"></div><span>Reprovada</span>
+                </div>
+                <div class="fm-item fm-checked" data-group="status" data-val="Aguardando" onclick="fmToggleItem(this)">
+                  <div class="fm-check"></div><div class="fm-dot" style="background:#1B3A5C"></div><span>Aguardando</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Menu 3 pontos: Tipo -->
+        <div class="fm-wrap" id="fm-wrap-tipo">
+          <button class="fm-trigger" id="fm-trig-tipo" onclick="toggleMenu('tipo')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+            Tipo<span id="fm-badge-tipo" class="fm-badge" style="display:none">0</span>
           </button>
-          <button class="tg-btn c-reprovada tg-on" data-group="status" data-val="Reprovada" onclick="toggleBtn(this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            <span>Reprovada</span>
+          <div class="fm-dropdown" id="fm-tipo">
+            <div class="fm-section">
+              <div class="fm-section-label">Tipo de Estampa
+                <button onclick="fmToggleAll('tipo')">Todos / Nenhum</button>
+              </div>
+              <div class="fm-row">
+                <div class="fm-item fm-checked" data-group="tipo" data-val="Rotativa" onclick="fmToggleItem(this)"><div class="fm-check"></div><span>Rotativa</span></div>
+                <div class="fm-item fm-checked" data-group="tipo" data-val="Digital" onclick="fmToggleItem(this)"><div class="fm-check"></div><span>Digital</span></div>
+                <div class="fm-item fm-checked" data-group="tipo" data-val="Sublimação" onclick="fmToggleItem(this)"><div class="fm-check"></div><span>Sublimação</span></div>
+                <div class="fm-item fm-checked" data-group="tipo" data-val="DTF" onclick="fmToggleItem(this)"><div class="fm-check"></div><span>DTF</span></div>
+                <div class="fm-item fm-checked" data-group="tipo" data-val="TPU" onclick="fmToggleItem(this)"><div class="fm-check"></div><span>TPU</span></div>
+                <div class="fm-item fm-checked" data-group="tipo" data-val="Flocagem/Silkscreen" onclick="fmToggleItem(this)"><div class="fm-check"></div><span>Flocagem/Silkscreen</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Menu 3 pontos: Fornecedor (dinâmico) -->
+        <div class="fm-wrap" id="fm-wrap-forn">
+          <button class="fm-trigger" id="fm-trig-forn" onclick="toggleMenu('forn')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            Fornecedor<span id="fm-badge-forn" class="fm-badge" style="display:none">0</span>
           </button>
-          <button class="tg-btn c-aguardando tg-on" data-group="status" data-val="Aguardando" onclick="toggleBtn(this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            <span>Aguardando</span>
-          </button>
+          <div class="fm-dropdown" id="fm-forn">
+            <div class="fm-section">
+              <div class="fm-section-label">Fornecedor
+                <button onclick="fmToggleAll('forn')">Todos / Nenhum</button>
+              </div>
+              <div class="fm-row" id="fm-forn-rows"></div>
+            </div>
+          </div>
         </div>
-      </div>
-      <!-- TOGGLE: TIPO -->
-      <div class="tg-section">
-        <div class="tg-label">Tipo de Estampa
-          <button onclick="toggleAllTipo()">Todos / Nenhum</button>
-        </div>
-        <div class="tg-row" id="tg-tipo">
-          <button class="tg-btn c-tipo tg-on" data-group="tipo" data-val="Rotativa" onclick="toggleBtn(this)"><span>Rotativa</span></button>
-          <button class="tg-btn c-tipo tg-on" data-group="tipo" data-val="Digital" onclick="toggleBtn(this)"><span>Digital</span></button>
-          <button class="tg-btn c-tipo tg-on" data-group="tipo" data-val="Sublimação" onclick="toggleBtn(this)"><span>Sublimação</span></button>
-          <button class="tg-btn c-tipo tg-on" data-group="tipo" data-val="DTF" onclick="toggleBtn(this)"><span>DTF</span></button>
-          <button class="tg-btn c-tipo tg-on" data-group="tipo" data-val="TPU" onclick="toggleBtn(this)"><span>TPU</span></button>
-          <button class="tg-btn c-tipo tg-on" data-group="tipo" data-val="Flocagem/Silkscreen" onclick="toggleBtn(this)"><span>Flocagem/Silkscreen</span></button>
-        </div>
-      </div>
-      <!-- TOGGLE: FORNECEDOR (dinâmico) -->
-      <div class="tg-section">
-        <div class="tg-label">Fornecedor
-          <button onclick="toggleAllForn()">Todos / Nenhum</button>
-        </div>
-        <div class="tg-row" id="tg-forn"></div>
+        <!-- Limpar -->
+        <button class="btn btn-ghost btn-sm" onclick="clearF()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Limpar
+        </button>
       </div>
       <!-- Tags de filtros de texto ativos -->
       <div id="af" class="sat" style="margin-top:7px"></div>
@@ -873,96 +894,136 @@ function matchE(e, q, tipo, status, tec, art, rap) {
   return true;
 }
 
-// ── TOGGLE FILTER STATE ──
+// ── FILTRO DROPDOWN (MENU 3 PONTOS) ──
 const TG = {
   status: new Set(['Em andamento','Aprovada','Reprovada','Aguardando']),
   tipo:   new Set(['Rotativa','Digital','Sublimação','DTF','TPU','Flocagem/Silkscreen']),
-  forn:   new Set() // preenchido dinamicamente
+  forn:   new Set()
 };
 
-function toggleBtn(btn) {
-  const group = btn.dataset.group;
-  const val   = btn.dataset.val;
-  if (btn.classList.contains('tg-on')) {
-    btn.classList.remove('tg-on');
+// Abre/fecha menu
+function toggleMenu(group) {
+  const dd = document.getElementById('fm-'+group);
+  const isOpen = dd.classList.contains('open');
+  // Fecha todos
+  document.querySelectorAll('.fm-dropdown').forEach(d => d.classList.remove('open'));
+  if (!isOpen) dd.classList.add('open');
+}
+
+// Fecha ao clicar fora
+document.addEventListener('click', e => {
+  if (!e.target.closest('.fm-wrap')) {
+    document.querySelectorAll('.fm-dropdown').forEach(d => d.classList.remove('open'));
+  }
+});
+
+// Marca/desmarca item
+function fmToggleItem(el) {
+  const group = el.dataset.group;
+  const val   = el.dataset.val;
+  if (el.classList.contains('fm-checked')) {
+    el.classList.remove('fm-checked');
     TG[group].delete(val);
   } else {
-    btn.classList.add('tg-on');
+    el.classList.add('fm-checked');
     TG[group].add(val);
   }
+  fmUpdateTrigger(group);
   renderEstampas();
 }
 
-function toggleAllStatus() {
-  const btns = document.querySelectorAll('#tg-status .tg-btn');
-  const allOn = [...btns].every(b => b.classList.contains('tg-on'));
-  btns.forEach(b => {
-    if (allOn) { b.classList.remove('tg-on'); TG.status.delete(b.dataset.val); }
-    else        { b.classList.add('tg-on');    TG.status.add(b.dataset.val); }
+// Todos/Nenhum
+function fmToggleAll(group) {
+  const container = group==='forn'
+    ? document.getElementById('fm-forn-rows')
+    : document.querySelector(`#fm-${group} .fm-row`);
+  if (!container) return;
+  const items = container.querySelectorAll('.fm-item');
+  const allOn = [...items].every(i => i.classList.contains('fm-checked'));
+  items.forEach(i => {
+    if (allOn) { i.classList.remove('fm-checked'); TG[group].delete(i.dataset.val); }
+    else       { i.classList.add('fm-checked');    TG[group].add(i.dataset.val); }
   });
+  fmUpdateTrigger(group);
   renderEstampas();
 }
 
-function toggleAllTipo() {
-  const btns = document.querySelectorAll('#tg-tipo .tg-btn');
-  const allOn = [...btns].every(b => b.classList.contains('tg-on'));
-  btns.forEach(b => {
-    if (allOn) { b.classList.remove('tg-on'); TG.tipo.delete(b.dataset.val); }
-    else        { b.classList.add('tg-on');    TG.tipo.add(b.dataset.val); }
-  });
-  renderEstampas();
+// Atualiza aparência do botão trigger
+function fmUpdateTrigger(group) {
+  const container = group==='forn'
+    ? document.getElementById('fm-forn-rows')
+    : document.querySelector(`#fm-${group} .fm-row`);
+  if (!container) return;
+  const items   = container.querySelectorAll('.fm-item');
+  const total   = items.length;
+  const checked = [...items].filter(i => i.classList.contains('fm-checked')).length;
+  const trig    = document.getElementById('fm-trig-'+group);
+  const badge   = document.getElementById('fm-badge-'+group);
+  if (!trig || !badge) return;
+  const allOn = checked === total;
+  const noneOn = checked === 0;
+  trig.classList.toggle('fm-active', !allOn);
+  badge.style.display = !allOn ? 'inline-flex' : 'none';
+  badge.textContent = allOn ? '' : (noneOn ? '0' : (total - checked));
 }
 
-function toggleAllForn() {
-  const btns = document.querySelectorAll('#tg-forn .tg-btn');
-  const allOn = [...btns].every(b => b.classList.contains('tg-on'));
-  btns.forEach(b => {
-    if (allOn) { b.classList.remove('tg-on'); TG.forn.delete(b.dataset.val); }
-    else        { b.classList.add('tg-on');    TG.forn.add(b.dataset.val); }
-  });
-  renderEstampas();
-}
-
+// Constrói dinamicamente os itens de fornecedor
 function buildFornToggles(estampas) {
-  // Coleta fornecedores únicos (estamparia + gravadora)
   const fornSet = new Set();
   estampas.forEach(e => {
-    if (e.fornecedor_est) fornSet.add(e.fornecedor_est);
+    if (e.fornecedor_est)  fornSet.add(e.fornecedor_est);
     if (e.fornecedor_grav) fornSet.add(e.fornecedor_grav);
   });
-  const container = document.getElementById('tg-forn');
+  const container = document.getElementById('fm-forn-rows');
   if (!container) return;
-  const existing = new Set([...container.querySelectorAll('.tg-btn')].map(b => b.dataset.val));
+  const existing = new Set([...container.querySelectorAll('.fm-item')].map(i => i.dataset.val));
+  // Adiciona novos
   fornSet.forEach(f => {
     if (!existing.has(f)) {
-      TG.forn.add(f); // ativa por padrão
-      const btn = document.createElement('button');
-      btn.className = 'tg-btn c-forn tg-on';
-      btn.dataset.group = 'forn';
-      btn.dataset.val = f;
-      btn.onclick = function() { toggleBtn(this); };
-      btn.innerHTML = `<span>${f}</span>`;
-      container.appendChild(btn);
+      TG.forn.add(f);
+      const div = document.createElement('div');
+      div.className = 'fm-item fm-checked';
+      div.dataset.group = 'forn';
+      div.dataset.val = f;
+      div.onclick = function() { fmToggleItem(this); };
+      div.innerHTML = `<div class="fm-check"></div><span>${f}</span>`;
+      container.appendChild(div);
     }
   });
-  // Remove fornecedores que não existem mais
-  container.querySelectorAll('.tg-btn').forEach(b => {
-    if (!fornSet.has(b.dataset.val)) {
-      TG.forn.delete(b.dataset.val);
-      b.remove();
+  // Remove obsoletos
+  container.querySelectorAll('.fm-item').forEach(i => {
+    if (!fornSet.has(i.dataset.val)) {
+      TG.forn.delete(i.dataset.val);
+      i.remove();
     }
   });
+  // Se não há fornecedores, esconde o menu
+  const wrap = document.getElementById('fm-wrap-forn');
+  if (wrap) wrap.style.display = fornSet.size ? '' : 'none';
+  fmUpdateTrigger('forn');
 }
 
 function clearF() {
-  // Reset texto livre
-  ['q-est','f-tipo','f-status','f-tec','f-art','f-rap'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  // Ativa todos os toggles
-  TG.status = new Set(['Em andamento','Aprovada','Reprovada','Aguardando']);
-  TG.tipo   = new Set(['Rotativa','Digital','Sublimação','DTF','TPU','Flocagem/Silkscreen']);
-  document.querySelectorAll('#tg-status .tg-btn, #tg-tipo .tg-btn').forEach(b => b.classList.add('tg-on'));
-  // Ativa todos os fornecedores
-  document.querySelectorAll('#tg-forn .tg-btn').forEach(b => { b.classList.add('tg-on'); TG.forn.add(b.dataset.val); });
+  document.getElementById('q-est').value = '';
+  // Marca todos como checked
+  ['status','tipo'].forEach(group => {
+    const container = document.querySelector(`#fm-${group} .fm-row`);
+    if (!container) return;
+    container.querySelectorAll('.fm-item').forEach(i => {
+      i.classList.add('fm-checked');
+      TG[group].add(i.dataset.val);
+    });
+    fmUpdateTrigger(group);
+  });
+  // Fornecedor
+  const fornContainer = document.getElementById('fm-forn-rows');
+  if (fornContainer) {
+    fornContainer.querySelectorAll('.fm-item').forEach(i => {
+      i.classList.add('fm-checked');
+      TG.forn.add(i.dataset.val);
+    });
+    fmUpdateTrigger('forn');
+  }
   renderEstampas();
 }
 
