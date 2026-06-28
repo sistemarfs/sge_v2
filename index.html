@@ -652,7 +652,7 @@ tr:hover td{background:var(--bg)}
         <div><h4>Recuperar Backup</h4><p>Restaura dados a partir de arquivo JSON exportado.</p></div>
       </div>
       <input type="file" id="bk-in" accept=".json" onchange="importBk(this)" style="display:none">
-      <div class="bk-info"><strong>ℹ️ Supabase como banco principal</strong><br>Os dados estão seguros na nuvem. O backup JSON é uma cópia adicional recomendada periodicamente.<br><br><strong id="bk-stats">—</strong></div>
+      <div class="bk-info"><strong>ℹ️ Banco principal</strong><br>Os dados estão seguros na nuvem. O backup JSON é uma cópia adicional recomendada periodicamente.<br><br><strong id="bk-stats">—</strong></div>
     </div>
     <div class="mf"><button class="btn btn-ghost" onclick="closeM('m-backup')">Fechar</button></div>
   </div>
@@ -1444,7 +1444,7 @@ async function updateBkStats() {
     SB.from('amostras').select('*',{count:'exact',head:true})
   ]);
   const el=document.getElementById('bk-stats');
-  if(el) el.textContent=`Dados no Supabase: ${ec||0} estampa(s) e ${ac||0} amostra(s).`;
+  if(el) el.textContent=`Dados na Nuvem: ${ec||0} estampa(s) e ${ac||0} amostra(s).`;
 }
 
 async function exportBk() {
