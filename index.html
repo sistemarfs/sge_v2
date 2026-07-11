@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGE — Sistema de Estampa</title>
+<title>SGE — Sistema Gestão de Estampas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -222,24 +222,37 @@ tr:hover td{background:var(--bg)}
 .al-txt span{font-size:11px;color:var(--ink3)}
 
 /* FOLLOW-UP */
-.fu-sec{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px 18px}
-.fu-ct{font-family:'Source Serif 4',serif;font-size:13px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:7px;margin-bottom:10px}
-.fu-ct .badge{font-family:'Source Sans 3',sans-serif;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px}
-.fu-card{background:var(--surface);border:1.5px solid var(--border);border-radius:9px;padding:10px 12px;margin-bottom:7px;transition:box-shadow 0.14s}
+.fu-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.fu-group{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.fu-group-header{display:flex;align-items:center;gap:8px;padding:11px 16px;border-bottom:1.5px solid var(--border)}
+.fu-group-header.am{background:linear-gradient(90deg,var(--navy-pale),var(--surface))}
+.fu-group-header.est{background:linear-gradient(90deg,var(--green-pale),var(--surface))}
+.fu-group-title{font-family:'Source Serif 4',serif;font-size:14px;font-weight:700;flex:1}
+.fu-group-title.am{color:var(--navy)}.fu-group-title.est{color:var(--green)}
+.fu-group-body{display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:0}
+.fu-sec{padding:12px 14px;border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+.fu-sec:nth-child(even){border-right:none}
+.fu-sec:last-child,.fu-sec:nth-last-child(2):nth-child(odd){border-bottom:none}
+.fu-sec-1col{grid-column:span 2;border-right:none}
+.fu-ct{font-family:'Source Serif 4',serif;font-size:12px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.fu-ct .badge{font-family:'Source Sans 3',sans-serif;font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px}
+.fu-card{background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:8px 10px;margin-bottom:5px;transition:box-shadow 0.12s}
+.fu-card:last-child{margin-bottom:0}
 .fu-card:hover{box-shadow:var(--shadow)}
 .fu-card.fu-ov{border-left:3px solid var(--red)}.fu-card.fu-so{border-left:3px solid var(--yellow)}
 .fu-card.fu-ok{border-left:3px solid var(--green)}.fu-card.fu-in{border-left:3px solid var(--navy)}
-.fu-card-t{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px}
-.fu-card-s{font-size:11px;color:var(--ink3)}
-.fu-card-d{font-size:11px;font-weight:700;margin-top:5px}
+.fu-card-t{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fu-card-s{font-size:10px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fu-card-d{font-size:10px;font-weight:700;margin-top:4px}
 .fu-card-d.r{color:var(--red)}.fu-card-d.y{color:var(--yellow)}.fu-card-d.g{color:var(--green)}
-.fu-empty{text-align:center;padding:18px;color:var(--ink3);font-size:12px;background:var(--surface2);border-radius:8px;border:1.5px dashed var(--border)}
-.fu-kpis{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:16px}
-.fu-kpi{flex:1;min-width:80px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;text-align:center}
-.fu-kpi-v{font-family:'Source Serif 4',serif;font-size:23px;font-weight:700;line-height:1}
+.fu-empty{text-align:center;padding:12px 8px;color:var(--ink3);font-size:11px;background:var(--surface2);border-radius:6px;border:1.5px dashed var(--border)}
+.fu-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:14px}
+.fu-kpi{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;text-align:center}
+.fu-kpi-v{font-family:'Source Serif 4',serif;font-size:22px;font-weight:700;line-height:1}
 .fu-kpi-l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;margin-top:3px;color:var(--ink3)}
 .fu-kpi.r .fu-kpi-v{color:var(--red)}.fu-kpi.y .fu-kpi-v{color:var(--yellow)}
 .fu-kpi.g .fu-kpi-v{color:var(--green)}.fu-kpi.n .fu-kpi-v{color:var(--navy)}
+@media(max-width:900px){.fu-layout{grid-template-columns:1fr}.fu-group-body{grid-template-columns:1fr}.fu-sec{border-right:none}.fu-sec-1col{grid-column:span 1}}
 
 /* MISC */
 .st-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:var(--ink3);margin:16px 0 8px}
@@ -274,6 +287,44 @@ tr:hover td{background:var(--bg)}
 .bk-info{background:var(--navy-pale);border-radius:8px;padding:10px 13px;font-size:12px;color:var(--ink2);margin-top:12px;line-height:1.6}
 .bk-info strong{color:var(--navy)}
 
+/* ── RELATÓRIO LISTA ── */
+.rel-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:13px 16px}
+.rel-toolbar-title{font-family:'Source Serif 4',serif;font-size:14px;font-weight:700;color:var(--navy);flex:1;white-space:nowrap}
+.rel-mode-wrap{display:flex;gap:4px}
+.rel-mode-btn{display:flex;align-items:center;gap:5px;padding:6px 13px;border-radius:6px;border:1.5px solid var(--border);background:var(--surface);color:var(--ink2);font-family:'Source Sans 3',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.13s}
+.rel-mode-btn:hover{border-color:var(--navy);color:var(--navy)}
+.rel-mode-btn.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.rel-mode-btn svg{width:13px;height:13px}
+.rel-filter-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.rel-filter-label{font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:0.5px}
+.rel-chk-group{display:flex;gap:5px;flex-wrap:wrap}
+.rel-chk{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);font-family:'Source Sans 3',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.13s;color:var(--ink2);user-select:none}
+.rel-chk.on{background:var(--navy-pale);border-color:var(--navy);color:var(--navy)}
+.rel-chk input{display:none}
+.rel-col-opts{display:flex;gap:5px;flex-wrap:wrap}
+.rel-col-chk{display:flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);font-family:'Source Sans 3',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.13s;color:var(--ink3);user-select:none}
+.rel-col-chk.on{background:var(--green-pale);border-color:var(--green);color:var(--green)}
+/* Lista de estampas */
+.rel-list{display:flex;flex-direction:column;gap:12px;max-width:900px}
+.rel-list-item{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;display:grid;grid-template-columns:140px 1fr}
+.rel-list-item.no-img{grid-template-columns:1fr}
+.rel-list-thumb{width:140px;height:140px;object-fit:cover;display:block}
+.rel-list-thumb-ph{width:140px;height:140px;background:var(--navy-pale);display:flex;align-items:center;justify-content:center}
+.rel-list-body{padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.rel-list-header{display:flex;align-items:flex-start;gap:8px;justify-content:space-between}
+.rel-list-ref{font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:0.5px}
+.rel-list-name{font-family:'Source Serif 4',serif;font-size:16px;font-weight:700;color:var(--navy);margin-top:1px}
+.rel-list-fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:4px 12px}
+.rel-list-field label{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--ink3);letter-spacing:0.4px}
+.rel-list-field p{font-size:12px;color:var(--ink);margin-top:1px;font-weight:500}
+.rel-list-codes{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.rel-list-code{display:flex;align-items:center;gap:4px;font-size:11px}
+.rel-list-code span:first-child{color:var(--ink3)}
+.rel-list-code span:last-child{font-weight:700;background:var(--navy-pale);color:var(--navy);padding:1px 6px;border-radius:4px;font-size:11px}
+.rel-list-pant{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px}
+.rel-list-sw{width:20px;height:20px;border-radius:4px;border:1px solid var(--border)}
+.rel-count{font-size:12px;color:var(--ink3);margin-bottom:10px;font-weight:600}
+/* PRINT */
 @media print{
   nav,.page:not(.active),.mo,.btn,.sw,.tabs,.stats-row,.ph,.fu-kpis,
   #login-screen,.ld-overlay{display:none!important}
@@ -299,7 +350,7 @@ tr:hover td{background:var(--bg)}
   <div class="login-card">
     <div class="lg-logo">
       <div class="lg-logo-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div>
-      <h1>SGE</h1><p>Sistema de Gestão de Estampa</p>
+      <h1>SGE</h1><p>Sistema Gestão de Estampas</p>
     </div>
     <div id="lg-err" class="msg-err"></div>
     <div class="lg-fields">
@@ -316,7 +367,7 @@ tr:hover td{background:var(--bg)}
         Entrar
       </button>
     </div>
-    <div class="lg-footer">by Reginaldo F - SGE v2.1</div>
+    <div class="lg-footer">by Reginaldo F - SGE v2.2</div>
   </div>
 </div>
 
@@ -349,14 +400,14 @@ tr:hover td{background:var(--bg)}
 <!-- HOME -->
 <div class="page active" id="page-home">
   <div class="home-hero">
-    <h1>Gestão de <em>Estamparia</em><br>...</h1>
+    <h1>Gestão de <em>Estampas</em><br>...</h1>
     <p>Alertas, follow-up e relatórios técnicos.</p>
   </div>
   <div class="hcards">
-    <div class="hcard" onclick="go('estampas')"><div class="hcard-icon ic-n"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div><div><h3>Estampa</h3><p>Cadastro completo com codificações, pantones e timeline.</p></div></div>
-    <div class="hcard" onclick="go('amostras')"><div class="hcard-icon ic-g"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2D7A3A" stroke-width="1.8"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg></div><div><h3>Amostras</h3><p>Controle de amostras, prazos e alertas de atraso.</p></div></div>
-    <div class="hcard" onclick="go('followup')"><div class="hcard-icon ic-m"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><h3>Follow-up</h3><p>Painel de prazos críticos e pendências em aberto.</p></div></div>
-    <div class="hcard" onclick="go('relatorio')"><div class="hcard-icon ic-n"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div><h3>Relatório</h3><p>Ficha técnica completa para impressão.</p></div></div>
+    <div class="hcard" onclick="go('estampas')"><div class="hcard-icon ic-n"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div><div><h3>Estampa</h3><p>Cadastro.</p></div></div>
+    <div class="hcard" onclick="go('amostras')"><div class="hcard-icon ic-g"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2D7A3A" stroke-width="1.8"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg></div><div><h3>Amostras</h3><p>Controle de recebimento de amostras.</p></div></div>
+    <div class="hcard" onclick="go('followup')"><div class="hcard-icon ic-m"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><h3>Follow-up</h3><p>Painel de pendências em aberto.</p></div></div>
+    <div class="hcard" onclick="go('relatorio')"><div class="hcard-icon ic-n"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div><h3>Relatório</h3><p>Ficha técnica para impressão.</p></div></div>
     <div class="hcard" id="hcard-usr" onclick="go('usuarios')" style="display:none"><div class="hcard-icon ic-n"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><h3>Usuários</h3><p>Gestão de acessos e permissões.</p></div></div>
   </div>
   <div style="max-width:660px;margin:0 auto;padding:0 36px 52px">
@@ -474,21 +525,108 @@ tr:hover td{background:var(--bg)}
 
 <!-- FOLLOW-UP -->
 <div class="page" id="page-followup">
-  <div class="ph"><div class="ph-icon ic-m"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><h2>Painel de Follow-up</h2>
-    <button class="btn btn-ghost btn-sm" onclick="renderFollowup()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.08-8.51"/></svg> Atualizar</button>
+  <div class="ph">
+    <div class="ph-icon ic-m"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+    <h2>Painel de Follow-up</h2>
+    <button class="btn btn-ghost btn-sm" onclick="renderFollowup()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.08-8.51"/></svg> Atualizar
+    </button>
   </div>
-  <div class="pb"><div class="fu-kpis" id="fu-kpis"></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px" id="fu-cols"></div></div>
+  <div class="pb">
+    <!-- KPIs -->
+    <div class="fu-kpis" id="fu-kpis"></div>
+    <!-- Dois grupos lado a lado -->
+    <div class="fu-layout" id="fu-layout"></div>
+  </div>
 </div>
 
 <!-- RELATÓRIO -->
 <div class="page" id="page-relatorio">
-  <div class="ph"><div class="ph-icon ic-n"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><h2>Relatório de Estampa</h2>
-    <button class="btn btn-navy" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Imprimir</button>
+  <div class="ph">
+    <div class="ph-icon ic-n"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+    <h2>Relatório de Estampa</h2>
+    <button class="btn btn-navy" onclick="window.print()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Imprimir
+    </button>
   </div>
   <div class="pb">
-    <div class="sw" style="max-width:640px"><div class="sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="q-rel" placeholder="Ref., código, pantone, artigo, técnica..." oninput="renderRelSearch()"></div></div>
-    <div id="rel-res" class="cg" style="max-width:700px;margin-bottom:20px"></div>
-    <div id="rel-rep"></div>
+
+    <!-- TOOLBAR -->
+    <div class="rel-toolbar">
+      <div class="rel-toolbar-title">Configurar Relatório</div>
+      <!-- Modo -->
+      <div class="rel-mode-wrap">
+        <button class="rel-mode-btn active" id="rm-lista" onclick="setRelMode('lista')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          Lista
+        </button>
+        <button class="rel-mode-btn" id="rm-ficha" onclick="setRelMode('ficha')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          Ficha Individual
+        </button>
+      </div>
+    </div>
+
+    <!-- FILTROS DE LISTA -->
+    <div id="rel-list-filters">
+      <div class="rel-filter-row">
+        <span class="rel-filter-label">Status:</span>
+        <div class="rel-chk-group">
+          <label class="rel-chk on"><input type="checkbox" checked onchange="renderRelList()"> Em andamento</label>
+          <label class="rel-chk on"><input type="checkbox" checked onchange="renderRelList()"> Aprovada</label>
+          <label class="rel-chk on"><input type="checkbox" checked onchange="renderRelList()"> Reprovada</label>
+          <label class="rel-chk on"><input type="checkbox" checked onchange="renderRelList()"> Aguardando</label>
+        </div>
+      </div>
+      <div class="rel-filter-row">
+        <span class="rel-filter-label">Tipo:</span>
+        <div class="rel-chk-group" id="rel-tipo-chks">
+          <label class="rel-chk on"><input type="checkbox" checked onchange="renderRelList()"> Rotativa</label>
+          <label class="rel-chk on"><input type="checkbox" checked onchange="renderRelList()"> Digital</label>
+          <label class="rel-chk on"><input type="checkbox" checked onchange="renderRelList()"> Sublimação</label>
+          <label class="rel-chk on"><input type="checkbox" checked onchange="renderRelList()"> DTF</label>
+          <label class="rel-chk on"><input type="checkbox" checked onchange="renderRelList()"> TPU</label>
+          <label class="rel-chk on"><input type="checkbox" checked onchange="renderRelList()"> Flocagem/Silkscreen</label>
+        </div>
+      </div>
+      <div class="rel-filter-row">
+        <span class="rel-filter-label">Exibir:</span>
+        <div class="rel-col-opts">
+          <label class="rel-col-chk on" id="rco-img"><input type="checkbox" checked onchange="renderRelList()"> 🖼 Imagem</label>
+          <label class="rel-col-chk on" id="rco-cod"><input type="checkbox" checked onchange="renderRelList()"> 🔢 Códigos</label>
+          <label class="rel-col-chk on" id="rco-tec"><input type="checkbox" checked onchange="renderRelList()"> ⚙️ Técnica</label>
+          <label class="rel-col-chk on" id="rco-pant"><input type="checkbox" checked onchange="renderRelList()"> 🎨 Pantones</label>
+          <label class="rel-col-chk on" id="rco-forn"><input type="checkbox" checked onchange="renderRelList()"> 🏭 Fornecedor</label>
+          <label class="rel-col-chk on" id="rco-obs"><input type="checkbox" checked onchange="renderRelList()"> 📝 Observações</label>
+        </div>
+      </div>
+      <div class="rel-filter-row">
+        <span class="rel-filter-label">Busca:</span>
+        <div class="sm" style="max-width:320px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="q-rel-list" placeholder="Filtrar por ref., código, artigo..." oninput="renderRelList()">
+        </div>
+      </div>
+    </div>
+
+    <!-- MODO LISTA -->
+    <div id="rel-list-view">
+      <div class="rel-count" id="rel-count"></div>
+      <div class="rel-list" id="rel-list"></div>
+    </div>
+
+    <!-- MODO FICHA INDIVIDUAL -->
+    <div id="rel-ficha-view" style="display:none">
+      <div class="sw" style="max-width:640px;margin-bottom:16px">
+        <div class="sm">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="q-rel" placeholder="Ref., código, pantone, artigo, técnica..." oninput="renderRelSearch()">
+        </div>
+      </div>
+      <div id="rel-res" class="cg" style="max-width:700px;margin-bottom:20px"></div>
+      <div id="rel-rep"></div>
+    </div>
+
   </div>
 </div>
 
@@ -652,7 +790,7 @@ tr:hover td{background:var(--bg)}
         <div><h4>Recuperar Backup</h4><p>Restaura dados a partir de arquivo JSON exportado.</p></div>
       </div>
       <input type="file" id="bk-in" accept=".json" onchange="importBk(this)" style="display:none">
-      <div class="bk-info"><strong>ℹ️ Banco principal</strong><br>Os dados estão seguros na nuvem. O backup JSON é uma cópia adicional recomendada periodicamente.<br><br><strong id="bk-stats">—</strong></div>
+      <div class="bk-info"><strong>ℹ️ Supabase como banco principal</strong><br>Os dados estão seguros na nuvem. O backup JSON é uma cópia adicional recomendada periodicamente.<br><br><strong id="bk-stats">—</strong></div>
     </div>
     <div class="mf"><button class="btn btn-ghost" onclick="closeM('m-backup')">Fechar</button></div>
   </div>
@@ -741,7 +879,7 @@ function go(name) {
   if (name==='estampas')  renderEstampas();
   if (name==='amostras')  renderAmostras();
   if (name==='followup')  renderFollowup();
-  if (name==='relatorio') renderRelSearch();
+  if (name==='relatorio') { renderRelList(); }
   if (name==='home')      renderAlerts();
   if (name==='usuarios')  renderUsuarios();
 }
@@ -1264,21 +1402,182 @@ async function renderFollowup() {
     <div class="fu-kpi y"><div class="fu-kpi-v">${amVen}</div><div class="fu-kpi-l">Vencem em 3 dias</div></div>
     <div class="fu-kpi n"><div class="fu-kpi-v">${smMesa}</div><div class="fu-kpi-l">Sem aprov. de mesa</div></div>
     <div class="fu-kpi g"><div class="fu-kpi-v">${aprov}</div><div class="fu-kpi-l">Estampas aprovadas</div></div>`;
+  // Helper: card compacto
   const fc=(t,s,dt,cls)=>{const dc=cls==='fu-ov'?'r':cls==='fu-so'?'y':cls==='fu-ok'?'g':'';
-    return `<div class="fu-card ${cls}"><div class="fu-card-t">${t}</div><div class="fu-card-s">${s}</div>${dt?`<div class="fu-card-d ${dc}">📅 ${dt}</div>`:''}</div>`;};
-  const col=(t,bc,cards)=>`<div class="fu-sec"><div class="fu-ct">${t}<span class="badge" style="background:var(--${bc}-pale);color:var(--${bc})">${cards.length}</span></div>${cards.length?cards.join(''):'<div class="fu-empty">✓ Nenhuma pendência</div>'}</div>`;
-  document.getElementById('fu-cols').innerHTML=[
-    col('⚠️ Amostras Atrasadas','red',amCache.filter(a=>a.data_prev&&new Date(a.data_prev)<today&&a.status==='Aguardando').map(a=>fc(a.produto||a.fornecedor,`Forn.: ${a.fornecedor}`,`Previsto: ${a.data_prev} (${Math.abs(dd(a.data_prev))}d atraso)`,'fu-ov'))),
-    col('⏰ Vencem em 7 dias','yellow',amCache.filter(a=>{if(!a.data_prev||a.status!=='Aguardando')return false;const d=dd(a.data_prev);return d>=0&&d<=7;}).map(a=>{const d=dd(a.data_prev);return fc(a.produto||a.fornecedor,`Forn.: ${a.fornecedor}`,`Prazo: ${a.data_prev} (${d===0?'hoje':d+'d'})`,'fu-so');})),
-    col('📋 Sem Aprovação de Mesa','navy',semMesaList.map(e=>fc(`${e.ref} — ${e.nome||''}`,`${e.tipo||''} · ${e.fornecedor_est||'—'}`,'Aguardando aprovação de mesa','fu-in'))),
-    col('🚛 Cilindros em Trânsito','navy',cilTransito.map(e=>fc(`${e.ref} — ${e.nome||''}`,`${e.n_cilindros||'?'} cil. · ${e.fornecedor_grav||'—'}`,'','fu-in'))),
-    col('🟢 Aguardando Liberação','green',aguardando.map(e=>fc(`${e.ref} — ${e.nome||''}`,`${e.tipo||''} · ${e.fornecedor_est||'—'}`,e.dt_mesa?`Mesa aprovada em ${e.dt_mesa}`:'Sem mesa aprovada','fu-ok'))),
-  ].join('');
+    return `<div class="fu-card ${cls}"><div class="fu-card-t" title="${t}">${t}</div><div class="fu-card-s" title="${s}">${s}</div>${dt?`<div class="fu-card-d ${dc}">📅 ${dt}</div>`:''}</div>`;};
+
+  // Helper: coluna dentro do grupo
+  const col=(t,bc,cards,extra='')=>`
+    <div class="fu-sec ${extra}">
+      <div class="fu-ct">${t}<span class="badge" style="background:var(--${bc}-pale);color:var(--${bc})">${cards.length}</span></div>
+      ${cards.length?cards.join(''):'<div class="fu-empty">✓ Sem pendências</div>'}
+    </div>`;
+
+  // Dados filtrados
+  const amAtrasadas  = amCache.filter(a=>a.data_prev&&new Date(a.data_prev)<today&&a.status==='Aguardando');
+  const amVencendo7  = amCache.filter(a=>{if(!a.data_prev||a.status!=='Aguardando')return false;const d=dd(a.data_prev);return d>=0&&d<=7;});
+
+  // Grupo AMOSTRAS (lado esquerdo)
+  const grupoAmostras = `
+    <div class="fu-group">
+      <div class="fu-group-header am">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+        <div class="fu-group-title am">Amostras</div>
+      </div>
+      <div class="fu-group-body">
+        ${col('⚠️ Atrasadas','red',
+          amAtrasadas.map(a=>fc(a.produto||a.fornecedor,`Forn.: ${a.fornecedor}`,`${a.data_prev} (${Math.abs(dd(a.data_prev))}d)`,'fu-ov'))
+        )}
+        ${col('⏰ Vencem em 7 dias','yellow',
+          amVencendo7.map(a=>{const d=dd(a.data_prev);return fc(a.produto||a.fornecedor,`Forn.: ${a.fornecedor}`,`${a.data_prev} (${d===0?'hoje':d+'d'})`,'fu-so');})
+        )}
+      </div>
+    </div>`;
+
+  // Grupo ESTAMPAS (lado direito)
+  const grupoEstampas = `
+    <div class="fu-group">
+      <div class="fu-group-header est">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2D7A3A" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+        <div class="fu-group-title est">Estampas</div>
+      </div>
+      <div class="fu-group-body">
+        ${col('📋 Sem Aprov. de Mesa','navy',
+          semMesaList.map(e=>fc(`${e.ref} — ${e.nome||''}`,`${e.tipo||''} · ${e.fornecedor_est||'—'}`,'','fu-in'))
+        )}
+        ${col('🟢 Aguardando Liberação','green',
+          aguardando.map(e=>fc(`${e.ref} — ${e.nome||''}`,`${e.tipo||''} · ${e.fornecedor_est||'—'}`,e.dt_mesa?`Mesa: ${e.dt_mesa}`:'Sem mesa','fu-ok'))
+        )}
+        ${col('🚛 Cilindros em Trânsito','navy',
+          cilTransito.map(e=>fc(`${e.ref} — ${e.nome||''}`,`${e.n_cilindros||'?'} cil. · ${e.fornecedor_grav||'—'}`,'','fu-in')),
+          'fu-sec-1col'
+        )}
+      </div>
+    </div>`;
+
+  document.getElementById('fu-layout').innerHTML = grupoAmostras + grupoEstampas;
 }
 
 // ═══════════════════════════════════════
 // RELATÓRIO
 // ═══════════════════════════════════════
+// ── RELATÓRIO MODE ──
+let relMode = 'lista';
+
+function setRelMode(mode) {
+  relMode = mode;
+  document.getElementById('rm-lista').classList.toggle('active', mode==='lista');
+  document.getElementById('rm-ficha').classList.toggle('active', mode==='ficha');
+  document.getElementById('rel-list-filters').style.display = mode==='lista' ? '' : 'none';
+  document.getElementById('rel-list-view').style.display   = mode==='lista' ? '' : 'none';
+  document.getElementById('rel-ficha-view').style.display  = mode==='ficha' ? '' : 'none';
+  if (mode==='lista') renderRelList();
+}
+
+// Sync visual estado dos checkboxes de filtro
+document.addEventListener('change', e => {
+  if (e.target.closest('.rel-chk')) {
+    e.target.closest('.rel-chk').classList.toggle('on', e.target.checked);
+  }
+  if (e.target.closest('.rel-col-chk')) {
+    e.target.closest('.rel-col-chk').classList.toggle('on', e.target.checked);
+  }
+});
+
+function getRelFilters() {
+  // Status selecionados
+  const statusEls = document.querySelectorAll('.rel-chk-group .rel-chk');
+  const statusOk = new Set([...statusEls].filter(l=>l.querySelector('input').checked).map(l=>l.textContent.trim()));
+  // Tipos selecionados
+  const tipoEls = document.querySelectorAll('#rel-tipo-chks .rel-chk');
+  const tiposOk = new Set([...tipoEls].filter(l=>l.querySelector('input').checked).map(l=>l.textContent.trim()));
+  // Colunas
+  const showImg  = document.querySelector('#rco-img input')?.checked;
+  const showCod  = document.querySelector('#rco-cod input')?.checked;
+  const showTec  = document.querySelector('#rco-tec input')?.checked;
+  const showPant = document.querySelector('#rco-pant input')?.checked;
+  const showForn = document.querySelector('#rco-forn input')?.checked;
+  const showObs  = document.querySelector('#rco-obs input')?.checked;
+  // Busca
+  const q = (document.getElementById('q-rel-list')?.value||'').toLowerCase().trim();
+  return { statusOk, tiposOk, showImg, showCod, showTec, showPant, showForn, showObs, q };
+}
+
+function relMatchText(e, q) {
+  if (!q) return true;
+  const ps = (e.pantones||[]).map(p=>p.nome+' '+p.receita).join(' ');
+  const h = [e.ref,e.nome,e.cod_interno,e.cod_eng,e.cod_grav,e.cod_est,e.cod_ext,e.variante,e.tecnica,e.artigo,e.tingimento,e.dimensoes,e.obs,ps,e.fornecedor_est,e.fornecedor_grav].join(' ').toLowerCase();
+  return h.includes(q);
+}
+
+function renderRelList() {
+  const f = getRelFilters();
+  const items = estCache.filter(e => {
+    if (f.statusOk.size && !f.statusOk.has(e.status)) return false;
+    if (f.tiposOk.size  && !f.tiposOk.has(e.tipo))   return false;
+    if (!relMatchText(e, f.q)) return false;
+    return true;
+  });
+  const countEl = document.getElementById('rel-count');
+  if (countEl) countEl.textContent = `${items.length} estampa(s) encontrada(s)`;
+  const listEl = document.getElementById('rel-list');
+  if (!listEl) return;
+  if (!items.length) {
+    listEl.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><p>Nenhuma estampa encontrada com os filtros selecionados.</p></div>';
+    return;
+  }
+  const stTag = s => s==='Aprovada'?'t-ok':s==='Reprovada'?'t-alert':'t-pend';
+  listEl.innerHTML = items.map(e => {
+    const pSwatches = f.showPant && (e.pantones||[]).length
+      ? `<div class="rel-list-pant">${(e.pantones||[]).map(p=>`<div class="rel-list-sw" style="background:${p.cor}" title="${p.nome}"></div>`).join('')}<span style="font-size:11px;color:var(--ink3);margin-left:3px">${(e.pantones||[]).map(p=>p.nome).filter(Boolean).join(', ')}</span></div>`
+      : '';
+    const codes = f.showCod ? [
+      e.cod_interno  ? `<div class="rel-list-code"><span>Interno</span><span>${e.cod_interno}</span></div>`  : '',
+      e.cod_eng      ? `<div class="rel-list-code"><span>Eng.</span><span>${e.cod_eng}</span></div>`          : '',
+      e.cod_grav     ? `<div class="rel-list-code"><span>Grav.</span><span>${e.cod_grav}</span></div>`        : '',
+      e.cod_est      ? `<div class="rel-list-code"><span>Est.</span><span>${e.cod_est}</span></div>`          : '',
+      e.cod_ext      ? `<div class="rel-list-code"><span>Ext.</span><span>${e.cod_ext}</span></div>`          : '',
+    ].filter(Boolean).join('') : '';
+    const techFields = f.showTec ? `
+      ${e.tecnica    ? `<div class="rel-list-field"><label>Técnica</label><p>${e.tecnica}</p></div>`    : ''}
+      ${e.artigo     ? `<div class="rel-list-field"><label>Artigo</label><p>${e.artigo}</p></div>`      : ''}
+      ${e.dimensoes  ? `<div class="rel-list-field"><label>Rapport</label><p>${e.dimensoes}</p></div>`  : ''}
+      ${e.mesh       ? `<div class="rel-list-field"><label>Mesh</label><p>${e.mesh}</p></div>`          : ''}
+      ${e.tingimento ? `<div class="rel-list-field"><label>Tingimento</label><p>${e.tingimento}</p></div>` : ''}
+      ${e.ncores     ? `<div class="rel-list-field"><label>Nº Cores</label><p>${e.ncores}</p></div>`    : ''}
+    ` : '';
+    const fornFields = f.showForn ? `
+      ${e.fornecedor_est  ? `<div class="rel-list-field"><label>Estamparia</label><p>${e.fornecedor_est}</p></div>`  : ''}
+      ${e.fornecedor_grav ? `<div class="rel-list-field"><label>Gravadora</label><p>${e.fornecedor_grav}</p></div>` : ''}
+    ` : '';
+    const obsField = f.showObs && e.obs ? `<div style="font-size:12px;color:var(--ink2);margin-top:4px;padding-top:4px;border-top:1px solid var(--border)">${e.obs}</div>` : '';
+    const thumb = f.showImg
+      ? (e.img_url
+          ? `<img class="rel-list-thumb" src="${e.img_url}" loading="lazy">`
+          : `<div class="rel-list-thumb-ph"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7A9A7C" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`)
+      : '';
+    return `<div class="rel-list-item ${f.showImg?'':'no-img'}">
+      ${thumb}
+      <div class="rel-list-body">
+        <div class="rel-list-header">
+          <div>
+            <div class="rel-list-ref">${e.ref}${e.variante?' · '+e.variante:''}</div>
+            <div class="rel-list-name">${e.nome||'—'}</div>
+          </div>
+          <div style="display:flex;gap:4px;flex-shrink:0">
+            ${e.tipo?`<span class="tag t-type">${e.tipo}</span>`:''}
+            ${e.status?`<span class="tag ${stTag(e.status)}">${e.status}</span>`:''}
+          </div>
+        </div>
+        ${(techFields+fornFields).trim() ? `<div class="rel-list-fields">${techFields}${fornFields}</div>` : ''}
+        ${codes ? `<div class="rel-list-codes">${codes}</div>` : ''}
+        ${pSwatches}
+        ${obsField}
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function renderRelSearch() {
   const q = (document.getElementById('q-rel')?.value||'').toLowerCase().trim();
   const ps = e => (e.pantones||[]).map(p=>p.nome+' '+p.receita).join(' ');
@@ -1444,7 +1743,7 @@ async function updateBkStats() {
     SB.from('amostras').select('*',{count:'exact',head:true})
   ]);
   const el=document.getElementById('bk-stats');
-  if(el) el.textContent=`Dados na Nuvem: ${ec||0} estampa(s) e ${ac||0} amostra(s).`;
+  if(el) el.textContent=`Dados no Supabase: ${ec||0} estampa(s) e ${ac||0} amostra(s).`;
 }
 
 async function exportBk() {
