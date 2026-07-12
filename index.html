@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGE — Sistema Gestão de Estampas</title>
+<title>SGE — Sistema de Estampas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -303,15 +303,7 @@ tr:hover td{background:var(--bg)}
 .rel-mode-btn:hover{border-color:var(--navy);color:var(--navy)}
 .rel-mode-btn.active{background:var(--navy);border-color:var(--navy);color:#fff}
 .rel-mode-btn svg{width:13px;height:13px}
-.rel-filter-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
 .rel-filter-label{font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:0.5px}
-.rel-chk-group{display:flex;gap:5px;flex-wrap:wrap}
-.rel-chk{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);font-family:'Source Sans 3',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.13s;color:var(--ink2);user-select:none}
-.rel-chk.on{background:var(--navy-pale);border-color:var(--navy);color:var(--navy)}
-.rel-chk input{display:none}
-.rel-col-opts{display:flex;gap:5px;flex-wrap:wrap}
-.rel-col-chk{display:flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);font-family:'Source Sans 3',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.13s;color:var(--ink3);user-select:none}
-.rel-col-chk.on{background:var(--green-pale);border-color:var(--green);color:var(--green)}
 /* Lista de estampas */
 .rel-list{display:flex;flex-direction:column;gap:12px;max-width:900px}
 .rel-list-item{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;display:grid;grid-template-columns:140px 1fr}
@@ -413,7 +405,7 @@ tr:hover td{background:var(--bg)}
   </div>
   <div class="hcards">
     <div class="hcard" onclick="go('estampas')"><div class="hcard-icon ic-n"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div><div><h3>Estampa</h3><p>Cadastro.</p></div></div>
-    <div class="hcard" onclick="go('amostras')"><div class="hcard-icon ic-g"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2D7A3A" stroke-width="1.8"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg></div><div><h3>Amostras</h3><p>Controle de recebimentos de amostra.</p></div></div>
+    <div class="hcard" onclick="go('amostras')"><div class="hcard-icon ic-g"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2D7A3A" stroke-width="1.8"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg></div><div><h3>Amostras</h3><p>Controle de recebimento de amostra.</p></div></div>
     <div class="hcard" onclick="go('followup')"><div class="hcard-icon ic-m"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><h3>Follow-up</h3><p>Painel de pendências em aberto.</p></div></div>
     <div class="hcard" onclick="go('relatorio')"><div class="hcard-icon ic-n"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div><h3>Relatório</h3><p>Ficha técnica para impressão.</p></div></div>
     <div class="hcard" id="hcard-usr" onclick="go('usuarios')" style="display:none"><div class="hcard-icon ic-n"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><h3>Usuários</h3><p>Gestão de acessos e permissões.</p></div></div>
@@ -559,10 +551,10 @@ tr:hover td{background:var(--bg)}
   </div>
   <div class="pb">
 
-    <!-- TOOLBAR -->
+    <!-- TOOLBAR com menus dropdown -->
     <div class="rel-toolbar">
-      <div class="rel-toolbar-title">Configurar Relatório</div>
-      <!-- Modo -->
+      <div class="rel-toolbar-title">Relatório</div>
+      <!-- Modo Lista / Ficha -->
       <div class="rel-mode-wrap">
         <button class="rel-mode-btn active" id="rm-lista" onclick="setRelMode('lista')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
@@ -573,49 +565,75 @@ tr:hover td{background:var(--bg)}
           Ficha Individual
         </button>
       </div>
-    </div>
-
-    <!-- FILTROS DE LISTA -->
-    <div id="rel-list-filters">
-      <div class="rel-filter-row">
-        <span class="rel-filter-label">Status:</span>
-        <div class="rel-chk-group">
-          <label class="rel-chk on"><input type="checkbox" checked onchange="renderRelList()"> Em andamento</label>
-          <label class="rel-chk on"><input type="checkbox" checked onchange="renderRelList()"> Aprovada</label>
-          <label class="rel-chk on"><input type="checkbox" checked onchange="renderRelList()"> Reprovada</label>
-          <label class="rel-chk on"><input type="checkbox" checked onchange="renderRelList()"> Aguardando</label>
+      <!-- Menus dropdown (visíveis só no modo Lista) -->
+      <div id="rel-dropdowns" style="display:flex;gap:5px;align-items:center">
+        <!-- Status -->
+        <div class="fm-wrap" id="rel-wrap-status">
+          <button class="fm-trigger" id="rel-trig-status" onclick="relToggleMenu('status')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Status<span id="rel-badge-status" class="fm-badge" style="display:none">0</span>
+          </button>
+          <div class="fm-dropdown" id="rel-dd-status">
+            <div class="fm-section">
+              <div class="fm-section-label">Status<button onclick="relToggleAll('status')">Todos / Nenhum</button></div>
+              <div class="fm-row">
+                <div class="fm-item fm-checked" data-group="rel-status" data-val="Em andamento" onclick="relToggleItem(this,'status')"><div class="fm-check"></div><div class="fm-dot" style="background:#C07A00"></div><span>Em andamento</span></div>
+                <div class="fm-item fm-checked" data-group="rel-status" data-val="Aprovada"     onclick="relToggleItem(this,'status')"><div class="fm-check"></div><div class="fm-dot" style="background:#2D7A3A"></div><span>Aprovada</span></div>
+                <div class="fm-item fm-checked" data-group="rel-status" data-val="Reprovada"    onclick="relToggleItem(this,'status')"><div class="fm-check"></div><div class="fm-dot" style="background:#C0392B"></div><span>Reprovada</span></div>
+                <div class="fm-item fm-checked" data-group="rel-status" data-val="Aguardando"   onclick="relToggleItem(this,'status')"><div class="fm-check"></div><div class="fm-dot" style="background:#1B3A5C"></div><span>Aguardando</span></div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="rel-filter-row">
-        <span class="rel-filter-label">Tipo:</span>
-        <div class="rel-chk-group" id="rel-tipo-chks">
-          <label class="rel-chk on"><input type="checkbox" checked onchange="renderRelList()"> Rotativa</label>
-          <label class="rel-chk on"><input type="checkbox" checked onchange="renderRelList()"> Digital</label>
-          <label class="rel-chk on"><input type="checkbox" checked onchange="renderRelList()"> Sublimação</label>
-          <label class="rel-chk on"><input type="checkbox" checked onchange="renderRelList()"> DTF</label>
-          <label class="rel-chk on"><input type="checkbox" checked onchange="renderRelList()"> TPU</label>
-          <label class="rel-chk on"><input type="checkbox" checked onchange="renderRelList()"> Flocagem/Silkscreen</label>
+        <!-- Tipo -->
+        <div class="fm-wrap" id="rel-wrap-tipo">
+          <button class="fm-trigger" id="rel-trig-tipo" onclick="relToggleMenu('tipo')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+            Tipo<span id="rel-badge-tipo" class="fm-badge" style="display:none">0</span>
+          </button>
+          <div class="fm-dropdown" id="rel-dd-tipo">
+            <div class="fm-section">
+              <div class="fm-section-label">Tipo<button onclick="relToggleAll('tipo')">Todos / Nenhum</button></div>
+              <div class="fm-row">
+                <div class="fm-item fm-checked" data-group="rel-tipo" data-val="Rotativa"          onclick="relToggleItem(this,'tipo')"><div class="fm-check"></div><span>Rotativa</span></div>
+                <div class="fm-item fm-checked" data-group="rel-tipo" data-val="Digital"           onclick="relToggleItem(this,'tipo')"><div class="fm-check"></div><span>Digital</span></div>
+                <div class="fm-item fm-checked" data-group="rel-tipo" data-val="Sublimação"        onclick="relToggleItem(this,'tipo')"><div class="fm-check"></div><span>Sublimação</span></div>
+                <div class="fm-item fm-checked" data-group="rel-tipo" data-val="DTF"               onclick="relToggleItem(this,'tipo')"><div class="fm-check"></div><span>DTF</span></div>
+                <div class="fm-item fm-checked" data-group="rel-tipo" data-val="TPU"               onclick="relToggleItem(this,'tipo')"><div class="fm-check"></div><span>TPU</span></div>
+                <div class="fm-item fm-checked" data-group="rel-tipo" data-val="Flocagem/Silkscreen" onclick="relToggleItem(this,'tipo')"><div class="fm-check"></div><span>Flocagem/Silkscreen</span></div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="rel-filter-row">
-        <span class="rel-filter-label">Exibir:</span>
-        <div class="rel-col-opts">
-          <label class="rel-col-chk on" id="rco-img"><input type="checkbox" checked onchange="renderRelList()"> 🖼 Imagem</label>
-          <label class="rel-col-chk on" id="rco-cod"><input type="checkbox" checked onchange="renderRelList()"> 🔢 Códigos</label>
-          <label class="rel-col-chk on" id="rco-tec"><input type="checkbox" checked onchange="renderRelList()"> ⚙️ Técnica</label>
-          <label class="rel-col-chk on" id="rco-pant"><input type="checkbox" checked onchange="renderRelList()"> 🎨 Pantones</label>
-          <label class="rel-col-chk on" id="rco-forn"><input type="checkbox" checked onchange="renderRelList()"> 🏭 Fornecedor</label>
-          <label class="rel-col-chk on" id="rco-obs"><input type="checkbox" checked onchange="renderRelList()"> 📝 Observações</label>
+        <!-- Exibir -->
+        <div class="fm-wrap" id="rel-wrap-exibir">
+          <button class="fm-trigger" id="rel-trig-exibir" onclick="relToggleMenu('exibir')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            Exibir<span id="rel-badge-exibir" class="fm-badge" style="display:none">0</span>
+          </button>
+          <div class="fm-dropdown" id="rel-dd-exibir">
+            <div class="fm-section">
+              <div class="fm-section-label">Campos<button onclick="relToggleAll('exibir')">Todos / Nenhum</button></div>
+              <div class="fm-row">
+                <div class="fm-item fm-checked" data-group="rel-exibir" data-val="img"  onclick="relToggleItem(this,'exibir')"><div class="fm-check"></div><span>🖼 Imagem</span></div>
+                <div class="fm-item fm-checked" data-group="rel-exibir" data-val="cod"  onclick="relToggleItem(this,'exibir')"><div class="fm-check"></div><span>🔢 Códigos</span></div>
+                <div class="fm-item fm-checked" data-group="rel-exibir" data-val="tec"  onclick="relToggleItem(this,'exibir')"><div class="fm-check"></div><span>⚙️ Técnica</span></div>
+                <div class="fm-item fm-checked" data-group="rel-exibir" data-val="pant" onclick="relToggleItem(this,'exibir')"><div class="fm-check"></div><span>🎨 Pantones</span></div>
+                <div class="fm-item fm-checked" data-group="rel-exibir" data-val="forn" onclick="relToggleItem(this,'exibir')"><div class="fm-check"></div><span>🏭 Fornecedor</span></div>
+                <div class="fm-item fm-checked" data-group="rel-exibir" data-val="obs"  onclick="relToggleItem(this,'exibir')"><div class="fm-check"></div><span>📝 Observações</span></div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="rel-filter-row">
-        <span class="rel-filter-label">Busca:</span>
-        <div class="sm" style="max-width:320px">
+        <!-- Busca -->
+        <div class="sm" style="max-width:240px">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="q-rel-list" placeholder="Filtrar por ref., código, artigo..." oninput="renderRelList()">
+          <input type="text" id="q-rel-list" placeholder="Filtrar lista..." oninput="renderRelList()">
         </div>
       </div>
     </div>
+    <!-- rel-list-filters vazio (filtros movidos para toolbar) -->
+    <div id="rel-list-filters" style="display:none"></div>
 
     <!-- MODO LISTA -->
     <div id="rel-list-view">
@@ -1553,39 +1571,74 @@ function setRelMode(mode) {
   relMode = mode;
   document.getElementById('rm-lista').classList.toggle('active', mode==='lista');
   document.getElementById('rm-ficha').classList.toggle('active', mode==='ficha');
-  document.getElementById('rel-list-filters').style.display = mode==='lista' ? '' : 'none';
-  document.getElementById('rel-list-view').style.display   = mode==='lista' ? '' : 'none';
-  document.getElementById('rel-ficha-view').style.display  = mode==='ficha' ? '' : 'none';
+  document.getElementById('rel-dropdowns').style.display    = mode==='lista' ? 'flex' : 'none';
+  document.getElementById('rel-list-view').style.display    = mode==='lista' ? '' : 'none';
+  document.getElementById('rel-ficha-view').style.display   = mode==='ficha' ? '' : 'none';
   if (mode==='lista') renderRelList();
 }
 
-// Sync visual estado dos checkboxes de filtro
-document.addEventListener('change', e => {
-  if (e.target.closest('.rel-chk')) {
-    e.target.closest('.rel-chk').classList.toggle('on', e.target.checked);
+// ── RELATÓRIO FILTER STATE ──
+const RLF = {
+  status: new Set(['Em andamento','Aprovada','Reprovada','Aguardando']),
+  tipo:   new Set(['Rotativa','Digital','Sublimação','DTF','TPU','Flocagem/Silkscreen']),
+  exibir: new Set(['img','cod','tec','pant','forn','obs'])
+};
+
+function relToggleMenu(group) {
+  const dd = document.getElementById('rel-dd-'+group);
+  const isOpen = dd.classList.contains('open');
+  document.querySelectorAll('.fm-dropdown').forEach(d=>d.classList.remove('open'));
+  if (!isOpen) dd.classList.add('open');
+}
+
+function relToggleItem(el, group) {
+  const val = el.dataset.val;
+  if (el.classList.contains('fm-checked')) {
+    el.classList.remove('fm-checked'); RLF[group].delete(val);
+  } else {
+    el.classList.add('fm-checked'); RLF[group].add(val);
   }
-  if (e.target.closest('.rel-col-chk')) {
-    e.target.closest('.rel-col-chk').classList.toggle('on', e.target.checked);
-  }
-});
+  relUpdateTrigger(group);
+  renderRelList();
+}
+
+function relToggleAll(group) {
+  const items = document.querySelectorAll(`#rel-dd-${group} .fm-item`);
+  const allOn = [...items].every(i=>i.classList.contains('fm-checked'));
+  items.forEach(i => {
+    if (allOn) { i.classList.remove('fm-checked'); RLF[group].delete(i.dataset.val); }
+    else       { i.classList.add('fm-checked');    RLF[group].add(i.dataset.val); }
+  });
+  relUpdateTrigger(group);
+  renderRelList();
+}
+
+function relUpdateTrigger(group) {
+  const items   = document.querySelectorAll(`#rel-dd-${group} .fm-item`);
+  const total   = items.length;
+  const checked = [...items].filter(i=>i.classList.contains('fm-checked')).length;
+  const trig  = document.getElementById('rel-trig-'+group);
+  const badge = document.getElementById('rel-badge-'+group);
+  if (!trig||!badge) return;
+  const allOn = checked===total;
+  trig.classList.toggle('fm-active', !allOn);
+  badge.style.display = !allOn ? 'inline-flex' : 'none';
+  badge.textContent = allOn ? '' : String(total-checked);
+}
 
 function getRelFilters() {
-  // Status selecionados
-  const statusEls = document.querySelectorAll('.rel-chk-group .rel-chk');
-  const statusOk = new Set([...statusEls].filter(l=>l.querySelector('input').checked).map(l=>l.textContent.trim()));
-  // Tipos selecionados
-  const tipoEls = document.querySelectorAll('#rel-tipo-chks .rel-chk');
-  const tiposOk = new Set([...tipoEls].filter(l=>l.querySelector('input').checked).map(l=>l.textContent.trim()));
-  // Colunas
-  const showImg  = document.querySelector('#rco-img input')?.checked;
-  const showCod  = document.querySelector('#rco-cod input')?.checked;
-  const showTec  = document.querySelector('#rco-tec input')?.checked;
-  const showPant = document.querySelector('#rco-pant input')?.checked;
-  const showForn = document.querySelector('#rco-forn input')?.checked;
-  const showObs  = document.querySelector('#rco-obs input')?.checked;
-  // Busca
   const q = (document.getElementById('q-rel-list')?.value||'').toLowerCase().trim();
-  return { statusOk, tiposOk, showImg, showCod, showTec, showPant, showForn, showObs, q };
+  return {
+    statusOk: RLF.status,
+    tiposOk:  RLF.tipo,
+    showImg:  RLF.exibir.has('img'),
+    showCod:  RLF.exibir.has('cod'),
+    showTec:  RLF.exibir.has('tec'),
+    showPant: RLF.exibir.has('pant'),
+    showForn: RLF.exibir.has('forn'),
+    showObs:  RLF.exibir.has('obs'),
+    q
+  };
 }
 
 function relMatchText(e, q) {
