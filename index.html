@@ -225,6 +225,14 @@ tr:hover td{background:var(--bg)}
 .fu-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
 .fu-group{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden}
 .fu-group-header{display:flex;align-items:center;gap:8px;padding:11px 16px;border-bottom:1.5px solid var(--border)}
+.fu-filter-wrap{margin-left:auto;display:flex;gap:5px}
+.fu-fm-trigger{display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:6px;border:1.5px solid rgba(27,58,92,0.2);background:transparent;color:var(--ink2);font-family:'Source Sans 3',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.13s;white-space:nowrap}
+.fu-fm-trigger:hover{border-color:var(--green);color:var(--green)}
+.fu-fm-trigger.fm-active{background:var(--navy-pale);border-color:var(--navy);color:var(--navy)}
+.fu-fm-trigger svg{width:12px;height:12px}
+.fu-fm-wrap{position:relative}
+.fu-fm-dropdown{display:none;position:absolute;top:calc(100% + 5px);right:0;z-index:300;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);min-width:200px;padding:8px 0}
+.fu-fm-dropdown.open{display:block}
 .fu-group-header.am{background:linear-gradient(90deg,var(--navy-pale),var(--surface))}
 .fu-group-header.est{background:linear-gradient(90deg,var(--green-pale),var(--surface))}
 .fu-group-title{font-family:'Source Serif 4',serif;font-size:14px;font-weight:700;flex:1}
@@ -405,7 +413,7 @@ tr:hover td{background:var(--bg)}
   </div>
   <div class="hcards">
     <div class="hcard" onclick="go('estampas')"><div class="hcard-icon ic-n"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div><div><h3>Estampa</h3><p>Cadastro.</p></div></div>
-    <div class="hcard" onclick="go('amostras')"><div class="hcard-icon ic-g"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2D7A3A" stroke-width="1.8"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg></div><div><h3>Amostras</h3><p>Controle de recebimento de amostras.</p></div></div>
+    <div class="hcard" onclick="go('amostras')"><div class="hcard-icon ic-g"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2D7A3A" stroke-width="1.8"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg></div><div><h3>Amostras</h3><p>Controle de recebimentos de amostra.</p></div></div>
     <div class="hcard" onclick="go('followup')"><div class="hcard-icon ic-m"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><h3>Follow-up</h3><p>Painel de pendências em aberto.</p></div></div>
     <div class="hcard" onclick="go('relatorio')"><div class="hcard-icon ic-n"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div><h3>Relatório</h3><p>Ficha técnica para impressão.</p></div></div>
     <div class="hcard" id="hcard-usr" onclick="go('usuarios')" style="display:none"><div class="hcard-icon ic-n"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><h3>Usuários</h3><p>Gestão de acessos e permissões.</p></div></div>
@@ -1379,6 +1387,85 @@ async function delAm(id) {
 // ═══════════════════════════════════════
 // FOLLOW-UP
 // ═══════════════════════════════════════
+// ── FOLLOW-UP FILTER STATE ──
+const FUF = {
+  am:  new Set(['atrasadas','vencendo7']),
+  est: new Set(['semMesa','aguardando','cilindros'])
+};
+
+function fuToggleMenu(id) {
+  const dd = document.getElementById('fu-dd-'+id);
+  const isOpen = dd.classList.contains('open');
+  document.querySelectorAll('.fu-fm-dropdown').forEach(d=>d.classList.remove('open'));
+  if (!isOpen) dd.classList.add('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.fu-fm-wrap'))
+    document.querySelectorAll('.fu-fm-dropdown').forEach(d=>d.classList.remove('open'));
+});
+
+function fuToggleItem(el, group) {
+  const val = el.dataset.val;
+  if (el.classList.contains('fm-checked')) {
+    el.classList.remove('fm-checked'); FUF[group].delete(val);
+  } else {
+    el.classList.add('fm-checked'); FUF[group].add(val);
+  }
+  fuUpdateTrigger(group);
+  renderFollowupLayout();
+}
+
+function fuToggleAll(group) {
+  const items = document.querySelectorAll(`#fu-dd-${group} .fm-item`);
+  const allOn = [...items].every(i=>i.classList.contains('fm-checked'));
+  items.forEach(i => {
+    if (allOn) { i.classList.remove('fm-checked'); FUF[group].delete(i.dataset.val); }
+    else       { i.classList.add('fm-checked');    FUF[group].add(i.dataset.val); }
+  });
+  fuUpdateTrigger(group);
+  renderFollowupLayout();
+}
+
+function fuUpdateTrigger(group) {
+  const items   = document.querySelectorAll(`#fu-dd-${group} .fm-item`);
+  const total   = items.length;
+  const checked = [...items].filter(i=>i.classList.contains('fm-checked')).length;
+  const trig  = document.getElementById('fu-trig-'+group);
+  const badge = document.getElementById('fu-badge-'+group);
+  if (!trig||!badge) return;
+  const allOn = checked===total;
+  trig.classList.toggle('fm-active', !allOn);
+  badge.style.display = !allOn ? 'inline-flex' : 'none';
+  badge.textContent = allOn ? '' : String(total-checked);
+}
+
+function fuDropdown(group, items) {
+  const labels = {
+    am:  { atrasadas:'⚠️ Atrasadas', vencendo7:'⏰ Vencem em 7 dias' },
+    est: { semMesa:'📋 Sem Aprov. de Mesa', aguardando:'🟢 Aguardando Liberação', cilindros:'🚛 Cilindros em Trânsito' }
+  };
+  return `
+    <div class="fu-fm-wrap">
+      <button class="fu-fm-trigger" id="fu-trig-${group}" onclick="fuToggleMenu('${group}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="10" y2="18"/></svg>
+        Filtrar<span id="fu-badge-${group}" class="fm-badge" style="display:none">0</span>
+      </button>
+      <div class="fu-fm-dropdown" id="fu-dd-${group}">
+        <div class="fm-section">
+          <div class="fm-section-label">Exibir
+            <button onclick="fuToggleAll('${group}')">Todos / Nenhum</button>
+          </div>
+          <div class="fm-row">
+            ${items.map(v=>`
+              <div class="fm-item ${FUF[group].has(v)?'fm-checked':''}" data-val="${v}" onclick="fuToggleItem(this,'${group}')">
+                <div class="fm-check"></div><span>${labels[group][v]}</span>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
 async function renderFollowup() {
   ld('Carregando follow-up...');
   const [{ data: est }, { data: am }] = await Promise.all([
@@ -1386,76 +1473,74 @@ async function renderFollowup() {
     SB.from('amostras').select('*').order('created_at',{ascending:false})
   ]);
   estCache = est||[]; amCache = am||[]; uld();
-  // Filtra localmente com dados frescos do banco
-  const aguardando  = estCache.filter(e => e.status === 'Aguardando');
-  const semMesaList = estCache.filter(e => e.status === 'Em andamento' && !e.dt_mesa);
-  const cilTransito = estCache.filter(e => e.status_cil === 'Em trânsito');
-  const mesaAprov   = estCache.filter(e => e.dt_mesa && !e.dt_producao);
+
   const today = new Date(); today.setHours(0,0,0,0);
   const dd = d => Math.ceil((new Date(d)-today)/86400000);
   const amAt  = amCache.filter(a=>a.data_prev&&new Date(a.data_prev)<today&&a.status==='Aguardando').length;
   const amVen = amCache.filter(a=>{if(!a.data_prev||a.status!=='Aguardando')return false;const d=dd(a.data_prev);return d>=0&&d<=3;}).length;
-  const smMesa= semMesaList.length;
-  const aprov = estCache.filter(e=>e.status==='Aprovada').length;
+  const smMesa = estCache.filter(e=>e.status==='Em andamento'&&!e.dt_mesa).length;
+  const aprov  = estCache.filter(e=>e.status==='Aprovada').length;
+
   document.getElementById('fu-kpis').innerHTML=`
     <div class="fu-kpi r"><div class="fu-kpi-v">${amAt}</div><div class="fu-kpi-l">Amostras em atraso</div></div>
     <div class="fu-kpi y"><div class="fu-kpi-v">${amVen}</div><div class="fu-kpi-l">Vencem em 3 dias</div></div>
     <div class="fu-kpi n"><div class="fu-kpi-v">${smMesa}</div><div class="fu-kpi-l">Sem aprov. de mesa</div></div>
     <div class="fu-kpi g"><div class="fu-kpi-v">${aprov}</div><div class="fu-kpi-l">Estampas aprovadas</div></div>`;
-  // Helper: card compacto
+
+  // Monta estrutura HTML com dropdowns nos cabeçalhos
+  document.getElementById('fu-layout').innerHTML = `
+    <div class="fu-group">
+      <div class="fu-group-header am">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+        <div class="fu-group-title am">Amostras</div>
+        <div class="fu-filter-wrap">${fuDropdown('am',['atrasadas','vencendo7'])}</div>
+      </div>
+      <div class="fu-group-body" id="fu-body-am"></div>
+    </div>
+    <div class="fu-group">
+      <div class="fu-group-header est">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2D7A3A" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+        <div class="fu-group-title est">Estampas</div>
+        <div class="fu-filter-wrap">${fuDropdown('est',['semMesa','aguardando','cilindros'])}</div>
+      </div>
+      <div class="fu-group-body" id="fu-body-est"></div>
+    </div>`;
+
+  renderFollowupLayout();
+}
+
+function renderFollowupLayout() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dd = d => Math.ceil((new Date(d)-today)/86400000);
+
   const fc=(t,s,dt,cls)=>{const dc=cls==='fu-ov'?'r':cls==='fu-so'?'y':cls==='fu-ok'?'g':'';
     return `<div class="fu-card ${cls}"><div class="fu-card-t" title="${t}">${t}</div><div class="fu-card-s" title="${s}">${s}</div>${dt?`<div class="fu-card-d ${dc}">📅 ${dt}</div>`:''}</div>`;};
 
-  // Helper: coluna dentro do grupo
   const col=(t,bc,cards,extra='')=>`
     <div class="fu-sec ${extra}">
       <div class="fu-ct">${t}<span class="badge" style="background:var(--${bc}-pale);color:var(--${bc})">${cards.length}</span></div>
       ${cards.length?cards.join(''):'<div class="fu-empty">✓ Sem pendências</div>'}
     </div>`;
 
-  // Dados filtrados
-  const amAtrasadas  = amCache.filter(a=>a.data_prev&&new Date(a.data_prev)<today&&a.status==='Aguardando');
-  const amVencendo7  = amCache.filter(a=>{if(!a.data_prev||a.status!=='Aguardando')return false;const d=dd(a.data_prev);return d>=0&&d<=7;});
+  // ── AMOSTRAS ──
+  const amAtrasadas = amCache.filter(a=>a.data_prev&&new Date(a.data_prev)<today&&a.status==='Aguardando');
+  const amVencendo7 = amCache.filter(a=>{if(!a.data_prev||a.status!=='Aguardando')return false;const d=dd(a.data_prev);return d>=0&&d<=7;});
+  const amCols = [];
+  if (FUF.am.has('atrasadas'))  amCols.push(col('⚠️ Atrasadas','red', amAtrasadas.map(a=>fc(a.produto||a.fornecedor,`Forn.: ${a.fornecedor}`,`${a.data_prev} (${Math.abs(dd(a.data_prev))}d)`,'fu-ov'))));
+  if (FUF.am.has('vencendo7'))  amCols.push(col('⏰ Vencem em 7 dias','yellow', amVencendo7.map(a=>{const d=dd(a.data_prev);return fc(a.produto||a.fornecedor,`Forn.: ${a.fornecedor}`,`${a.data_prev} (${d===0?'hoje':d+'d'})`,'fu-so');})));
+  const bodyAm = document.getElementById('fu-body-am');
+  if (bodyAm) bodyAm.innerHTML = amCols.length ? amCols.join('') : '<div style="padding:16px;color:var(--ink3);font-size:12px;text-align:center">Nenhuma coluna selecionada</div>';
 
-  // Grupo AMOSTRAS (lado esquerdo)
-  const grupoAmostras = `
-    <div class="fu-group">
-      <div class="fu-group-header am">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
-        <div class="fu-group-title am">Amostras</div>
-      </div>
-      <div class="fu-group-body">
-        ${col('⚠️ Atrasadas','red',
-          amAtrasadas.map(a=>fc(a.produto||a.fornecedor,`Forn.: ${a.fornecedor}`,`${a.data_prev} (${Math.abs(dd(a.data_prev))}d)`,'fu-ov'))
-        )}
-        ${col('⏰ Vencem em 7 dias','yellow',
-          amVencendo7.map(a=>{const d=dd(a.data_prev);return fc(a.produto||a.fornecedor,`Forn.: ${a.fornecedor}`,`${a.data_prev} (${d===0?'hoje':d+'d'})`,'fu-so');})
-        )}
-      </div>
-    </div>`;
-
-  // Grupo ESTAMPAS (lado direito)
-  const grupoEstampas = `
-    <div class="fu-group">
-      <div class="fu-group-header est">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2D7A3A" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
-        <div class="fu-group-title est">Estampas</div>
-      </div>
-      <div class="fu-group-body">
-        ${col('📋 Sem Aprov. de Mesa','navy',
-          semMesaList.map(e=>fc(`${e.ref} — ${e.nome||''}`,`${e.tipo||''} · ${e.fornecedor_est||'—'}`,'','fu-in'))
-        )}
-        ${col('🟢 Aguardando Liberação','green',
-          aguardando.map(e=>fc(`${e.ref} — ${e.nome||''}`,`${e.tipo||''} · ${e.fornecedor_est||'—'}`,e.dt_mesa?`Mesa: ${e.dt_mesa}`:'Sem mesa','fu-ok'))
-        )}
-        ${col('🚛 Cilindros em Trânsito','navy',
-          cilTransito.map(e=>fc(`${e.ref} — ${e.nome||''}`,`${e.n_cilindros||'?'} cil. · ${e.fornecedor_grav||'—'}`,'','fu-in')),
-          'fu-sec-1col'
-        )}
-      </div>
-    </div>`;
-
-  document.getElementById('fu-layout').innerHTML = grupoAmostras + grupoEstampas;
+  // ── ESTAMPAS ──
+  const aguardando  = estCache.filter(e=>e.status==='Aguardando');
+  const semMesaList = estCache.filter(e=>e.status==='Em andamento'&&!e.dt_mesa);
+  const cilTransito = estCache.filter(e=>e.status_cil==='Em trânsito');
+  const estCols = [];
+  if (FUF.est.has('semMesa'))   estCols.push(col('📋 Sem Aprov. de Mesa','navy', semMesaList.map(e=>fc(`${e.ref} — ${e.nome||''}`,`${e.tipo||''} · ${e.fornecedor_est||'—'}`,'','fu-in'))));
+  if (FUF.est.has('aguardando'))estCols.push(col('🟢 Aguardando Liberação','green', aguardando.map(e=>fc(`${e.ref} — ${e.nome||''}`,`${e.tipo||''} · ${e.fornecedor_est||'—'}`,e.dt_mesa?`Mesa: ${e.dt_mesa}`:'Sem mesa','fu-ok'))));
+  if (FUF.est.has('cilindros')) estCols.push(col('🚛 Cilindros em Trânsito','navy', cilTransito.map(e=>fc(`${e.ref} — ${e.nome||''}`,`${e.n_cilindros||'?'} cil. · ${e.fornecedor_grav||'—'}`,'','fu-in')),'fu-sec-1col'));
+  const bodyEst = document.getElementById('fu-body-est');
+  if (bodyEst) bodyEst.innerHTML = estCols.length ? estCols.join('') : '<div style="padding:16px;color:var(--ink3);font-size:12px;text-align:center">Nenhuma coluna selecionada</div>';
 }
 
 // ═══════════════════════════════════════
