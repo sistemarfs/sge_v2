@@ -506,7 +506,7 @@ tr:hover td{background:var(--bg)}
 <!-- ESTAMPAS -->
 <div class="page" id="page-estampas">
   <div class="ph"><div class="ph-icon ic-n"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div><h2>Estampas</h2>
-    <button class="btn btn-primary adm" onclick="openNovaEstampa()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nova Estampa</button>
+    <button class="btn btn-primary" id="btn-nova-estampa" onclick="openNovaEstampa()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nova Estampa</button>
   </div>
   <div class="pb">
     <div class="sw">
@@ -605,7 +605,7 @@ tr:hover td{background:var(--bg)}
     <div class="ph-icon ic-navy" style="background:var(--navy-pale)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="10" rx="1"/></svg></div>
     <h2>Kanban — Estampa Digital</h2>
     <button class="btn btn-ghost btn-sm" onclick="openArquivadasKanban()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg> Arquivadas</button>
-    <button class="btn btn-primary adm" onclick="openAddKanCard()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Adicionar Card</button>
+    <button class="btn btn-primary" id="btn-add-kan-card" onclick="openAddKanCard()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Adicionar Card</button>
   </div>
   <div class="pb">
     <div class="sw" style="max-width:420px">
@@ -998,25 +998,41 @@ tr:hover td{background:var(--bg)}
             <option value="viewer">👁️ Visualizador — somente leitura</option>
           </select>
         </div>
-        <div class="fg" id="u-solicitar-wrap" style="display:none">
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
-            <input type="checkbox" id="u-pode-solicitar" style="width:16px;height:16px;cursor:pointer">
-            <span style="font-size:13px;font-weight:600;color:var(--ink);text-transform:none;letter-spacing:0">Pode solicitar amostras</span>
-          </label>
-          <span style="font-size:11px;color:var(--ink3);margin-top:2px">Permite que este Visualizador cadastre novas amostras, mesmo sem acesso total de Admin.</span>
-        </div>
-        <div class="fg" id="u-kanban-wrap" style="display:none">
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
-            <input type="checkbox" id="u-habilitado-kanban" style="width:16px;height:16px;cursor:pointer">
-            <span style="font-size:13px;font-weight:600;color:var(--ink);text-transform:none;letter-spacing:0">Habilitado para usar o Kanban</span>
-          </label>
-          <span style="font-size:11px;color:var(--ink3);margin-top:2px">Permite que este Visualizador mova cards no Kanban, quando definido como Responsável do Fluxo.</span>
+        <div class="fg" id="u-perms-wrap" style="display:none">
+          <label class="fl">Permissões Específicas</label>
+          <div style="border:1.5px solid var(--border);border-radius:9px;padding:10px 13px;display:flex;flex-direction:column;gap:7px;margin-top:4px">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
+              <input type="checkbox" id="perm-nova-estampa" style="width:15px;height:15px;cursor:pointer"><span style="font-size:13px;font-weight:600;color:var(--ink)">Nova estampa</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
+              <input type="checkbox" id="perm-nova-amostra" style="width:15px;height:15px;cursor:pointer"><span style="font-size:13px;font-weight:600;color:var(--ink)">Amostra</span>
+            </label>
+            <div style="height:1px;background:var(--border);margin:2px 0"></div>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
+              <input type="checkbox" id="perm-kanban-add" style="width:15px;height:15px;cursor:pointer"><span style="font-size:13px;color:var(--ink2)">Adicionar card</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
+              <input type="checkbox" id="perm-kanban-preparacao" style="width:15px;height:15px;cursor:pointer"><span style="font-size:13px;color:var(--ink2)">Preparação de arquivo</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
+              <input type="checkbox" id="perm-kanban-impressao" style="width:15px;height:15px;cursor:pointer"><span style="font-size:13px;color:var(--ink2)">Impressão</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
+              <input type="checkbox" id="perm-kanban-aguardando" style="width:15px;height:15px;cursor:pointer"><span style="font-size:13px;color:var(--ink2)">Aguardando</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
+              <input type="checkbox" id="perm-kanban-aprovado" style="width:15px;height:15px;cursor:pointer"><span style="font-size:13px;color:var(--ink2)">Aprovado</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
+              <input type="checkbox" id="perm-kanban-reprovado" style="width:15px;height:15px;cursor:pointer"><span style="font-size:13px;color:var(--ink2)">Reprovado</span>
+            </label>
+          </div>
+          <span style="font-size:11px;color:var(--ink3);margin-top:5px;display:block">"Nova estampa" e "Amostra" liberam a criação de cada cadastro. Os itens do Kanban liberam mover um card <strong>para</strong> aquela etapa específica.</span>
         </div>
       </div>
       <div style="background:var(--navy-pale);border-radius:8px;padding:10px 13px;margin-top:12px;font-size:12px;color:var(--ink2);line-height:1.6">
-        <strong style="color:var(--navy)">Admin:</strong> cadastra, edita, exclui, gerencia usuários e backup.<br>
-        <strong style="color:var(--green)">Visualizador:</strong> consulta estampas, amostras, follow-up e relatórios.<br>
-        <strong style="color:#C07A00">Solicitar amostras:</strong> ativa o botão "Nova Amostra" só para este visualizador.
+        <strong style="color:var(--navy)">Admin:</strong> acesso total, todas as permissões liberadas automaticamente.<br>
+        <strong style="color:var(--green)">Visualizador:</strong> consulta tudo por padrão; as caixas acima liberam ações extras específicas.
       </div>
     </div>
     <div class="mf"><button class="btn btn-ghost" onclick="closeM('m-usuario')">Cancelar</button><button class="btn btn-primary" onclick="saveUsuario()">Salvar Perfil</button></div>
@@ -1213,8 +1229,27 @@ function doLogout() {
   showLogin();
 }
 function isAdm() { return CU && CU.role === 'admin'; }
-function canRequestSamples() { return CU && (CU.role === 'admin' || CU.pode_solicitar === true); }
-function canUseKanban() { return CU && (CU.role === 'admin' || CU.habilitado_kanban === true); }
+function canRequestSamples() { return CU && (CU.role === 'admin' || CU.perm_nova_amostra === true); }
+function canCreateEstampa() { return CU && (CU.role === 'admin' || CU.perm_nova_estampa === true); }
+function canAddKanbanCard() { return CU && (CU.role === 'admin' || CU.perm_kanban_add === true); }
+// Mapeia cada etapa de destino do Kanban para o campo de permissão correspondente
+const KAN_PERM_MAP = {
+  'Preparação do arquivo digital': 'perm_kanban_preparacao',
+  'Impressão': 'perm_kanban_impressao',
+  'Aguardando': 'perm_kanban_aguardando',
+  'Aprovado': 'perm_kanban_aprovado',
+  'Reprovado': 'perm_kanban_reprovado'
+};
+function canMoveToStage(etapaNova) {
+  if (isAdm()) return true;
+  const campo = KAN_PERM_MAP[etapaNova];
+  return campo ? CU?.[campo] === true : false;
+}
+// Usuário pode arrastar o card se tiver permissão para mover para PELO MENOS uma etapa
+function kanPodeArrastar() {
+  if (isAdm()) return true;
+  return Object.values(KAN_PERM_MAP).some(campo => CU?.[campo] === true);
+}
 
 // Tenta restaurar sessão salva no navegador (evita pedir login a cada F5)
 async function tryRestoreSession() {
@@ -1253,6 +1288,12 @@ function applyPerms() {
   // Botão "Nova Amostra" — visível para Admin OU Visualizador com permissão
   const btnNovaAm = document.getElementById('btn-nova-amostra');
   if (btnNovaAm) btnNovaAm.style.display = canRequestSamples() ? '' : 'none';
+  // Botão "Nova Estampa" — visível para Admin OU Visualizador com permissão
+  const btnNovaEst = document.getElementById('btn-nova-estampa');
+  if (btnNovaEst) btnNovaEst.style.display = canCreateEstampa() ? '' : 'none';
+  // Botão "Adicionar Card" no Kanban — visível para Admin OU Visualizador com permissão
+  const btnAddKan = document.getElementById('btn-add-kan-card');
+  if (btnAddKan) btnAddKan.style.display = canAddKanbanCard() ? '' : 'none';
 }
 
 // ═══════════════════════════════════════
@@ -1366,8 +1407,7 @@ async function deleteAviso(id) {
 
 function uToggleSolicitarRow() {
   const role = document.getElementById('u-role').value;
-  document.getElementById('u-solicitar-wrap').style.display = role === 'viewer' ? 'flex' : 'none';
-  document.getElementById('u-kanban-wrap').style.display = role === 'viewer' ? 'flex' : 'none';
+  document.getElementById('u-perms-wrap').style.display = role === 'viewer' ? 'flex' : 'none';
 }
 
 // ═══════════════════════════════════════
@@ -1674,7 +1714,7 @@ const EF = ['e-ref','e-nome','e-tipo','e-status','e-dim','e-ncores','e-artigo','
 function gv(id) { const el=document.getElementById(id); return el?el.value:''; }
 
 function openNovaEstampa() {
-  if (!isAdm()) return;
+  if (!canCreateEstampa()) return;
   editEstId = null; pants = []; tlEvts = []; malhaRegs = []; tingRegs = [];
   EF.forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
   document.getElementById('e-img-url').value = '';
@@ -1696,7 +1736,8 @@ function openNovaEstampa() {
 }
 
 async function saveEstampa() {
-  if (!isAdm()) return;
+  const podeSalvar = editEstId ? isAdm() : canCreateEstampa();
+  if (!podeSalvar) return;
   const ref = gv('e-ref').trim();
   if (!ref) { alert('Informe a referência interna.'); return; }
   ld('Salvando estampa...');
@@ -2199,14 +2240,6 @@ const KAN_COLORS = {'Solicitação de amostra':'#1B3A5C','Preparação do arquiv
 let kanCache = [];
 let kanDragId = null;
 
-// Só o responsável do fluxo (ou Admin) pode mover o card — e precisa estar habilitado para o Kanban
-function kanPodeMover(card) {
-  if (isAdm()) return true;
-  if (!canUseKanban()) return false;
-  if (!card.responsavel_kanban) return false;
-  return card.responsavel_kanban.trim().toLowerCase() === (CU?.nome||'').trim().toLowerCase();
-}
-
 // Movimentação sempre sequencial: só permite ir para a etapa seguinte
 // (a partir de "Aguardando" pode ramificar para Aprovado OU Reprovado)
 function kanTransicaoValida(etapaAtual, etapaNova) {
@@ -2223,24 +2256,24 @@ async function renderKanban() {
   uld();
   if (error) {
     console.error('renderKanban error:', error);
-    document.getElementById('kan-board').innerHTML = `<div class="empty" style="width:100%"><div class="empty-icon">${ic('alertTriangle',34,'#C0392B')}</div><p>Erro ao carregar o Kanban: ${error.message}<br><br>Verifique se o SQL de atualização v4 (colunas em_kanban e responsavel_kanban) foi executado no Supabase.</p></div>`;
+    document.getElementById('kan-board').innerHTML = `<div class="empty" style="width:100%"><div class="empty-icon">${ic('alertTriangle',34,'#C0392B')}</div><p>Erro ao carregar o Kanban: ${error.message}<br><br>Verifique se o SQL de atualização foi executado no Supabase.</p></div>`;
     return;
   }
   kanCache = data || [];
   const q = (document.getElementById('q-kan')?.value||'').toLowerCase().trim();
   const items = kanCache.filter(e => !q || (e.ref+' '+(e.nome||'')).toLowerCase().includes(q));
+  const podeArrastar = kanPodeArrastar();
 
   const board = document.getElementById('kan-board');
   board.innerHTML = KAN_STAGES.map(stage => {
     const color = KAN_COLORS[stage];
     const cards = items.filter(e => (e.etapa_digital||'Solicitação de amostra') === stage);
     const cardsHtml = cards.length ? cards.map(e => {
-      const podeMover = kanPodeMover(e);
       return `
-      <div class="kan-card" draggable="${podeMover}" data-id="${e.id}"
+      <div class="kan-card" draggable="${podeArrastar}" data-id="${e.id}"
            ondragstart="kanDragStart(event,'${e.id}')" ondragend="kanDragEnd(event)"
            onclick="openKanPrint('${e.id}')" title="Clique para abrir a ficha de impressão"
-           style="--kc-color:${color};${podeMover?'':'cursor:default'}">
+           style="--kc-color:${color};${podeArrastar?'':'cursor:default'}">
         <div class="kan-card-actions">
           <button class="kan-edit-btn adm" onclick="event.stopPropagation();editEst('${e.id}')" title="Editar">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -2250,7 +2283,7 @@ async function renderKanban() {
         <div class="kan-card-ref">${e.ref}${e.variante?' · '+e.variante:''}${e.cod_interno?' · '+e.cod_interno:''}</div>
         <div class="kan-card-name">${e.nome||e.ref}</div>
         ${(e.fornecedor_est)?`<div class="kan-card-meta"><span>${ic('mapPin',10)} ${e.fornecedor_est}</span></div>`:''}
-        ${e.responsavel_kanban?`<div class="kan-card-resp">${ic('userCheck',11)} ${e.responsavel_kanban}${!podeMover?' '+ic('lock',10):''}</div>`:`<div class="kan-card-resp kan-resp-warn">${ic('alertTriangle',10)} Sem responsável</div>`}
+        ${e.responsavel_kanban?`<div class="kan-card-resp">${ic('userCheck',11)} ${e.responsavel_kanban}</div>`:''}
       </div>`;
     }).join('') : '<div class="kan-empty-col">Sem cards</div>';
     return `
@@ -2283,8 +2316,7 @@ async function openKanPrint(id) {
 }
 
 function kanDragStart(ev, id) {
-  const card = kanCache.find(e => e.id === id);
-  if (!card || !kanPodeMover(card)) { ev.preventDefault(); return; }
+  if (!kanPodeArrastar()) { ev.preventDefault(); return; }
   kanDragId = id;
   ev.target.classList.add('kan-dragging');
   ev.dataTransfer.effectAllowed = 'move';
@@ -2300,9 +2332,9 @@ async function kanDrop(ev, novaEtapa) {
   const card = kanCache.find(e => e.id === kanDragId);
   kanDragId = null;
   if (!card) return;
-  if (!kanPodeMover(card)) { alert('Somente o responsável pelo fluxo (ou Admin) pode mover este card.'); return; }
   const etapaAtual = card.etapa_digital || KAN_STAGES[0];
   if (etapaAtual === novaEtapa) return;
+  if (!canMoveToStage(novaEtapa)) { alert(`Você não tem permissão para mover cards para a etapa "${novaEtapa}".`); return; }
   if (!kanTransicaoValida(etapaAtual, novaEtapa)) {
     alert('Movimentação inválida: os cards só podem avançar para a próxima etapa da sequência.');
     return;
@@ -2322,7 +2354,7 @@ async function kanDrop(ev, novaEtapa) {
 
 // ── ADICIONAR CARD (busca por referência entre estampas Digital) ──
 function openAddKanCard() {
-  if (!isAdm()) return;
+  if (!canAddKanbanCard()) return;
   document.getElementById('kan-add-search').value = '';
   document.getElementById('kan-add-results').innerHTML = '<p style="font-size:12px;color:var(--ink3)">Digite para buscar...</p>';
   openM('m-add-kan');
@@ -2359,6 +2391,7 @@ async function searchKanAdd() {
 }
 
 async function addKanCard(id) {
+  if (!canAddKanbanCard()) return;
   ld('Adicionando ao Kanban...');
   try {
     const { error } = await SB.from('estampas').update({
@@ -2845,8 +2878,7 @@ async function renderUsuarios() {
         <div class="usr-n">${u.nome}${isSelf?' <span style="font-size:10px;color:var(--ink3)">(você)</span>':''}</div>
         <div class="usr-u">@${u.username||'—'}</div>
         <span class="usr-r ${u.role==='admin'?'r-adm':'r-view'}">${u.role==='admin'?ic('shield',11)+' Administrador':ic('eye',11)+' Visualizador'}</span>
-        ${u.role==='viewer'&&u.pode_solicitar?`<span class="usr-r" style="background:#FDF3DC;color:#C07A00;margin-left:4px">${ic('scissors',11)} Solicita amostras</span>`:''}
-        ${u.role==='viewer'&&u.habilitado_kanban?`<span class="usr-r" style="background:var(--navy-pale);color:var(--navy);margin-left:4px">${ic('checkCircle',11)} Kanban</span>`:''}
+        ${u.role==='viewer'?(()=>{const perms=['perm_nova_estampa','perm_nova_amostra','perm_kanban_add','perm_kanban_preparacao','perm_kanban_impressao','perm_kanban_aguardando','perm_kanban_aprovado','perm_kanban_reprovado'];const n=perms.filter(p=>u[p]).length;return n>0?`<span class="usr-r" style="background:var(--navy-pale);color:var(--navy);margin-left:4px">${ic('checkCircle',11)} ${n} permissão(ões)</span>`:'';})():''}
       </div>
       <div class="actions">
         <button class="btn btn-ghost btn-sm" onclick="editUsr('${u.id}')">${ic('edit',12)}</button>
@@ -2856,12 +2888,15 @@ async function renderUsuarios() {
   }).join('');
 }
 
+const PERM_FIELDS = ['perm-nova-estampa','perm-nova-amostra','perm-kanban-add','perm-kanban-preparacao','perm-kanban-impressao','perm-kanban-aguardando','perm-kanban-aprovado','perm-kanban-reprovado'];
+// Converte id do checkbox (kebab-case) para nome de coluna no banco (snake_case)
+function permIdToCol(id) { return id.replace(/-/g,'_'); }
+
 function openNovoUsuario() {
   editUsrId = null;
   ['u-nome','u-user','u-pass','u-pass2'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('u-role').value='viewer';
-  document.getElementById('u-pode-solicitar').checked=false;
-  document.getElementById('u-habilitado-kanban').checked=false;
+  PERM_FIELDS.forEach(id => { const el=document.getElementById(id); if(el) el.checked=false; });
   document.getElementById('u-pw-wrap').style.display='flex';
   document.getElementById('u-pw-edit').style.display='none';
   document.getElementById('m-usr-title').textContent='Novo Usuário';
@@ -2871,20 +2906,20 @@ function openNovoUsuario() {
 
 async function saveUsuario() {
   const nome = gv('u-nome').trim(), username = gv('u-user').trim().toLowerCase(), role = gv('u-role');
-  const podeSolicitar = document.getElementById('u-pode-solicitar').checked;
-  const habilitadoKanban = document.getElementById('u-habilitado-kanban').checked;
+  const permRow = {};
+  PERM_FIELDS.forEach(id => { permRow[permIdToCol(id)] = document.getElementById(id).checked; });
   if (!nome||!username){alert('Preencha nome e usuário.');return;}
   ld('Salvando...');
   try {
     if (editUsrId) {
-      const row = {nome,username,role,pode_solicitar:podeSolicitar,habilitado_kanban:habilitadoKanban};
+      const row = {nome,username,role,...permRow};
       const np = gv('u-pass2'); if(np&&np.length>=4) row.pass_hash=hp(np);
       const {error}=await SB.from('usuarios').update(row).eq('id',editUsrId);
       if(error) throw error;
     } else {
       const pass=gv('u-pass');
       if(!pass||pass.length<4){alert('Senha mínima: 4 caracteres.');return;}
-      const {error}=await SB.from('usuarios').insert({nome,username,pass_hash:hp(pass),role,pode_solicitar:podeSolicitar,habilitado_kanban:habilitadoKanban});
+      const {error}=await SB.from('usuarios').insert({nome,username,pass_hash:hp(pass),role,...permRow});
       if(error) throw error;
     }
     closeM('m-usuario'); await renderUsuarios();
@@ -2899,8 +2934,7 @@ async function editUsr(id) {
   document.getElementById('u-nome').value=u.nome;
   document.getElementById('u-user').value=u.username||'';
   document.getElementById('u-role').value=u.role;
-  document.getElementById('u-pode-solicitar').checked = !!u.pode_solicitar;
-  document.getElementById('u-habilitado-kanban').checked = !!u.habilitado_kanban;
+  PERM_FIELDS.forEach(id => { const el=document.getElementById(id); if(el) el.checked = !!u[permIdToCol(id)]; });
   document.getElementById('u-pass').value='';
   document.getElementById('u-pass2').value='';
   document.getElementById('u-pw-wrap').style.display='none';
