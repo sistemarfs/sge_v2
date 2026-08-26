@@ -451,6 +451,15 @@ tr:hover td{background:var(--bg)}
   .kan-board,.usr-grid,.msg-err,.msg-ok{display:none!important}
   .page.active{padding-top:0}
   .rep-card{border:none;box-shadow:none;max-width:100%}
+  /* Evita que seções da ficha técnica sejam cortadas no meio entre páginas */
+  .rep-hb,.rep-f,.rep-codes,.code-row,.sw-list,
+  .tw,.tw table,.tw tr,
+  .st-title,.avz-list-item,
+  .rel-list-item,.rel-list-field,.rel-list-code{
+    break-inside:avoid; page-break-inside:avoid;
+  }
+  /* Mantém o título da seção grudado no conteúdo que vem logo depois */
+  .rep-sl{ break-after:avoid; page-break-after:avoid; }
 }
 
 /* ── ETIQUETA (impressão dedicada 90x50mm) ── */
@@ -1229,7 +1238,7 @@ tr:hover td{background:var(--bg)}
 <!-- MODAL: NOVA ORDEM DE PRODUÇÃO (PPCP) -->
 <div class="mo" id="m-add-op">
   <div class="modal" style="max-width:460px">
-    <div class="mh"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7CCC8A" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="10" rx="1"/></svg><h3>Nova Ordem de Produção</h3><button class="mc" onclick="closeM('m-add-op')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mh"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7CCC8A" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="10" rx="1"/></svg><h3>Nova Ordem de Beneficiamento</h3><button class="mc" onclick="closeM('m-add-op')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     <div class="mb">
       <div id="op-step-search">
         <div class="fg">
