@@ -816,6 +816,7 @@ tr:hover td{background:var(--bg)}
           Ficha Individual
         </button>
       </div>
+      <button class="btn btn-ghost btn-sm" id="rel-sel-mode" onclick="toggleRelSelMode()" style="flex-shrink:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> Selecionar</button>
       <!-- Menus dropdown (visíveis só no modo Lista) -->
       <div id="rel-dropdowns" style="display:flex;gap:5px;align-items:center">
         <!-- Status -->
@@ -889,6 +890,12 @@ tr:hover td{background:var(--bg)}
     <!-- MODO LISTA -->
     <div id="rel-list-view">
       <div class="rel-count" id="rel-count"></div>
+      <div id="rel-bulk-bar" style="display:none;align-items:center;gap:10px;background:var(--navy);color:#fff;border-radius:9px;padding:10px 14px;margin-bottom:12px">
+        <span id="rel-bulk-count" style="font-weight:700;font-size:13px"></span>
+        <div style="flex:1"></div>
+        <button class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:#fff" onclick="imprimirFichasSelecionadas()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Imprimir selecionadas</button>
+        <button class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:#fff" onclick="toggleRelSelMode()">Cancelar</button>
+      </div>
       <div class="rel-list" id="rel-list"></div>
     </div>
 
@@ -3707,6 +3714,40 @@ function relMatchText(e, q) {
   return h.includes(q);
 }
 
+let relSelMode = false;
+let relSelected = new Set();
+
+function toggleRelSelMode() {
+  relSelMode = !relSelMode;
+  relSelected.clear();
+  updateRelBulkBar();
+  renderRelList();
+}
+function toggleRelSelect(id, checked) {
+  if (checked) relSelected.add(id); else relSelected.delete(id);
+  updateRelBulkBar();
+}
+function updateRelBulkBar() {
+  const bar = document.getElementById('rel-bulk-bar');
+  if (bar) bar.style.display = relSelMode ? 'flex' : 'none';
+  const countEl = document.getElementById('rel-bulk-count');
+  if (countEl) countEl.textContent = `${relSelected.size} selecionada${relSelected.size!==1?'s':''}`;
+}
+
+// Gera as fichas técnicas de todas as estampas selecionadas, concatenadas, e manda pra impressão
+function imprimirFichasSelecionadas() {
+  if (relSelected.size === 0) { alert('Selecione ao menos uma estampa.'); return; }
+  const selecionadas = estCache.filter(e => relSelected.has(e.id));
+  const html = selecionadas.map((e, i) =>
+    `<div style="${i>0?'break-before:page;page-break-before:always;':''}">${buildFichaHtml(e)}</div>`
+  ).join('');
+  document.getElementById('rel-rep').innerHTML = html;
+  document.getElementById('rel-list-view').style.display = 'none';
+  document.getElementById('rel-ficha-view').style.display = '';
+  document.getElementById('rel-etiqueta-btn-wrap') && (document.getElementById('rel-etiqueta-btn-wrap').style.display = 'none');
+  setTimeout(() => window.print(), 100);
+}
+
 function renderRelList() {
   const f = getRelFilters();
   const items = estCache.filter(e => {
@@ -3716,6 +3757,7 @@ function renderRelList() {
     return true;
   });
   const countEl = document.getElementById('rel-count');
+  updateRelBulkBar();
   if (countEl) countEl.textContent = `${items.length} estampa(s) encontrada(s)`;
   const listEl = document.getElementById('rel-list');
   if (!listEl) return;
@@ -3753,7 +3795,8 @@ function renderRelList() {
           ? `<img class="rel-list-thumb" src="${e.img_url}" loading="lazy">`
           : `<div class="rel-list-thumb-ph"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7A9A7C" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`)
       : '';
-    return `<div class="rel-list-item ${f.showImg?'':'no-img'}">
+    return `<div class="rel-list-item ${f.showImg?'':'no-img'}" style="position:relative">
+      ${relSelMode?`<input type="checkbox" ${relSelected.has(e.id)?'checked':''} onclick="event.stopPropagation()" onchange="toggleRelSelect('${e.id}',this.checked)" style="position:absolute;top:8px;left:8px;width:18px;height:18px;cursor:pointer;z-index:2">`:''}
       ${thumb}
       <div class="rel-list-body">
         <div class="rel-list-header">
@@ -3789,11 +3832,9 @@ function renderRelSearch() {
     </div>`).join('');
 }
 
-function renderRel(id) {
-  const e = estCache.find(x=>x.id===id); if(!e) return;
-  document.getElementById('rel-res').innerHTML=''; document.getElementById('q-rel').value='';
+function buildFichaHtml(e) {
   const pRows = (e.pantones||[]).map(p=>`<tr><td style="display:flex;align-items:center;gap:7px"><div style="width:16px;height:16px;border-radius:3px;background:${p.cor};border:1px solid var(--border)"></div>${p.nome}</td><td>${p.receita||'—'}</td></tr>`).join('');
-  document.getElementById('rel-rep').innerHTML=`
+  return `
     <div class="rep-card">
       <div class="rep-hb">
         <div><div style="font-size:10px;color:#7CCC8A;font-weight:700;margin-bottom:3px;letter-spacing:0.5px">FICHA TÉCNICA DE ESTAMPA</div>
@@ -3834,6 +3875,12 @@ function renderRel(id) {
       </div>`:''}
       ${e.obs?`<div class="rep-sl">Observações</div><p style="font-size:13px;color:var(--ink2)">${e.obs}</p>`:''}
     </div>`;
+}
+
+function renderRel(id) {
+  const e = estCache.find(x=>x.id===id); if(!e) return;
+  document.getElementById('rel-res').innerHTML=''; document.getElementById('q-rel').value='';
+  document.getElementById('rel-rep').innerHTML = buildFichaHtml(e);
 }
 
 // ═══════════════════════════════════════
