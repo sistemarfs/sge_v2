@@ -697,7 +697,7 @@ tr:hover td{background:var(--bg)}
     <h2 id="kan-page-title">Kanban — Amostra Digital</h2>
     <button class="btn btn-ghost btn-sm" id="btn-kan-arquivadas" onclick="openArquivadasKanban()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg> Arquivadas</button>
     <button class="btn btn-primary" id="btn-add-kan-card" onclick="openAddKanCard()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Adicionar Card</button>
-    <button class="btn btn-primary" id="btn-add-op" onclick="openAddOP()" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Ordem de Beneficiamento</button>
+    <button class="btn btn-primary" id="btn-add-op" onclick="openAddOP()" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nova Ordem de Produção</button>
   </div>
   <div class="pb">
     <div style="display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;margin-bottom:16px">
@@ -1102,6 +1102,7 @@ tr:hover td{background:var(--bg)}
       <div class="fl" style="gap:11px">
         <div class="fg"><label>Nome Completo *</label><input type="text" class="form-input" id="u-nome" placeholder="Ex: Maria Silva"></div>
         <div class="fg"><label>Usuário (login) *</label><input type="text" class="form-input" id="u-user" placeholder="Ex: maria.silva"></div>
+        <div class="fg"><label>E-mail (para notificações)</label><input type="email" class="form-input" id="u-email" placeholder="maria@empresa.com"></div>
         <div class="fg" id="u-pw-wrap"><label>Senha *</label><input type="password" class="form-input" id="u-pass" placeholder="Mínimo 4 caracteres"></div>
         <div class="fg" id="u-pw-edit" style="display:none"><label>Nova Senha <span style="color:var(--ink3);font-size:10px">(em branco = manter)</span></label><input type="password" class="form-input" id="u-pass2"></div>
         <div class="fg"><label>Perfil de Acesso</label>
@@ -1238,7 +1239,7 @@ tr:hover td{background:var(--bg)}
 <!-- MODAL: NOVA ORDEM DE PRODUÇÃO (PPCP) -->
 <div class="mo" id="m-add-op">
   <div class="modal" style="max-width:460px">
-    <div class="mh"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7CCC8A" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="10" rx="1"/></svg><h3>Nova Ordem de Beneficiamento</h3><button class="mc" onclick="closeM('m-add-op')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mh"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7CCC8A" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="10" rx="1"/></svg><h3>Nova Ordem de Produção</h3><button class="mc" onclick="closeM('m-add-op')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     <div class="mb">
       <div id="op-step-search">
         <div class="fg">
@@ -1657,6 +1658,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const SB_URL = 'https://pihxaodqwtrndsyskxte.supabase.co';
   const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpaHhhb2Rxd3RybmRzeXNreHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2OTMyODAsImV4cCI6MjA5NjI2OTI4MH0.C-q6EsQzBv9FR_ueIp4_lRkJlcHEdSRt71MwDXmoJwI';
   initSB(SB_URL, SB_KEY);
+  // Conexão com EmailJS — SUBSTITUA pela sua Public Key (painel EmailJS → Account → General)
+  try { emailjs.init({ publicKey: 'WSi3DYnEQJRpz7wU0' }); } catch(e) { console.warn('EmailJS indisponível:', e); }
   tryRestoreSession();
   try { history.replaceState({ page:'home' }, ''); } catch(e) { console.warn('replaceState indisponível:', e); }
 });
@@ -2436,6 +2439,7 @@ async function saveAmostra() {
   const forn = gv('a-forn').trim();
   if (!forn) { alert('Informe o fornecedor.'); return; }
   ld('Salvando amostra...');
+  const isNova = !editAmId;
   const row = {
     fornecedor:forn, produto:gv('a-prod'), qtd:gv('a-qtd'), qtd_min:gv('a-qtdm'),
     status:gv('a-st'), urgencia:gv('a-urg')||'Normal', custo:parseFloat(gv('a-custo'))||null,
@@ -2451,8 +2455,28 @@ async function saveAmostra() {
       : await SB.from('amostras').insert(row);
     if (error) throw error;
     closeM('m-amostra'); await renderAmostras();
+    if (isNova) enviarEmailCadastroAmostra(row);
   } catch(e) { alert('Erro: '+e.message); }
   finally { uld(); editAmId = null; }
+}
+
+// Envia e-mail ao solicitante quando uma nova amostra é cadastrada
+async function enviarEmailCadastroAmostra(amostra) {
+  if (typeof emailjs === 'undefined') return;
+  const nomeSolic = amostra.solicitante;
+  if (!nomeSolic) return;
+  try {
+    const { data: user } = await SB.from('usuarios').select('email').eq('nome', nomeSolic).maybeSingle();
+    if (!user?.email) return; // solicitante sem e-mail cadastrado — silenciosamente ignora
+    await emailjs.send('service_s43lrzs', 'template_erzyo8k', {
+      to_email: user.email,
+      to_name: nomeSolic,
+      fornecedor: amostra.fornecedor,
+      produto: amostra.produto || '—',
+      data_solicitacao: amostra.data_sol || '—',
+      data_previsao: amostra.data_prev || '—',
+    });
+  } catch(e) { console.warn('Falha ao enviar e-mail de cadastro:', e); }
 }
 
 async function renderAmostras() {
@@ -3720,7 +3744,7 @@ function permIdToCol(id) { return id.replace(/-/g,'_'); }
 
 function openNovoUsuario() {
   editUsrId = null;
-  ['u-nome','u-user','u-pass','u-pass2'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['u-nome','u-user','u-email','u-pass','u-pass2'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('u-role').value='viewer';
   PERM_FIELDS.forEach(id => { const el=document.getElementById(id); if(el) el.checked=false; });
   document.getElementById('u-pw-wrap').style.display='flex';
@@ -3732,20 +3756,21 @@ function openNovoUsuario() {
 
 async function saveUsuario() {
   const nome = gv('u-nome').trim(), username = gv('u-user').trim().toLowerCase(), role = gv('u-role');
+  const email = gv('u-email').trim();
   const permRow = {};
   PERM_FIELDS.forEach(id => { permRow[permIdToCol(id)] = document.getElementById(id).checked; });
   if (!nome||!username){alert('Preencha nome e usuário.');return;}
   ld('Salvando...');
   try {
     if (editUsrId) {
-      const row = {nome,username,role,...permRow};
+      const row = {nome,username,email:email||null,role,...permRow};
       const np = gv('u-pass2'); if(np&&np.length>=4) row.pass_hash=hp(np);
       const {error}=await SB.from('usuarios').update(row).eq('id',editUsrId);
       if(error) throw error;
     } else {
       const pass=gv('u-pass');
       if(!pass||pass.length<4){alert('Senha mínima: 4 caracteres.');return;}
-      const {error}=await SB.from('usuarios').insert({nome,username,pass_hash:hp(pass),role,...permRow});
+      const {error}=await SB.from('usuarios').insert({nome,username,email:email||null,pass_hash:hp(pass),role,...permRow});
       if(error) throw error;
     }
     closeM('m-usuario'); await renderUsuarios();
@@ -3759,6 +3784,7 @@ async function editUsr(id) {
   if(!u)return; editUsrId=id;
   document.getElementById('u-nome').value=u.nome;
   document.getElementById('u-user').value=u.username||'';
+  document.getElementById('u-email').value=u.email||'';
   document.getElementById('u-role').value=u.role;
   PERM_FIELDS.forEach(id => { const el=document.getElementById(id); if(el) el.checked = !!u[permIdToCol(id)]; });
   document.getElementById('u-pass').value='';
@@ -3828,5 +3854,6 @@ async function importBk(input) {
 // ═══════════════════════════════════════
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </body>
 </html>
