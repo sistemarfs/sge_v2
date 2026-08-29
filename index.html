@@ -518,11 +518,55 @@ tr:hover td{background:var(--bg)}
 .etq2-foot b{font-weight:700;text-transform:uppercase;letter-spacing:0.3pt;opacity:0.65;font-size:5.3pt;margin-right:1mm}
 @media(max-width:640px){
   .hcards{padding:16px 12px}.hcard{width:100%;max-width:300px}
-  .pb{padding:12px}.ph{padding:10px 12px}
+  .pb{padding:12px}
   .fg2{grid-template-columns:1fr}.fg2 .fg.s2{grid-column:span 1}
   .rep-grid{grid-template-columns:1fr}
   nav{padding:0 8px}.nb span{display:none}
   .nav-un,.nav-ur{display:none}
+
+  /* Cabeçalho de página: empilha título e botões, evita cortar/espremer */
+  .ph{flex-wrap:wrap;padding:12px 14px 10px;gap:8px}
+  .ph h2{font-size:16px;flex:1;min-width:0}
+  .ph .btn,.ph button{font-size:12px;padding:7px 10px}
+
+  /* Modais em tela cheia — muito mais fácil de usar com o dedo */
+  .mo{padding:0;align-items:flex-end}
+  .modal{max-width:100%;width:100%;border-radius:16px 16px 0 0;max-height:94vh}
+  .mh{padding:14px 16px;border-radius:16px 16px 0 0}
+  .mh h3{font-size:14px}
+  .mb{padding:14px 16px}
+  .mf{padding:10px 16px;flex-wrap:wrap}
+  .mf .btn{flex:1;min-width:100px;justify-content:center}
+
+  /* Abas: rolagem horizontal ao invés de espremer */
+  .tabs{overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch}
+  .tab{flex-shrink:0}
+
+  /* Login mais compacto */
+  .login-card{padding:30px 22px}
+
+  /* Kanban: colunas um pouco mais estreitas, cabe quase uma tela por coluna */
+  .kan-col{min-width:82vw;max-width:82vw}
+
+  /* Dashboard: gráficos empilhados, um por linha */
+  #page-dashboard .pb > div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
+
+  /* Toolbars e barras de ação em lote: permite quebrar linha sem cortar botão */
+  .rel-toolbar,#est-bulk-bar,#rel-bulk-bar{flex-wrap:wrap}
+  .rel-toolbar-title{width:100%}
+
+  /* Botões de ação em cards/tabelas ficam maiores pro toque */
+  .kan-edit-btn{width:26px;height:26px}
+
+  /* Formulário: campos full width, mais espaço de toque */
+  .form-input{padding:10px 12px;font-size:14px}
+
+  /* Tabela de amostras: leve indicação de rolagem horizontal */
+  .tw{position:relative}
+}
+@media(max-width:400px){
+  .kan-col{min-width:88vw;max-width:88vw}
+  .stats-row .smi{min-width:47%;flex:1}
 }
 </style>
 </head>
