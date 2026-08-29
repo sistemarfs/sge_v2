@@ -2494,7 +2494,7 @@ async function renderAmostras() {
   if (!items.length) { tbody.innerHTML=`<tr><td colspan="9"><div class="empty"><div class="empty-icon">${ic('scissors',34,'#7A9A7C')}</div><p>Nenhuma amostra.</p></div></td></tr>`; return; }
   const today = new Date(); today.setHours(0,0,0,0);
   tbody.innerHTML = items.map(a=>{
-    const late = a.data_prev && new Date(a.data_prev)<today && a.status==='Aguardando';
+    const late = a.data_prev && new Date(a.data_prev)<today && (a.status==='Aguardando'||a.status==='Solicitada');
     const sc = a.status==='Aprovada'?'t-ok':a.status==='Reprovada'?'t-alert':'t-pend';
     const canEdit = isAdm() || (canRequestSamples() && a.solicitante===CU?.nome);
     const btns = canEdit
@@ -3381,8 +3381,8 @@ async function renderFollowup() {
 
   const today = new Date(); today.setHours(0,0,0,0);
   const dd = d => Math.ceil((new Date(d)-today)/86400000);
-  const amAt  = amCache.filter(a=>a.data_prev&&new Date(a.data_prev)<today&&a.status==='Aguardando').length;
-  const amVen = amCache.filter(a=>{if(!a.data_prev||a.status!=='Aguardando')return false;const d=dd(a.data_prev);return d>=0&&d<=3;}).length;
+  const amAt  = amCache.filter(a=>a.data_prev&&new Date(a.data_prev)<today&&(a.status==='Aguardando'||a.status==='Solicitada')).length;
+  const amVen = amCache.filter(a=>{if(!a.data_prev||(a.status!=='Aguardando'&&a.status!=='Solicitada'))return false;const d=dd(a.data_prev);return d>=0&&d<=3;}).length;
   const smMesa = estCache.filter(e=>e.status==='Em andamento'&&!e.dt_mesa).length;
   const aprov  = estCache.filter(e=>e.status==='Aprovada').length;
 
@@ -3436,9 +3436,9 @@ function renderFollowupLayout() {
     </div>`;
 
   // ── AMOSTRAS ──
-  const amAtrasadas = amCache.filter(a=>a.data_prev&&new Date(a.data_prev)<today&&a.status==='Aguardando')
+  const amAtrasadas = amCache.filter(a=>a.data_prev&&new Date(a.data_prev)<today&&(a.status==='Aguardando'||a.status==='Solicitada'))
     .sort((a,b)=>(b.urgencia==='Urgente')-(a.urgencia==='Urgente'));
-  const amVencendo7 = amCache.filter(a=>{if(!a.data_prev||a.status!=='Aguardando')return false;const d=dd(a.data_prev);return d>=0&&d<=7;})
+  const amVencendo7 = amCache.filter(a=>{if(!a.data_prev||(a.status!=='Aguardando'&&a.status!=='Solicitada'))return false;const d=dd(a.data_prev);return d>=0&&d<=7;})
     .sort((a,b)=>(b.urgencia==='Urgente')-(a.urgencia==='Urgente'));
   const amCols = [];
   const urgPrefix = a => a.urgencia==='Urgente' ? ic('flame',10)+' ' : '';
@@ -3697,7 +3697,7 @@ async function renderAlerts() {
   const today = new Date(); today.setHours(0,0,0,0);
   const alerts = [];
   (am||[]).forEach(a=>{
-    if(a.data_prev&&a.status==='Aguardando'){
+    if(a.data_prev&&(a.status==='Aguardando'||a.status==='Solicitada')){
       const d=new Date(a.data_prev);
       if(d<today) alerts.push({level:'alert',text:`Amostra em atraso: ${a.produto}`,sub:`Fornecedor: ${a.fornecedor} · Previsto: ${a.data_prev}`});
       else if((d-today)<3*86400000) alerts.push({level:'warn',text:`Amostra vence em breve: ${a.produto}`,sub:`Previsão: ${a.data_prev}`});
