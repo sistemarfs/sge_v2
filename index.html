@@ -17,12 +17,22 @@
   --border:#C8D8C8;--shadow:0 2px 14px rgba(27,58,92,0.09);--shadow-lg:0 8px 40px rgba(27,58,92,0.15);
   --radius:12px;--radius-sm:8px;
 }
+/* ── MODO ESCURO ── */
+body.dark{
+  --bg:#0F1720;--surface:#1A2530;--surface2:#212E3D;
+  --ink:#E8EDF2;--ink2:#AEC0CF;--ink3:#7A8FA0;
+  --navy-pale:#1E3350;--green-pale:#17362A;--red-pale:#3D2420;--yellow-pale:#3D3018;
+  --border:#2C3B4D;
+  --shadow:0 2px 14px rgba(0,0,0,0.45);--shadow-lg:0 8px 40px rgba(0,0,0,0.55);
+}
+body,body.dark{transition:background 0.2s ease}
+body.dark img{filter:brightness(0.96)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px}
 
 /* LOGIN */
 #login-screen{display:none;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(140deg,var(--navy) 0%,var(--navy2) 55%,#1A4A2A 100%);padding:20px}
-.login-card{background:#fff;border-radius:20px;padding:44px 40px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(27,58,92,0.25)}
+.login-card{background:var(--surface);border-radius:20px;padding:44px 40px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(27,58,92,0.25)}
 .lg-logo{text-align:center;margin-bottom:24px}
 .lg-logo-mark{width:76px;height:76px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
 .lg-logo-mark img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(27,58,92,0.25))}
@@ -44,7 +54,7 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--ink
 /* LOADING */
 .ld-overlay{display:none;position:fixed;inset:0;background:rgba(27,58,92,0.45);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
 .ld-overlay.show{display:flex}
-.ld-box{background:#fff;border-radius:14px;padding:26px 34px;text-align:center;box-shadow:var(--shadow-lg)}
+.ld-box{background:var(--surface);border-radius:14px;padding:26px 34px;text-align:center;box-shadow:var(--shadow-lg)}
 .spinner{width:36px;height:36px;border:3px solid var(--green-pale);border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 11px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .ld-box p{font-size:13px;color:var(--ink2);font-weight:600}
@@ -548,6 +558,7 @@ tr:hover td{background:var(--bg)}
     <div class="nav-logo-mark" style="background:transparent"><img src="data:image/png;base64,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" alt="SGE" style="width:100%;height:100%;object-fit:contain"></div>
   </div>
   <button class="nb active" id="nb-home" onclick="go('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Início</span></button>
+  <button class="nb" id="nb-dashboard" onclick="go('dashboard')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Dashboard</span></button>
   <button class="nb" id="nb-estampas" onclick="go('estampas')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span>Estampa</span></button>
   <button class="nb" id="nb-kanban" onclick="go('kanban')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="10" rx="1"/></svg><span>Kanban</span></button>
   <button class="nb" id="nb-amostras" onclick="go('amostras')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg><span>Amostras</span></button>
@@ -559,6 +570,9 @@ tr:hover td{background:var(--bg)}
     <div class="nav-av" id="nav-av" style="background:var(--green)">A</div>
     <div><div class="nav-un" id="nav-un">—</div><div class="nav-ur" id="nav-ur">—</div></div>
   </div>
+  <button class="ni-btn" id="btn-dark" onclick="toggleDarkMode()" title="Alternar modo escuro">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dark-icon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+  </button>
   <button class="ni-btn" id="btn-notif" onclick="openNotificacoes()" style="position:relative">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
     <span id="notif-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:9px;font-weight:700;width:15px;height:15px;border-radius:50%;align-items:center;justify-content:center">0</span>
@@ -594,10 +608,25 @@ tr:hover td{background:var(--bg)}
   </div>
 </div>
 
+<!-- DASHBOARD -->
+<div class="page" id="page-dashboard">
+  <div class="ph"><div class="ph-icon ic-n"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><h2>Dashboard</h2></div>
+  <div class="pb">
+    <div class="stats-row" id="dash-kpis"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px">
+      <div class="sw" style="padding:18px"><div class="st-title">Estampas por Status</div><canvas id="chart-status" height="220"></canvas></div>
+      <div class="sw" style="padding:18px"><div class="st-title">Estampas por Tipo</div><canvas id="chart-tipo" height="220"></canvas></div>
+      <div class="sw" style="padding:18px"><div class="st-title">Cadastros nos Últimos 6 Meses</div><canvas id="chart-meses" height="220"></canvas></div>
+      <div class="sw" style="padding:18px"><div class="st-title">Testes de Qualidade — Amostras</div><canvas id="chart-testes" height="220"></canvas></div>
+    </div>
+  </div>
+</div>
+
 <!-- ESTAMPAS -->
 <div class="page" id="page-estampas">
   <div class="ph"><div class="ph-icon ic-n"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div><h2>Estampas</h2>
     <button class="btn btn-primary" id="btn-nova-estampa" onclick="openNovaEstampa()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nova Estampa</button>
+    <button class="btn btn-ghost btn-sm adm" id="btn-sel-mode" onclick="toggleEstSelMode()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> Selecionar</button>
   </div>
   <div class="pb">
     <div class="sw">
@@ -686,6 +715,13 @@ tr:hover td{background:var(--bg)}
       <div id="af" class="sat" style="margin-top:7px"></div>
     </div>
     <div class="stats-row" id="est-stats"></div>
+    <div id="est-bulk-bar" style="display:none;align-items:center;gap:10px;background:var(--navy);color:#fff;border-radius:9px;padding:10px 14px;margin-bottom:12px">
+      <span id="est-bulk-count" style="font-weight:700;font-size:13px"></span>
+      <div style="flex:1"></div>
+      <button class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:#fff" onclick="bulkArquivarEstampas()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/></svg> Arquivar selecionadas</button>
+      <button class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:#fff" onclick="bulkExportEstampas()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Exportar CSV</button>
+      <button class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:#fff" onclick="toggleEstSelMode()">Cancelar</button>
+    </div>
     <div class="cg" id="est-grid"></div>
   </div>
 </div>
@@ -1358,6 +1394,22 @@ function uld() { document.getElementById('ld').classList.remove('show'); }
 // ═══════════════════════════════════════
 function hp(p){ let h=0; for(let i=0;i<p.length;i++){h=((h<<5)-h)+p.charCodeAt(i);h|=0} return h.toString(36); }
 
+// ── MODO ESCURO ──
+const DARK_ICON_SUN = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+const DARK_ICON_MOON = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+function toggleDarkMode() {
+  const isDark = document.body.classList.toggle('dark');
+  localStorage.setItem('stampos_dark', isDark ? '1' : '0');
+  document.getElementById('dark-icon').innerHTML = isDark ? DARK_ICON_MOON : DARK_ICON_SUN;
+  if (document.getElementById('page-dashboard')?.classList.contains('active')) renderDashboard();
+}
+function applyStoredDarkMode() {
+  const stored = localStorage.getItem('stampos_dark') === '1';
+  document.body.classList.toggle('dark', stored);
+  const iconEl = document.getElementById('dark-icon');
+  if (iconEl) iconEl.innerHTML = stored ? DARK_ICON_MOON : DARK_ICON_SUN;
+}
+
 // ── Ícones SVG (padrão Lucide) para substituir emojis em toda a interface ──
 const ICONS = {
   archive: '<rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><line x1="10" y1="12" x2="14" y2="12"/>',
@@ -1637,6 +1689,7 @@ function go(name, skipHistory) {
   if (name==='followup')  renderFollowup();
   if (name==='relatorio') { renderRelList(); }
   if (name==='home')      renderAlerts();
+  if (name==='dashboard') renderDashboard();
   if (name==='usuarios')  renderUsuarios();
 }
 
@@ -1658,6 +1711,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const SB_URL = 'https://pihxaodqwtrndsyskxte.supabase.co';
   const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpaHhhb2Rxd3RybmRzeXNreHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2OTMyODAsImV4cCI6MjA5NjI2OTI4MH0.C-q6EsQzBv9FR_ueIp4_lRkJlcHEdSRt71MwDXmoJwI';
   initSB(SB_URL, SB_KEY);
+  applyStoredDarkMode();
   // Conexão com EmailJS — SUBSTITUA pela sua Public Key (painel EmailJS → Account → General)
   try { emailjs.init({ publicKey: 'WSi3DYnEQJRpz7wU0' }); } catch(e) { console.warn('EmailJS indisponível:', e); }
   tryRestoreSession();
@@ -1963,6 +2017,54 @@ function renderTL() {
 // ═══════════════════════════════════════
 let estCache = [];
 let estRenderLimit = 40; // paginação: quantos cards desenhar de cada vez na tela
+let estSelMode = false;
+let estSelected = new Set();
+
+function toggleEstSelMode() {
+  if (!isAdm()) return;
+  estSelMode = !estSelMode;
+  estSelected.clear();
+  updateEstBulkBar();
+  renderEstampas();
+}
+function toggleEstSelect(id, checked) {
+  if (checked) estSelected.add(id); else estSelected.delete(id);
+  updateEstBulkBar();
+}
+function updateEstBulkBar() {
+  const bar = document.getElementById('est-bulk-bar');
+  bar.style.display = estSelMode ? 'flex' : 'none';
+  document.getElementById('est-bulk-count').textContent = `${estSelected.size} selecionada${estSelected.size!==1?'s':''}`;
+}
+async function bulkArquivarEstampas() {
+  if (!isAdm() || estSelected.size === 0) return;
+  if (!confirm(`Arquivar ${estSelected.size} estampa(s) selecionada(s)?`)) return;
+  ld('Arquivando...');
+  try {
+    for (const id of estSelected) {
+      await SB.from('estampas').update({ arquivado:true, arquivado_em:new Date().toISOString() }).eq('id', id);
+    }
+    estSelMode = false; estSelected.clear();
+    await renderEstampas();
+    updateEstBulkBar();
+  } catch(e) { alert('Erro: '+e.message); }
+  finally { uld(); }
+}
+function bulkExportEstampas() {
+  if (estSelected.size === 0) return;
+  const linhas = estCache.filter(e => estSelected.has(e.id));
+  const headers = ['Referência','Nome','Tipo','Status','Cliente','Fornecedor Estamparia','Cód. Engenharia'];
+  const rows = linhas.map(e => [e.ref, e.nome||'', e.tipo||'', e.status||'', e.cod_interno||'', e.fornecedor_est||'', e.cod_eng||'']);
+  const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], { type:'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `estampas_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+
 let editEstId = null;
 
 const EF = ['e-ref','e-nome','e-tipo','e-status','e-dim','e-ncores','e-artigo','e-ting','e-tec','e-mesh','e-obs',
@@ -2192,6 +2294,7 @@ async function renderEstampas() {
   const { data } = await SB.from('estampas').select('*').order('created_at',{ascending:false});
   estCache = data || [];
   uld();
+  updateEstBulkBar();
   // Atualiza toggles de fornecedor com dados reais
   buildFornToggles(estCache);
   const q   = (document.getElementById('q-est')?.value||'').toLowerCase().trim();
@@ -2238,7 +2341,8 @@ async function renderEstampas() {
   const visiveis = items.slice(0, estRenderLimit);
   const restantes = items.length - visiveis.length;
   grid.innerHTML = visiveis.map(e=>`
-    <div class="sc2" onclick="openDet('${e.id}')" style="${e.arquivado?'opacity:0.65':''}">
+    <div class="sc2" onclick="${estSelMode?`event.stopPropagation();document.getElementById('esel-${e.id}').click()`:`openDet('${e.id}')`}" style="${e.arquivado?'opacity:0.65':''}position:relative">
+      ${estSelMode?`<input type="checkbox" id="esel-${e.id}" onclick="event.stopPropagation()" onchange="toggleEstSelect('${e.id}',this.checked)" style="position:absolute;top:8px;left:8px;width:18px;height:18px;cursor:pointer;z-index:2">`:''}
       <div class="sc2-img">${e.img_url?`<img src="${e.img_url}" loading="lazy">`:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7A9A7C" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>'}</div>
       <div class="sc2-body">
         <div class="sc2-ref">${e.ref}${e.variante?' · '+e.variante:''}${e.arquivado?` <span style="color:var(--ink3)">${ic('archive',11)} Arquivada</span>`:''}</div>
@@ -3753,6 +3857,86 @@ async function renderAlerts() {
 }
 
 // ═══════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════
+let dashCharts = {};
+
+async function renderDashboard() {
+  ld('Carregando indicadores...');
+  const [{ data: est }, { data: am }] = await Promise.all([
+    SB.from('estampas').select('id,status,tipo,created_at,arquivado'),
+    SB.from('amostras').select('id,status,testes_qualidade,data_prev,created_at')
+  ]);
+  uld();
+  const estAtivas = (est||[]).filter(e=>!e.arquivado);
+  const amTodas = am||[];
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // ── KPIs ──
+  const totalEst = estAtivas.length;
+  const aprovadas = estAtivas.filter(e=>e.status==='Aprovada').length;
+  const taxaAprov = totalEst ? Math.round(aprovadas/totalEst*100) : 0;
+  const amAtrasadas = amTodas.filter(a=>a.data_prev && new Date(a.data_prev)<today && a.status!=='Aprovada' && a.status!=='Reprovada').length;
+  document.getElementById('dash-kpis').innerHTML = `
+    <div class="smi"><div class="smi-v">${totalEst}</div><div class="smi-l">Estampas Ativas</div></div>
+    <div class="smi"><div class="smi-v">${taxaAprov}%</div><div class="smi-l">Taxa de Aprovação</div></div>
+    <div class="smi"><div class="smi-v">${amTodas.length}</div><div class="smi-l">Amostras Registradas</div></div>
+    <div class="smi"><div class="smi-v" style="color:${amAtrasadas>0?'var(--red)':'inherit'}">${amAtrasadas}</div><div class="smi-l">Amostras Atrasadas</div></div>`;
+
+  // ── Gráfico 1: Estampas por Status ──
+  const statusCounts = {};
+  estAtivas.forEach(e=>{ const s=e.status||'Sem status'; statusCounts[s]=(statusCounts[s]||0)+1; });
+  renderChart('chart-status','bar',Object.keys(statusCounts),Object.values(statusCounts),['#1B3A5C','#2D7A3A','#C07A00','#C0392B','#7A9A7C']);
+
+  // ── Gráfico 2: Estampas por Tipo ──
+  const tipoCounts = {};
+  estAtivas.forEach(e=>{ const t=e.tipo||'Não informado'; tipoCounts[t]=(tipoCounts[t]||0)+1; });
+  renderChart('chart-tipo','doughnut',Object.keys(tipoCounts),Object.values(tipoCounts));
+
+  // ── Gráfico 3: Cadastros nos últimos 6 meses ──
+  const meses = [];
+  const hoje = new Date();
+  for (let i=5; i>=0; i--) meses.push(new Date(hoje.getFullYear(), hoje.getMonth()-i, 1));
+  const labels6 = meses.map(d => d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}));
+  const counts6 = meses.map(d => {
+    const next = new Date(d.getFullYear(), d.getMonth()+1, 1);
+    return estAtivas.filter(e => { if(!e.created_at) return false; const c=new Date(e.created_at); return c>=d && c<next; }).length;
+  });
+  renderChart('chart-meses','bar',labels6,counts6,['#2D7A3A']);
+
+  // ── Gráfico 4: Testes de Qualidade (agregado) ──
+  let tAprov=0, tReprov=0, tPend=0;
+  amTodas.forEach(a=>{
+    Object.values(a.testes_qualidade||{}).forEach(t=>{
+      if (t.resultado==='Aprovado') tAprov++;
+      else if (t.resultado==='Reprovado') tReprov++;
+      else tPend++;
+    });
+  });
+  renderChart('chart-testes','doughnut',['Aprovado','Reprovado','Pendente'],[tAprov,tReprov,tPend],['#2D7A3A','#C0392B','#C07A00']);
+}
+
+function renderChart(canvasId, type, labels, data, colors) {
+  const ctx = document.getElementById(canvasId);
+  if (!ctx || typeof Chart === 'undefined') return;
+  if (dashCharts[canvasId]) dashCharts[canvasId].destroy();
+  const palette = colors || ['#1B3A5C','#2D7A3A','#C07A00','#C0392B','#7A4A2A','#4A2A7A'];
+  const isDark = document.body.classList.contains('dark');
+  dashCharts[canvasId] = new Chart(ctx, {
+    type,
+    data: { labels, datasets: [{ data, backgroundColor: labels.map((_,i)=>palette[i%palette.length]), borderRadius: type==='bar'?6:0, borderWidth: type==='doughnut'?2:0, borderColor: isDark?'#1A2530':'#fff' }] },
+    options: {
+      responsive:true,
+      plugins:{ legend:{ display: type!=='bar', position:'bottom', labels:{boxWidth:11,font:{size:11},color:isDark?'#AEC0CF':'#3D5A3E'} } },
+      scales: type==='bar' ? {
+        y:{ beginAtZero:true, ticks:{ precision:0, color:isDark?'#AEC0CF':'#3D5A3E' }, grid:{ color:isDark?'#2C3B4D':'#E5EAE3' } },
+        x:{ ticks:{ color:isDark?'#AEC0CF':'#3D5A3E' }, grid:{ display:false } }
+      } : {}
+    }
+  });
+}
+
+// ═══════════════════════════════════════
 // USUÁRIOS
 // ═══════════════════════════════════════
 let editUsrId = null;
@@ -3898,5 +4082,6 @@ async function importBk(input) {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 </body>
 </html>
