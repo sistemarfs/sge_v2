@@ -96,6 +96,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--navy);heigh
 .hcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--green)}
 .hcard-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center}
 .ic-n{background:var(--navy-pale)}.ic-g{background:var(--green-pale)}.ic-m{background:linear-gradient(135deg,var(--navy-pale),var(--green-pale))}
+/* Modo escuro: ícones com cor fixa no SVG precisam de override pra continuar visíveis */
+body.dark .ic-n svg{stroke:#7BAAD9!important}
+body.dark .ic-g svg{stroke:#5BC97A!important}
+body.dark .ic-m svg{stroke:#8FBFE0!important}
 .hcard h3{font-family:'Source Serif 4',serif;font-size:14px;font-weight:600;color:var(--ink)}
 .hcard p{font-size:11px;color:var(--ink3);line-height:1.5}
 
