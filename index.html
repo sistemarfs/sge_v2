@@ -484,13 +484,14 @@ tr:hover td{background:var(--bg)}
 }
 
 /* ── ETIQUETA (impressão dedicada 90x50mm) ── */
-/* Fica fora da tela (não display:none) pra que o canvas do QR Code tenha
-   área real pra desenhar antes da impressão — display:none impediria isso em alguns navegadores. */
-#etiqueta-print-wrap{position:fixed;top:0;left:-9999px;width:90mm;height:50mm;overflow:hidden}
+/* Fica na tela normal (não display:none, não muito longe) mas invisível via opacidade —
+   isso evita tanto o problema do canvas não renderizar quanto o navegador "adiar" imagens
+   que ficam posicionadas muito longe da área visível. */
+#etiqueta-print-wrap{position:fixed;top:0;left:0;width:90mm;height:50mm;overflow:hidden;opacity:0;pointer-events:none;z-index:-1}
 @media print{
   body.printing-etiqueta > *:not(#etiqueta-print-wrap){display:none!important}
   body.printing-etiqueta #etiqueta-print-wrap{
-    position:static;left:auto;top:auto;
+    position:static;opacity:1;z-index:auto;
     display:block!important;width:90mm;height:50mm;
     box-sizing:border-box;font-family:'Source Sans 3',sans-serif;overflow:hidden
   }
@@ -2971,7 +2972,7 @@ async function printEtiqueta(estampaId) {
 
   document.getElementById('etiqueta-content').innerHTML = `
     <div class="etq2">
-      ${qrDataUrl ? `<img src="${qrDataUrl}" class="etq2-qr" alt="QR Code">` : ''}
+      ${qrDataUrl ? `<img src="${qrDataUrl}" class="etq2-qr" alt="QR Code" loading="eager" decoding="sync">` : ''}
       <div class="etq2-cliente"><span class="etq2-dot"></span>${e.cod_interno || 'Cliente não informado'}</div>
       <div class="etq2-ref-line">
         <span class="etq2-ref">${e.ref || '—'}</span>
