@@ -483,44 +483,6 @@ tr:hover td{background:var(--bg)}
   .rep-sl{ break-after:avoid; page-break-after:avoid; }
 }
 
-/* ── ETIQUETA (impressão dedicada 90x50mm) ── */
-/* Fica na tela normal (não display:none, não muito longe) mas invisível via opacidade —
-   isso evita tanto o problema do canvas não renderizar quanto o navegador "adiar" imagens
-   que ficam posicionadas muito longe da área visível. */
-#etiqueta-print-wrap{position:fixed;top:0;left:0;width:90mm;height:50mm;overflow:hidden;opacity:0;pointer-events:none;z-index:-1}
-@media print{
-  body.printing-etiqueta > *:not(#etiqueta-print-wrap){display:none!important}
-  body.printing-etiqueta #etiqueta-print-wrap{
-    position:static;opacity:1;z-index:auto;
-    display:block!important;width:90mm;height:50mm;
-    box-sizing:border-box;font-family:'Source Sans 3',sans-serif;overflow:hidden
-  }
-}
-.etq2{width:90mm;height:50mm;box-sizing:border-box;padding:2.6mm 3.2mm 2.2mm;display:flex;flex-direction:column;color:#000;position:relative}
-.etq2-qr{position:absolute;top:2.6mm;right:3.2mm;width:16mm;height:16mm}
-
-/* Cabeçalho: cliente + referência (elemento hero) + códigos na mesma linha */
-.etq2-cliente{font-size:6.3pt;font-weight:700;text-transform:uppercase;letter-spacing:0.6pt;color:#000;display:flex;align-items:center;gap:1.3mm}
-.etq2-cliente .etq2-dot{width:1.3mm;height:1.3mm;background:#000;border-radius:50%;flex-shrink:0}
-.etq2-ref-line{display:flex;align-items:baseline;gap:2.2mm;flex-wrap:wrap;margin:0.9mm 0 0.6mm}
-.etq2-ref{font-size:20pt;font-weight:800;color:#000;line-height:1;letter-spacing:-0.2pt;word-break:break-word;flex-shrink:0}
-.etq2-sub{font-size:15pt;font-weight:600;color:#000;display:flex;gap:1.5mm;flex-wrap:wrap;align-items:baseline;margin-left:1.5mm;padding-left:2.2mm;border-left:0.4mm solid #000}
-.etq2-sub .etq2-sep{color:#000;opacity:0.5}
-
-/* Linha divisória sólida */
-.etq2-divider{height:0.5mm;background:#000;margin:1.6mm 0 1.4mm;flex-shrink:0}
-
-/* Seção técnica: título micro + grade de specs */
-.etq2-specs-title{font-size:5.3pt;font-weight:700;text-transform:uppercase;letter-spacing:0.8pt;color:#000;margin-bottom:1mm}
-.etq2-specs{display:flex;gap:1.5mm;flex:1}
-.etq2-spec{display:flex;flex-direction:column;justify-content:flex-start;flex:1;min-width:0}
-.etq2-spec-label{font-size:5.3pt;font-weight:700;text-transform:uppercase;letter-spacing:0.3pt;color:#000;opacity:0.65;margin-bottom:0.4mm}
-.etq2-spec-val{font-size:9.5pt;font-weight:700;color:#000;line-height:1.05;word-break:break-word}
-.etq2-spec-badge{display:inline-block;background:#000;color:#fff;padding:0.4mm 1.6mm;border-radius:1mm;font-size:9.5pt;font-weight:800;width:fit-content}
-
-/* Rodapé: tingimento */
-.etq2-foot{font-size:6.8pt;font-weight:600;color:#000;border-top:0.35mm solid #000;padding-top:1mm;margin-top:auto;display:flex;justify-content:space-between}
-.etq2-foot b{font-weight:700;text-transform:uppercase;letter-spacing:0.3pt;opacity:0.65;font-size:5.3pt;margin-right:1mm}
 @media(max-width:640px){
   .hcards{padding:16px 12px}.hcard{width:100%;max-width:300px}
   .pb{padding:12px}
@@ -603,11 +565,6 @@ tr:hover td{background:var(--bg)}
     </div>
     <div class="lg-footer">by Reginaldo F - SGE v3.0</div>
   </div>
-</div>
-
-<!-- ETIQUETA (impressão dedicada 90x50mm) -->
-<div id="etiqueta-print-wrap">
-  <div id="etiqueta-content"></div>
 </div>
 
 <!-- APP -->
@@ -2960,8 +2917,7 @@ async function printEtiqueta(estampaId) {
       <span class="${s.badge?'etq2-spec-badge':'etq2-spec-val'}">${s.val}</span>
     </div>`).join('');
 
-  // Gera o QR Code como imagem pronta (data URL) ANTES de montar a etiqueta —
-  // evita qualquer problema de desenhar num canvas que ainda não está visível na tela
+  // Gera o QR Code como imagem pronta (data URL) — a biblioteca desenha internamente, sem tocar na página
   let qrDataUrl = '';
   if (typeof QRCode !== 'undefined') {
     const fichaUrl = `${location.origin}${location.pathname}#ficha=${e.id}`;
@@ -2970,9 +2926,9 @@ async function printEtiqueta(estampaId) {
     } catch(err) { console.warn('Falha ao gerar QR Code:', err); }
   }
 
-  document.getElementById('etiqueta-content').innerHTML = `
+  const etiquetaHtml = `
     <div class="etq2">
-      ${qrDataUrl ? `<img src="${qrDataUrl}" class="etq2-qr" alt="QR Code" loading="eager" decoding="sync">` : ''}
+      ${qrDataUrl ? `<img src="${qrDataUrl}" class="etq2-qr" alt="QR Code">` : ''}
       <div class="etq2-cliente"><span class="etq2-dot"></span>${e.cod_interno || 'Cliente não informado'}</div>
       <div class="etq2-ref-line">
         <span class="etq2-ref">${e.ref || '—'}</span>
@@ -2984,21 +2940,37 @@ async function printEtiqueta(estampaId) {
       <div class="etq2-foot"><b>Tingimento</b>${e.tingimento || '—'}</div>
     </div>`;
 
-  const styleTag = document.createElement('style');
-  styleTag.id = 'etiqueta-page-style';
-  styleTag.textContent = '@page{size:90mm 50mm;margin:0mm;}';
-  document.head.appendChild(styleTag);
-  document.body.classList.add('printing-etiqueta');
+  // Abre a etiqueta numa janela própria — totalmente visível, sem precisar esconder nada
+  // na página principal (evita bloqueios de "imagem fora da tela" de alguns navegadores).
+  const etiquetaCss = `
+    @page{size:90mm 50mm;margin:0mm}
+    body{margin:0;font-family:'Source Sans 3',Arial,sans-serif}
+    .etq2{width:90mm;height:50mm;box-sizing:border-box;padding:2.6mm 3.2mm 2.2mm;display:flex;flex-direction:column;color:#000;position:relative}
+    .etq2-qr{position:absolute;top:2.6mm;right:3.2mm;width:16mm;height:16mm}
+    .etq2-cliente{font-size:6.3pt;font-weight:700;text-transform:uppercase;letter-spacing:0.6pt;color:#000;display:flex;align-items:center;gap:1.3mm}
+    .etq2-dot{width:1.3mm;height:1.3mm;background:#000;border-radius:50%;flex-shrink:0}
+    .etq2-ref-line{display:flex;align-items:baseline;gap:2.2mm;flex-wrap:wrap;margin:0.9mm 0 0.6mm}
+    .etq2-ref{font-size:20pt;font-weight:800;color:#000;line-height:1;letter-spacing:-0.2pt;word-break:break-word;flex-shrink:0}
+    .etq2-sub{font-size:15pt;font-weight:600;color:#000;display:flex;gap:1.5mm;flex-wrap:wrap;align-items:baseline;margin-left:1.5mm;padding-left:2.2mm;border-left:0.4mm solid #000}
+    .etq2-sep{color:#000;opacity:0.5}
+    .etq2-divider{height:0.5mm;background:#000;margin:1.6mm 0 1.4mm;flex-shrink:0}
+    .etq2-specs-title{font-size:5.3pt;font-weight:700;text-transform:uppercase;letter-spacing:0.8pt;color:#000;margin-bottom:1mm}
+    .etq2-specs{display:flex;gap:1.5mm;flex:1}
+    .etq2-spec{display:flex;flex-direction:column;justify-content:flex-start;flex:1;min-width:0}
+    .etq2-spec-label{font-size:5.3pt;font-weight:700;text-transform:uppercase;letter-spacing:0.3pt;color:#000;opacity:0.65;margin-bottom:0.4mm}
+    .etq2-spec-val{font-size:9.5pt;font-weight:700;color:#000;line-height:1.05;word-break:break-word}
+    .etq2-spec-badge{display:inline-block;background:#000;color:#fff;padding:0.4mm 1.6mm;border-radius:1mm;font-size:9.5pt;font-weight:800;width:fit-content}
+    .etq2-foot{font-size:6.8pt;font-weight:600;color:#000;border-top:0.35mm solid #000;padding-top:1mm;margin-top:auto}
+    .etq2-foot b{font-weight:700;text-transform:uppercase;letter-spacing:0.3pt;opacity:0.65;font-size:5.3pt;margin-right:1mm}
+  `;
 
-  const cleanup = () => {
-    document.body.classList.remove('printing-etiqueta');
-    if (styleTag.parentNode) styleTag.parentNode.removeChild(styleTag);
-    window.removeEventListener('afterprint', cleanup);
-  };
-  window.addEventListener('afterprint', cleanup);
-  window.print();
-  // Fallback caso o navegador não dispare afterprint
-  setTimeout(cleanup, 4000);
+  const win = window.open('', 'etiqueta_print', 'width=420,height=300');
+  if (!win) { alert('Não foi possível abrir a janela de impressão. Verifique se o navegador está bloqueando pop-ups para este site.'); return; }
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Etiqueta ${e.ref||''}</title><style>${etiquetaCss}</style></head><body>${etiquetaHtml}</body></html>`);
+  win.document.close();
+  win.onload = () => { win.focus(); win.print(); };
+  // Fallback caso onload não dispare
+  setTimeout(() => { try { win.focus(); win.print(); } catch(err) {} }, 400);
 }
 
 function kanDragStart(ev, id) {
