@@ -2959,9 +2959,19 @@ async function printEtiqueta(estampaId) {
       <span class="${s.badge?'etq2-spec-badge':'etq2-spec-val'}">${s.val}</span>
     </div>`).join('');
 
+  // Gera o QR Code como imagem pronta (data URL) ANTES de montar a etiqueta —
+  // evita qualquer problema de desenhar num canvas que ainda não está visível na tela
+  let qrDataUrl = '';
+  if (typeof QRCode !== 'undefined') {
+    const fichaUrl = `${location.origin}${location.pathname}#ficha=${e.id}`;
+    try {
+      qrDataUrl = await QRCode.toDataURL(fichaUrl, { width: 136, margin: 0, color: { dark:'#000000', light:'#ffffff' } });
+    } catch(err) { console.warn('Falha ao gerar QR Code:', err); }
+  }
+
   document.getElementById('etiqueta-content').innerHTML = `
     <div class="etq2">
-      <canvas id="etq2-qr" class="etq2-qr"></canvas>
+      ${qrDataUrl ? `<img src="${qrDataUrl}" class="etq2-qr" alt="QR Code">` : ''}
       <div class="etq2-cliente"><span class="etq2-dot"></span>${e.cod_interno || 'Cliente não informado'}</div>
       <div class="etq2-ref-line">
         <span class="etq2-ref">${e.ref || '—'}</span>
@@ -2978,15 +2988,6 @@ async function printEtiqueta(estampaId) {
   styleTag.textContent = '@page{size:90mm 50mm;margin:0mm;}';
   document.head.appendChild(styleTag);
   document.body.classList.add('printing-etiqueta');
-
-  // Gera o QR Code SÓ DEPOIS da etiqueta ficar visível (com a classe acima) —
-  // desenhar num canvas ainda dentro de display:none faz alguns navegadores renderizarem em branco
-  if (typeof QRCode !== 'undefined') {
-    const fichaUrl = `${location.origin}${location.pathname}#ficha=${e.id}`;
-    try {
-      await QRCode.toCanvas(document.getElementById('etq2-qr'), fichaUrl, { width: 68, margin: 0, color: { dark:'#000000', light:'#ffffff' } });
-    } catch(err) { console.warn('Falha ao gerar QR Code:', err); }
-  }
 
   const cleanup = () => {
     document.body.classList.remove('printing-etiqueta');
