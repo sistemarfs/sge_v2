@@ -2917,18 +2917,11 @@ async function printEtiqueta(estampaId) {
       <span class="${s.badge?'etq2-spec-badge':'etq2-spec-val'}">${s.val}</span>
     </div>`).join('');
 
-  // Gera o QR Code como imagem pronta (data URL) — a biblioteca desenha internamente, sem tocar na página
-  let qrDataUrl = '';
-  if (typeof QRCode !== 'undefined') {
-    const fichaUrl = `${location.origin}${location.pathname}#ficha=${e.id}`;
-    try {
-      qrDataUrl = await QRCode.toDataURL(fichaUrl, { width: 136, margin: 0, color: { dark:'#000000', light:'#ffffff' } });
-    } catch(err) { console.warn('Falha ao gerar QR Code:', err); }
-  }
+  const fichaUrl = `${location.origin}${location.pathname}#ficha=${e.id}`;
 
   const etiquetaHtml = `
     <div class="etq2">
-      ${qrDataUrl ? `<img src="${qrDataUrl}" class="etq2-qr" alt="QR Code">` : ''}
+      <div id="etq2-qr" class="etq2-qr"></div>
       <div class="etq2-cliente"><span class="etq2-dot"></span>${e.cod_interno || 'Cliente não informado'}</div>
       <div class="etq2-ref-line">
         <span class="etq2-ref">${e.ref || '—'}</span>
@@ -2942,11 +2935,13 @@ async function printEtiqueta(estampaId) {
 
   // Abre a etiqueta numa janela própria — totalmente visível, sem precisar esconder nada
   // na página principal (evita bloqueios de "imagem fora da tela" de alguns navegadores).
+  // O QR Code é gerado dentro da PRÓPRIA janela nova, por um script que roda lá mesmo.
   const etiquetaCss = `
     @page{size:90mm 50mm;margin:0mm}
     body{margin:0;font-family:'Source Sans 3',Arial,sans-serif}
     .etq2{width:90mm;height:50mm;box-sizing:border-box;padding:2.6mm 3.2mm 2.2mm;display:flex;flex-direction:column;color:#000;position:relative}
-    .etq2-qr{position:absolute;top:2.6mm;right:3.2mm;width:16mm;height:16mm}
+    .etq2-qr{position:absolute;top:2.6mm;right:3.2mm;width:16mm;height:16mm;overflow:hidden}
+    .etq2-qr img,.etq2-qr canvas{width:100%!important;height:100%!important}
     .etq2-cliente{font-size:6.3pt;font-weight:700;text-transform:uppercase;letter-spacing:0.6pt;color:#000;display:flex;align-items:center;gap:1.3mm}
     .etq2-dot{width:1.3mm;height:1.3mm;background:#000;border-radius:50%;flex-shrink:0}
     .etq2-ref-line{display:flex;align-items:baseline;gap:2.2mm;flex-wrap:wrap;margin:0.9mm 0 0.6mm}
@@ -2966,11 +2961,24 @@ async function printEtiqueta(estampaId) {
 
   const win = window.open('', 'etiqueta_print', 'width=420,height=300');
   if (!win) { alert('Não foi possível abrir a janela de impressão. Verifique se o navegador está bloqueando pop-ups para este site.'); return; }
-  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Etiqueta ${e.ref||''}</title><style>${etiquetaCss}</style></head><body>${etiquetaHtml}</body></html>`);
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Etiqueta ${e.ref||''}</title>
+    <style>${etiquetaCss}</style>
+    <script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"><\/script>
+    </head><body>${etiquetaHtml}
+    <script>
+      window.onload = function() {
+        try {
+          new QRCode(document.getElementById('etq2-qr'), {
+            text: ${JSON.stringify(fichaUrl)},
+            width: 68, height: 68,
+            colorDark: '#000000', colorLight: '#ffffff'
+          });
+        } catch(err) { console.warn('Falha ao gerar QR Code na etiqueta:', err); }
+        setTimeout(function(){ window.focus(); window.print(); }, 150);
+      };
+    <\/script>
+    </body></html>`);
   win.document.close();
-  win.onload = () => { win.focus(); win.print(); };
-  // Fallback caso onload não dispare
-  setTimeout(() => { try { win.focus(); win.print(); } catch(err) {} }, 400);
 }
 
 function kanDragStart(ev, id) {
@@ -4265,6 +4273,5 @@ async function importBk(input) {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
 </body>
 </html>
