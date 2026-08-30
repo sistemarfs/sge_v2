@@ -612,6 +612,7 @@ tr:hover td{background:var(--bg)}
     <div class="nav-av" id="nav-av" style="background:var(--green)">A</div>
     <div><div class="nav-un" id="nav-un">—</div><div class="nav-ur" id="nav-ur">—</div></div>
   </div>
+  <span id="conn-dot" style="width:8px;height:8px;border-radius:50%;background:#2D7A3A;display:inline-block;margin:0 6px;flex-shrink:0" title="Conectado"></span>
   <button class="ni-btn" id="btn-install" onclick="installPWA()" style="display:none" title="Instalar aplicativo">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
     <span>Instalar</span>
@@ -1492,6 +1493,45 @@ function registerServiceWorker() {
   }
 }
 
+// ── MODO OFFLINE (Nível 2 — consulta de dados já carregados antes) ──
+// Guarda uma cópia local (localStorage) das últimas listas carregadas.
+// Se a internet cair, essas telas caem de volta pra essa cópia — só leitura,
+// e com um aviso deixando claro que os dados podem estar desatualizados.
+function offlineCacheSet(key, data) {
+  try { localStorage.setItem('sge_cache_'+key, JSON.stringify({ data, savedAt: Date.now() })); }
+  catch(e) { console.warn('Não foi possível salvar cache offline:', e); }
+}
+function offlineCacheGet(key) {
+  try {
+    const raw = localStorage.getItem('sge_cache_'+key);
+    if (!raw) return null;
+    return JSON.parse(raw); // { data, savedAt }
+  } catch(e) { return null; }
+}
+function showOfflineBanner(savedAt) {
+  let banner = document.getElementById('offline-banner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'offline-banner';
+    banner.style.cssText = 'position:sticky;top:0;z-index:50;background:#C07A00;color:#fff;text-align:center;padding:7px 14px;font-size:12px;font-weight:700';
+    document.getElementById('app').prepend(banner);
+  }
+  const dt = savedAt ? new Date(savedAt).toLocaleString('pt-BR') : '—';
+  banner.innerHTML = `📡 Sem conexão — mostrando dados salvos em ${dt}. Algumas informações podem estar desatualizadas.`;
+}
+function hideOfflineBanner() {
+  document.getElementById('offline-banner')?.remove();
+}
+function updateConnectionIndicator() {
+  const dot = document.getElementById('conn-dot');
+  if (!dot) return;
+  dot.style.background = navigator.onLine ? '#2D7A3A' : '#C0392B';
+  dot.title = navigator.onLine ? 'Conectado' : 'Sem conexão';
+  if (navigator.onLine) hideOfflineBanner();
+}
+window.addEventListener('online', updateConnectionIndicator);
+window.addEventListener('offline', updateConnectionIndicator);
+
 // ── Ícones SVG (padrão Lucide) para substituir emojis em toda a interface ──
 const ICONS = {
   archive: '<rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><line x1="10" y1="12" x2="14" y2="12"/>',
@@ -1602,8 +1642,25 @@ async function tryRestoreSession() {
   try {
     const { data, error } = await SB.from('usuarios').select('*').eq('id', savedId).single();
     uld();
-    if (error || !data) { localStorage.removeItem('stampos_session'); showLogin(); return; }
+    if (error) {
+      // Se o erro for por falta de conexão, NÃO desloga — usa o perfil salvo localmente
+      if (!navigator.onLine) {
+        const cachedCU = offlineCacheGet('cu');
+        if (cachedCU && cachedCU.data?.id === savedId) {
+          CU = cachedCU.data;
+          document.getElementById('login-screen').style.display = 'none';
+          document.getElementById('app').style.display = 'block';
+          applyPerms();
+          go('home');
+          showOfflineBanner(cachedCU.savedAt);
+          return;
+        }
+      }
+      localStorage.removeItem('stampos_session'); showLogin(); return;
+    }
+    if (!data) { localStorage.removeItem('stampos_session'); showLogin(); return; }
     CU = data;
+    offlineCacheSet('cu', CU);
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     applyPerms();
@@ -1613,6 +1670,19 @@ async function tryRestoreSession() {
     assinarNotificacoesRealtime();
   } catch(e) {
     uld();
+    // Erro de rede (offline) — tenta usar o perfil salvo localmente antes de deslogar
+    if (!navigator.onLine) {
+      const cachedCU = offlineCacheGet('cu');
+      if (cachedCU && cachedCU.data?.id === savedId) {
+        CU = cachedCU.data;
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        applyPerms();
+        go('home');
+        showOfflineBanner(cachedCU.savedAt);
+        return;
+      }
+    }
     localStorage.removeItem('stampos_session');
     showLogin();
   }
@@ -1798,6 +1868,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Conexão com EmailJS — SUBSTITUA pela sua Public Key (painel EmailJS → Account → General)
   try { emailjs.init({ publicKey: 'WSi3DYnEQJRpz7wU0' }); } catch(e) { console.warn('EmailJS indisponível:', e); }
   // Se veio de um QR Code (#ficha=ID), mostra a visualização pública e pula o login
+  updateConnectionIndicator();
   const isPublicFicha = await checkPublicFichaLink();
   if (!isPublicFicha) tryRestoreSession();
   try { history.replaceState({ page:'home' }, ''); } catch(e) { console.warn('replaceState indisponível:', e); }
@@ -2378,9 +2449,17 @@ function clearF() {
 
 async function renderEstampas() {
   ld('Carregando estampas...');
-  const { data } = await SB.from('estampas').select('*').order('created_at',{ascending:false});
-  estCache = data || [];
+  const { data, error } = await SB.from('estampas').select('*').order('created_at',{ascending:false});
   uld();
+  if (error && !navigator.onLine) {
+    const cached = offlineCacheGet('estampas');
+    if (cached) { estCache = cached.data; showOfflineBanner(cached.savedAt); }
+    else { estCache = []; }
+  } else if (data) {
+    estCache = data;
+    offlineCacheSet('estampas', estCache);
+    hideOfflineBanner();
+  }
   updateEstBulkBar();
   // Atualiza toggles de fornecedor com dados reais
   buildFornToggles(estCache);
@@ -2751,8 +2830,17 @@ async function enviarAvisoNovaEstampa(estampa) {
 
 async function renderAmostras() {
   ld('Carregando amostras...');
-  const { data } = await SB.from('amostras').select('*').order('created_at',{ascending:false});
-  amCache = data || []; uld();
+  const { data, error } = await SB.from('amostras').select('*').order('created_at',{ascending:false});
+  uld();
+  if (error && !navigator.onLine) {
+    const cached = offlineCacheGet('amostras');
+    if (cached) { amCache = cached.data; showOfflineBanner(cached.savedAt); }
+    else { amCache = []; }
+  } else if (data) {
+    amCache = data;
+    offlineCacheSet('amostras', amCache);
+    hideOfflineBanner();
+  }
   const q  = (document.getElementById('q-am')?.value||'').toLowerCase();
   const st = document.getElementById('f-am-st')?.value||'';
   const items = amCache.filter(a=>{
