@@ -492,7 +492,8 @@ tr:hover td{background:var(--bg)}
     box-sizing:border-box;font-family:'Source Sans 3',sans-serif;overflow:hidden
   }
 }
-.etq2{width:90mm;height:50mm;box-sizing:border-box;padding:2.6mm 3.2mm 2.2mm;display:flex;flex-direction:column;color:#000}
+.etq2{width:90mm;height:50mm;box-sizing:border-box;padding:2.6mm 3.2mm 2.2mm;display:flex;flex-direction:column;color:#000;position:relative}
+.etq2-qr{position:absolute;top:2.6mm;right:3.2mm;width:16mm;height:16mm}
 
 /* Cabeçalho: cliente + referência (elemento hero) + códigos na mesma linha */
 .etq2-cliente{font-size:6.3pt;font-weight:700;text-transform:uppercase;letter-spacing:0.6pt;color:#000;display:flex;align-items:center;gap:1.3mm}
@@ -1205,6 +1206,10 @@ tr:hover td{background:var(--bg)}
         <div class="fg"><label>Nome Completo *</label><input type="text" class="form-input" id="u-nome" placeholder="Ex: Maria Silva"></div>
         <div class="fg"><label>Usuário (login) *</label><input type="text" class="form-input" id="u-user" placeholder="Ex: maria.silva"></div>
         <div class="fg"><label>E-mail (para notificações)</label><input type="email" class="form-input" id="u-email" placeholder="maria@empresa.com"></div>
+        <div class="fg"><label>WhatsApp (com DDI/DDD)</label><input type="text" class="form-input" id="u-tel" placeholder="Ex: 5511999998888"></div>
+        <div class="fg"><label>Chave CallMeBot</label><input type="text" class="form-input" id="u-apikey" placeholder="Chave recebida do CallMeBot">
+          <span style="font-size:11px;color:var(--ink3);margin-top:4px;display:block">Cada pessoa precisa gerar sua própria chave: envie "I allow callmebot to send me messages" pelo WhatsApp para o número +34 644 59 71 79, e cole a chave que ele responder.</span>
+        </div>
         <div class="fg" id="u-pw-wrap"><label>Senha *</label><input type="password" class="form-input" id="u-pass" placeholder="Mínimo 4 caracteres"></div>
         <div class="fg" id="u-pw-edit" style="display:none"><label>Nova Senha <span style="color:var(--ink3);font-size:10px">(em branco = manter)</span></label><input type="password" class="form-input" id="u-pass2"></div>
         <div class="fg"><label>Perfil de Acesso</label>
@@ -1566,6 +1571,7 @@ async function doLogin() {
     checkAvisosPendentes();
     atualizarNotifBadge();
     assinarNotificacoesRealtime();
+    checkDeepLinkFicha();
   } catch(e) {
     err.textContent = e.message; err.style.display = 'block';
   } finally {
@@ -1620,6 +1626,7 @@ async function tryRestoreSession() {
     checkAvisosPendentes();
     atualizarNotifBadge();
     assinarNotificacoesRealtime();
+    checkDeepLinkFicha();
   } catch(e) {
     uld();
     localStorage.removeItem('stampos_session');
@@ -2222,12 +2229,14 @@ async function saveEstampa() {
     updated_by:CU?.nome
   };
   try {
+    const isNovaEstampa = !editEstId;
     const { error } = editEstId
       ? await SB.from('estampas').update(row).eq('id', editEstId)
       : await SB.from('estampas').insert(row);
     if (error) throw error;
     closeM('m-estampa');
     await renderEstampas();
+    if (isNovaEstampa) enviarAvisoNovaEstampa(row);
   } catch(e) { alert('Erro ao salvar: '+e.message); }
   finally { uld(); editEstId = null; }
 }
@@ -2693,22 +2702,60 @@ async function saveAmostra() {
 }
 
 // Envia e-mail ao solicitante quando uma nova amostra é cadastrada
+// Envia mensagem via WhatsApp usando o CallMeBot (API gratuita, cada usuário tem sua própria chave)
+async function enviarWhatsApp(telefone, apikey, mensagem) {
+  if (!telefone || !apikey) return;
+  try {
+    const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(telefone)}&text=${encodeURIComponent(mensagem)}&apikey=${encodeURIComponent(apikey)}`;
+    await fetch(url);
+  } catch(e) { console.warn('Falha ao enviar WhatsApp:', e); }
+}
+
 async function enviarEmailCadastroAmostra(amostra) {
-  if (typeof emailjs === 'undefined') return;
   const nomeSolic = amostra.solicitante;
   if (!nomeSolic) return;
   try {
-    const { data: user } = await SB.from('usuarios').select('email').eq('nome', nomeSolic).maybeSingle();
-    if (!user?.email) return; // solicitante sem e-mail cadastrado — silenciosamente ignora
-    await emailjs.send('service_s43lrzs', 'template_erzyo8k', {
-      to_email: user.email,
-      to_name: nomeSolic,
-      fornecedor: amostra.fornecedor,
-      produto: amostra.produto || '—',
-      data_solicitacao: amostra.data_sol || '—',
-      data_previsao: amostra.data_prev || '—',
-    });
-  } catch(e) { console.warn('Falha ao enviar e-mail de cadastro:', e); }
+    const { data: user } = await SB.from('usuarios').select('email,telefone_whatsapp,whatsapp_apikey').eq('nome', nomeSolic).maybeSingle();
+    if (!user) return;
+    if (user.email && typeof emailjs !== 'undefined') {
+      await emailjs.send('service_s43lrzs', 'template_erzyo8k', {
+        to_email: user.email,
+        to_name: nomeSolic,
+        fornecedor: amostra.fornecedor,
+        produto: amostra.produto || '—',
+        data_solicitacao: amostra.data_sol || '—',
+        data_previsao: amostra.data_prev || '—',
+      });
+    }
+    if (user.telefone_whatsapp && user.whatsapp_apikey) {
+      const msg = `📦 *Amostra cadastrada*\n\nFornecedor: ${amostra.fornecedor}\nProduto: ${amostra.produto||'—'}\nPrevisão: ${amostra.data_prev||'—'}`;
+      await enviarWhatsApp(user.telefone_whatsapp, user.whatsapp_apikey, msg);
+    }
+  } catch(e) { console.warn('Falha ao enviar aviso de cadastro:', e); }
+}
+
+// Notifica todos os Administradores quando uma nova estampa é cadastrada
+async function enviarAvisoNovaEstampa(estampa) {
+  try {
+    const { data: admins } = await SB.from('usuarios').select('email,telefone_whatsapp,whatsapp_apikey').eq('role','admin');
+    if (!admins || !admins.length) return;
+    for (const adm of admins) {
+      if (adm.email && typeof emailjs !== 'undefined') {
+        try {
+          await emailjs.send('service_s43lrzs', 'SUBSTITUA_TEMPLATE_ID_NOVA_ESTAMPA', {
+            to_email: adm.email,
+            referencia: estampa.ref,
+            nome: estampa.nome || '—',
+            tipo: estampa.tipo || '—',
+          });
+        } catch(e) { console.warn('Falha ao enviar e-mail de nova estampa:', e); }
+      }
+      if (adm.telefone_whatsapp && adm.whatsapp_apikey) {
+        const msg = `🎨 *Nova estampa cadastrada*\n\nReferência: ${estampa.ref}\nNome: ${estampa.nome||'—'}\nTipo: ${estampa.tipo||'—'}`;
+        await enviarWhatsApp(adm.telefone_whatsapp, adm.whatsapp_apikey, msg);
+      }
+    }
+  } catch(e) { console.warn('Falha ao notificar nova estampa:', e); }
 }
 
 async function renderAmostras() {
@@ -2872,6 +2919,16 @@ async function openKanPrint(id) {
 }
 
 // ── Impressão de Etiqueta (90x50mm — Zebra ZD220) ──
+// Se a URL tiver #ficha=ID (escaneada via QR Code da etiqueta), abre direto a ficha técnica
+function checkDeepLinkFicha() {
+  const hash = location.hash || '';
+  const m = hash.match(/#ficha=([a-f0-9-]+)/i);
+  if (!m) return;
+  const id = m[1];
+  try { history.replaceState(null, '', location.pathname); } catch(e) { console.warn('replaceState indisponível:', e); }
+  openKanPrint(id);
+}
+
 async function printEtiqueta(estampaId) {
   ld('Preparando etiqueta...');
   const { data: e, error } = await SB.from('estampas').select('*').eq('id', estampaId).single();
@@ -2899,6 +2956,7 @@ async function printEtiqueta(estampaId) {
 
   document.getElementById('etiqueta-content').innerHTML = `
     <div class="etq2">
+      <canvas id="etq2-qr" class="etq2-qr"></canvas>
       <div class="etq2-cliente"><span class="etq2-dot"></span>${e.cod_interno || 'Cliente não informado'}</div>
       <div class="etq2-ref-line">
         <span class="etq2-ref">${e.ref || '—'}</span>
@@ -2909,6 +2967,14 @@ async function printEtiqueta(estampaId) {
       <div class="etq2-specs">${specsHtml}</div>
       <div class="etq2-foot"><b>Tingimento</b>${e.tingimento || '—'}</div>
     </div>`;
+
+  // Gera o QR Code apontando pra ficha técnica online desta estampa
+  if (typeof QRCode !== 'undefined') {
+    const fichaUrl = `${location.origin}${location.pathname}#ficha=${e.id}`;
+    try {
+      await QRCode.toCanvas(document.getElementById('etq2-qr'), fichaUrl, { width: 68, margin: 0, color: { dark:'#000000', light:'#ffffff' } });
+    } catch(err) { console.warn('Falha ao gerar QR Code:', err); }
+  }
 
   const styleTag = document.createElement('style');
   styleTag.id = 'etiqueta-page-style';
@@ -4103,7 +4169,7 @@ function permIdToCol(id) { return id.replace(/-/g,'_'); }
 
 function openNovoUsuario() {
   editUsrId = null;
-  ['u-nome','u-user','u-email','u-pass','u-pass2'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['u-nome','u-user','u-email','u-tel','u-apikey','u-pass','u-pass2'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('u-role').value='viewer';
   PERM_FIELDS.forEach(id => { const el=document.getElementById(id); if(el) el.checked=false; });
   document.getElementById('u-pw-wrap').style.display='flex';
@@ -4116,20 +4182,22 @@ function openNovoUsuario() {
 async function saveUsuario() {
   const nome = gv('u-nome').trim(), username = gv('u-user').trim().toLowerCase(), role = gv('u-role');
   const email = gv('u-email').trim();
+  const tel = gv('u-tel').trim();
+  const apikey = gv('u-apikey').trim();
   const permRow = {};
   PERM_FIELDS.forEach(id => { permRow[permIdToCol(id)] = document.getElementById(id).checked; });
   if (!nome||!username){alert('Preencha nome e usuário.');return;}
   ld('Salvando...');
   try {
     if (editUsrId) {
-      const row = {nome,username,email:email||null,role,...permRow};
+      const row = {nome,username,email:email||null,telefone_whatsapp:tel||null,whatsapp_apikey:apikey||null,role,...permRow};
       const np = gv('u-pass2'); if(np&&np.length>=4) row.pass_hash=hp(np);
       const {error}=await SB.from('usuarios').update(row).eq('id',editUsrId);
       if(error) throw error;
     } else {
       const pass=gv('u-pass');
       if(!pass||pass.length<4){alert('Senha mínima: 4 caracteres.');return;}
-      const {error}=await SB.from('usuarios').insert({nome,username,email:email||null,pass_hash:hp(pass),role,...permRow});
+      const {error}=await SB.from('usuarios').insert({nome,username,email:email||null,telefone_whatsapp:tel||null,whatsapp_apikey:apikey||null,pass_hash:hp(pass),role,...permRow});
       if(error) throw error;
     }
     closeM('m-usuario'); await renderUsuarios();
@@ -4144,6 +4212,8 @@ async function editUsr(id) {
   document.getElementById('u-nome').value=u.nome;
   document.getElementById('u-user').value=u.username||'';
   document.getElementById('u-email').value=u.email||'';
+  document.getElementById('u-tel').value=u.telefone_whatsapp||'';
+  document.getElementById('u-apikey').value=u.whatsapp_apikey||'';
   document.getElementById('u-role').value=u.role;
   PERM_FIELDS.forEach(id => { const el=document.getElementById(id); if(el) el.checked = !!u[permIdToCol(id)]; });
   document.getElementById('u-pass').value='';
@@ -4215,5 +4285,6 @@ async function importBk(input) {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 </body>
 </html>
