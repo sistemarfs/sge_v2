@@ -2698,18 +2698,21 @@ async function enviarEmailCadastroAmostra(amostra) {
 }
 
 // Notifica todos os Administradores quando uma nova estampa é cadastrada
+// Reaproveita o template "Amostra em atraso" do EmailJS (plano gratuito permite só 2 templates)
 async function enviarAvisoNovaEstampa(estampa) {
   try {
-    const { data: admins } = await SB.from('usuarios').select('email,telefone_whatsapp,whatsapp_apikey').eq('role','admin');
+    const { data: admins } = await SB.from('usuarios').select('nome,email,telefone_whatsapp,whatsapp_apikey').eq('role','admin');
     if (!admins || !admins.length) return;
+    const hoje = new Date().toLocaleDateString('pt-BR');
     for (const adm of admins) {
       if (adm.email && typeof emailjs !== 'undefined') {
         try {
-          await emailjs.send('service_s43lrzs', 'SUBSTITUA_TEMPLATE_ID_NOVA_ESTAMPA', {
+          await emailjs.send('service_s43lrzs', 'template_wq8l32l', {
             to_email: adm.email,
-            referencia: estampa.ref,
-            nome: estampa.nome || '—',
-            tipo: estampa.tipo || '—',
+            to_name: adm.nome || 'Administrador',
+            fornecedor: 'Nova Estampa Cadastrada',
+            produto: `${estampa.ref}${estampa.nome ? ' — '+estampa.nome : ''} (${estampa.tipo||'—'})`,
+            data_previsao: hoje,
           });
         } catch(e) { console.warn('Falha ao enviar e-mail de nova estampa:', e); }
       }
