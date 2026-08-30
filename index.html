@@ -2921,11 +2921,15 @@ async function printEtiqueta(estampaId) {
 
   const etiquetaHtml = `
     <div class="etq2">
-      <div id="etq2-qr" class="etq2-qr"></div>
-      <div class="etq2-cliente"><span class="etq2-dot"></span>${e.cod_interno || 'Cliente não informado'}</div>
-      <div class="etq2-ref-line">
-        <span class="etq2-ref">${e.ref || '—'}</span>
-        ${subLine ? `<span class="etq2-sub">${subLine}</span>` : ''}
+      <div class="etq2-header">
+        <div class="etq2-header-text">
+          <div class="etq2-cliente"><span class="etq2-dot"></span>${e.cod_interno || 'Cliente não informado'}</div>
+          <div class="etq2-ref-line">
+            <span class="etq2-ref">${e.ref || '—'}</span>
+            ${subLine ? `<span class="etq2-sub">${subLine}</span>` : ''}
+          </div>
+        </div>
+        <div id="etq2-qr" class="etq2-qr"></div>
       </div>
       <div class="etq2-divider"></div>
       <div class="etq2-specs-title">Parâmetros de Impressão</div>
@@ -2939,9 +2943,11 @@ async function printEtiqueta(estampaId) {
   const etiquetaCss = `
     @page{size:90mm 50mm;margin:0mm}
     body{margin:0;font-family:'Source Sans 3',Arial,sans-serif}
-    .etq2{width:90mm;height:50mm;box-sizing:border-box;padding:2.6mm 3.2mm 2.2mm;display:flex;flex-direction:column;color:#000;position:relative}
-    .etq2-qr{position:absolute;top:2.6mm;right:3.2mm;width:16mm;height:16mm;overflow:hidden}
-    .etq2-qr img,.etq2-qr canvas{width:100%!important;height:100%!important}
+    .etq2{width:90mm;height:50mm;box-sizing:border-box;padding:2.6mm 3.2mm 2.2mm;display:flex;flex-direction:column;color:#000}
+    .etq2-header{display:flex;justify-content:space-between;align-items:flex-start;gap:2mm}
+    .etq2-header-text{flex:1;min-width:0}
+    .etq2-qr{width:19mm;height:19mm;flex-shrink:0;overflow:hidden}
+    .etq2-qr img,.etq2-qr canvas{width:100%!important;height:100%!important;image-rendering:pixelated}
     .etq2-cliente{font-size:6.3pt;font-weight:700;text-transform:uppercase;letter-spacing:0.6pt;color:#000;display:flex;align-items:center;gap:1.3mm}
     .etq2-dot{width:1.3mm;height:1.3mm;background:#000;border-radius:50%;flex-shrink:0}
     .etq2-ref-line{display:flex;align-items:baseline;gap:2.2mm;flex-wrap:wrap;margin:0.9mm 0 0.6mm}
@@ -2970,8 +2976,9 @@ async function printEtiqueta(estampaId) {
         try {
           new QRCode(document.getElementById('etq2-qr'), {
             text: ${JSON.stringify(fichaUrl)},
-            width: 68, height: 68,
-            colorDark: '#000000', colorLight: '#ffffff'
+            width: 180, height: 180,
+            colorDark: '#000000', colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
           });
         } catch(err) { console.warn('Falha ao gerar QR Code na etiqueta:', err); }
         setTimeout(function(){ window.focus(); window.print(); }, 150);
