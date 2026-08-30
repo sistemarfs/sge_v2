@@ -484,10 +484,13 @@ tr:hover td{background:var(--bg)}
 }
 
 /* ── ETIQUETA (impressão dedicada 90x50mm) ── */
-#etiqueta-print-wrap{display:none}
+/* Fica fora da tela (não display:none) pra que o canvas do QR Code tenha
+   área real pra desenhar antes da impressão — display:none impediria isso em alguns navegadores. */
+#etiqueta-print-wrap{position:fixed;top:0;left:-9999px;width:90mm;height:50mm;overflow:hidden}
 @media print{
   body.printing-etiqueta > *:not(#etiqueta-print-wrap){display:none!important}
   body.printing-etiqueta #etiqueta-print-wrap{
+    position:static;left:auto;top:auto;
     display:block!important;width:90mm;height:50mm;
     box-sizing:border-box;font-family:'Source Sans 3',sans-serif;overflow:hidden
   }
@@ -2970,19 +2973,20 @@ async function printEtiqueta(estampaId) {
       <div class="etq2-foot"><b>Tingimento</b>${e.tingimento || '—'}</div>
     </div>`;
 
-  // Gera o QR Code apontando pra ficha técnica online desta estampa
+  const styleTag = document.createElement('style');
+  styleTag.id = 'etiqueta-page-style';
+  styleTag.textContent = '@page{size:90mm 50mm;margin:0mm;}';
+  document.head.appendChild(styleTag);
+  document.body.classList.add('printing-etiqueta');
+
+  // Gera o QR Code SÓ DEPOIS da etiqueta ficar visível (com a classe acima) —
+  // desenhar num canvas ainda dentro de display:none faz alguns navegadores renderizarem em branco
   if (typeof QRCode !== 'undefined') {
     const fichaUrl = `${location.origin}${location.pathname}#ficha=${e.id}`;
     try {
       await QRCode.toCanvas(document.getElementById('etq2-qr'), fichaUrl, { width: 68, margin: 0, color: { dark:'#000000', light:'#ffffff' } });
     } catch(err) { console.warn('Falha ao gerar QR Code:', err); }
   }
-
-  const styleTag = document.createElement('style');
-  styleTag.id = 'etiqueta-page-style';
-  styleTag.textContent = '@page{size:90mm 50mm;margin:0mm;}';
-  document.head.appendChild(styleTag);
-  document.body.classList.add('printing-etiqueta');
 
   const cleanup = () => {
     document.body.classList.remove('printing-etiqueta');
