@@ -40,6 +40,13 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--ink
 /* LOGIN */
 #login-screen{display:none;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(140deg,var(--navy) 0%,var(--navy2) 55%,#1A4A2A 100%);padding:20px}
 .login-card{background:var(--surface);border-radius:20px;padding:44px 40px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(27,58,92,0.25)}
+
+/* ── VISUALIZAÇÃO PÚBLICA (QR Code) ── */
+.pf-header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--navy);position:sticky;top:0;z-index:10}
+.pf-header-brand{display:flex;align-items:center;gap:8px}
+.pf-body{max-width:700px;margin:24px auto;padding:0 16px 60px}
+.pf-actions{max-width:680px;margin:16px auto 0;display:flex;justify-content:center}
+@media print{ .pf-header,.pf-actions{display:none!important} }
 .lg-logo{text-align:center;margin-bottom:24px}
 .lg-logo-mark{width:76px;height:76px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
 .lg-logo-mark img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(27,58,92,0.25))}
@@ -542,6 +549,24 @@ tr:hover td{background:var(--bg)}
 <div class="ld-overlay" id="ld"><div class="ld-box"><div class="spinner"></div><p id="ld-msg">Carregando...</p></div></div>
 
 <!-- LOGIN -->
+<!-- VISUALIZAÇÃO PÚBLICA (via QR Code da etiqueta) — sem necessidade de login -->
+<div id="public-ficha-view" style="display:none">
+  <div class="pf-header">
+    <div class="pf-header-brand">
+      <div class="nav-logo-mark" style="background:transparent"><img src="icon-192.png" alt="SGE" style="width:100%;height:100%;object-fit:contain"></div>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="goToLoginFromPublic()">Entrar no sistema</button>
+  </div>
+  <div class="pf-body">
+    <div id="pf-content"></div>
+    <div class="pf-actions">
+      <button class="btn btn-navy" onclick="window.print()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Imprimir Ficha
+      </button>
+    </div>
+  </div>
+</div>
+
 <div id="login-screen">
   <div class="login-card">
     <div class="lg-logo">
@@ -754,7 +779,7 @@ tr:hover td{background:var(--bg)}
     <h2 id="kan-page-title">Kanban — Amostra Digital</h2>
     <button class="btn btn-ghost btn-sm" id="btn-kan-arquivadas" onclick="openArquivadasKanban()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg> Arquivadas</button>
     <button class="btn btn-primary" id="btn-add-kan-card" onclick="openAddKanCard()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Adicionar Card</button>
-    <button class="btn btn-primary" id="btn-add-op" onclick="openAddOP()" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nova Ordem de Produção</button>
+    <button class="btn btn-primary" id="btn-add-op" onclick="openAddOP()" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Ordem de Beneficiamento</button>
   </div>
   <div class="pb">
     <div style="display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;margin-bottom:16px">
@@ -1307,7 +1332,7 @@ tr:hover td{background:var(--bg)}
 <!-- MODAL: NOVA ORDEM DE PRODUÇÃO (PPCP) -->
 <div class="mo" id="m-add-op">
   <div class="modal" style="max-width:460px">
-    <div class="mh"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7CCC8A" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="10" rx="1"/></svg><h3>Nova Ordem de Produção</h3><button class="mc" onclick="closeM('m-add-op')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mh"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7CCC8A" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="10" rx="1"/></svg><h3>Nova Ordem de Beneficiamento</h3><button class="mc" onclick="closeM('m-add-op')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     <div class="mb">
       <div id="op-step-search">
         <div class="fg">
@@ -1331,7 +1356,7 @@ tr:hover td{background:var(--bg)}
     </div>
     <div class="mf">
       <button class="btn btn-ghost" id="op-btn-cancel" onclick="closeM('m-add-op')">Cancelar</button>
-      <button class="btn btn-primary" id="op-btn-confirm" onclick="confirmarNovaOP()" style="display:none">Criar Ordem de Produção</button>
+      <button class="btn btn-primary" id="op-btn-confirm" onclick="confirmarNovaOP()" style="display:none">Criar Ordem de Beneficiamento</button>
     </div>
   </div>
 </div>
@@ -1532,7 +1557,6 @@ async function doLogin() {
     checkAvisosPendentes();
     atualizarNotifBadge();
     assinarNotificacoesRealtime();
-    checkDeepLinkFicha();
   } catch(e) {
     err.textContent = e.message; err.style.display = 'block';
   } finally {
@@ -1587,7 +1611,6 @@ async function tryRestoreSession() {
     checkAvisosPendentes();
     atualizarNotifBadge();
     assinarNotificacoesRealtime();
-    checkDeepLinkFicha();
   } catch(e) {
     uld();
     localStorage.removeItem('stampos_session');
@@ -1764,7 +1787,7 @@ function openM(id) {
   if (id==='m-backup') updateBkStats();
 }
 function closeM(id) { document.getElementById(id).classList.remove('open'); }
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   document.querySelectorAll('.mo').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); }));
   // Conexão automática com Supabase
   const SB_URL = 'https://pihxaodqwtrndsyskxte.supabase.co';
@@ -1774,7 +1797,9 @@ document.addEventListener('DOMContentLoaded', () => {
   registerServiceWorker();
   // Conexão com EmailJS — SUBSTITUA pela sua Public Key (painel EmailJS → Account → General)
   try { emailjs.init({ publicKey: 'WSi3DYnEQJRpz7wU0' }); } catch(e) { console.warn('EmailJS indisponível:', e); }
-  tryRestoreSession();
+  // Se veio de um QR Code (#ficha=ID), mostra a visualização pública e pula o login
+  const isPublicFicha = await checkPublicFichaLink();
+  if (!isPublicFicha) tryRestoreSession();
   try { history.replaceState({ page:'home' }, ''); } catch(e) { console.warn('replaceState indisponível:', e); }
 });
 
@@ -2885,14 +2910,33 @@ async function openKanPrint(id) {
 }
 
 // ── Impressão de Etiqueta (90x50mm — Zebra ZD220) ──
-// Se a URL tiver #ficha=ID (escaneada via QR Code da etiqueta), abre direto a ficha técnica
-function checkDeepLinkFicha() {
+// Se a URL tiver #ficha=ID (escaneada via QR Code da etiqueta), mostra a ficha
+// em modo público — SEM exigir login. Somente leitura + impressão.
+// Retorna true se a rota pública foi ativada (pra init() saber que deve pular o login).
+async function checkPublicFichaLink() {
   const hash = location.hash || '';
   const m = hash.match(/#ficha=([a-f0-9-]+)/i);
-  if (!m) return;
-  const id = m[1];
+  if (!m) return false;
+  await renderPublicFicha(m[1]);
+  return true;
+}
+
+async function renderPublicFicha(id) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('public-ficha-view').style.display = 'block';
+  ld('Carregando ficha...');
+  const { data: e } = await SB.from('estampas').select('*').eq('id', id).single();
+  uld();
+  const content = document.getElementById('pf-content');
+  content.innerHTML = e ? buildFichaHtml(e) : '<p style="text-align:center;color:var(--ink3);padding:40px">Estampa não encontrada, ou o link está incorreto.</p>';
+}
+
+// Sai da visualização pública e segue pro login normal do sistema
+function goToLoginFromPublic() {
+  document.getElementById('public-ficha-view').style.display = 'none';
   try { history.replaceState(null, '', location.pathname); } catch(e) { console.warn('replaceState indisponível:', e); }
-  openKanPrint(id);
+  tryRestoreSession();
 }
 
 async function printEtiqueta(estampaId) {
