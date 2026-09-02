@@ -780,6 +780,7 @@ tr:hover td{background:var(--bg)}
     <h2 id="kan-page-title">Kanban — Amostra Digital</h2>
     <button class="btn btn-ghost btn-sm" id="btn-kan-arquivadas" onclick="openArquivadasKanban()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg> Arquivadas</button>
     <button class="btn btn-primary" id="btn-add-kan-card" onclick="openAddKanCard()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Adicionar Card</button>
+    <button class="btn btn-ghost btn-sm adm" id="btn-manage-stages" onclick="openGerenciarEtapas()" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Gerenciar Etapas</button>
     <button class="btn btn-primary" id="btn-add-op" onclick="openAddOP()" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Ordem de Beneficiamento</button>
   </div>
   <div class="pb">
@@ -1334,6 +1335,22 @@ tr:hover td{background:var(--bg)}
 </div>
 
 <!-- MODAL: NOVA ORDEM DE PRODUÇÃO (PPCP) -->
+<!-- MODAL: GERENCIAR ETAPAS DO KANBAN AMOSTRA DIGITAL -->
+<div class="mo" id="m-kan-stages">
+  <div class="modal" style="max-width:480px">
+    <div class="mh"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7CCC8A" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><h3>Gerenciar Etapas — Amostra Digital</h3><button class="mc" onclick="closeM('m-kan-stages')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mb">
+      <p style="font-size:12px;color:var(--ink3);margin-bottom:14px">Renomeie, adicione ou remova as colunas do quadro. Renomear não altera o histórico já salvo — só o texto exibido na tela. Etapas novas só podem ser movidas por Administradores.</p>
+      <div id="kan-stages-list"></div>
+      <button class="btn btn-ghost btn-sm" onclick="addKanStageRow()" style="margin-top:8px">+ Adicionar Etapa</button>
+    </div>
+    <div class="mf">
+      <button class="btn btn-ghost" onclick="closeM('m-kan-stages')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarKanStagesConfig()">Salvar Etapas</button>
+    </div>
+  </div>
+</div>
+
 <div class="mo" id="m-add-op">
   <div class="modal" style="max-width:460px">
     <div class="mh"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7CCC8A" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="10" rx="1"/></svg><h3>Nova Ordem de Beneficiamento</h3><button class="mc" onclick="closeM('m-add-op')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
@@ -1600,6 +1617,7 @@ async function doLogin() {
     checkAvisosPendentes();
     atualizarNotifBadge();
     assinarNotificacoesRealtime();
+    loadKanStagesConfig();
   } catch(e) {
     err.textContent = e.message; err.style.display = 'block';
   } finally {
@@ -1678,6 +1696,7 @@ async function tryRestoreSession() {
     checkAvisosPendentes();
     atualizarNotifBadge();
     assinarNotificacoesRealtime();
+    loadKanStagesConfig();
   } catch(e) {
     uld();
     // Erro de rede (offline) — tenta usar o perfil salvo localmente antes de deslogar
@@ -1850,7 +1869,7 @@ function go(name, skipHistory) {
   if (!skipHistory) { try { history.pushState({ page:name }, ''); } catch(e) { console.warn('pushState indisponível:', e); } }
   try { sessionStorage.setItem('sge_last_page', name); } catch(e) {}
   if (name==='estampas')  renderEstampas();
-  if (name==='kanban')    { document.getElementById('btn-add-kan-card').style.display = kanActiveTab==='amostra'&&canAddKanbanCard()?'':'none'; document.getElementById('btn-add-op').style.display = kanActiveTab==='ppcp'&&canAddOP()?'':'none'; renderActiveKanBoard(); }
+  if (name==='kanban')    { document.getElementById('btn-add-kan-card').style.display = kanActiveTab==='amostra'&&canAddKanbanCard()?'':'none'; document.getElementById('btn-add-op').style.display = kanActiveTab==='ppcp'&&canAddOP()?'':'none'; document.getElementById('btn-manage-stages').style.display = kanActiveTab==='amostra'&&isAdm()?'':'none'; renderActiveKanBoard(); }
   if (name==='amostras')  renderAmostras();
   if (name==='followup')  renderFollowup();
   if (name==='relatorio') { renderRelList(); }
@@ -2946,7 +2965,99 @@ async function delAm(id) {
 // ═══════════════════════════════════════
 // KANBAN DIGITAL
 // ═══════════════════════════════════════
-const KAN_STAGES = ['Solicitação de amostra','Preparação do arquivo digital','Impressão','Aguardando','Aprovado','Reprovado'];
+// Etapas do Kanban Amostra Digital — customizáveis pelo Admin (nome exibido),
+// mas cada etapa mantém uma "key" interna fixa, que é o que fica salvo no banco
+// em cada estampa (etapa_digital). Renomear só muda o texto mostrado na tela.
+const KAN_STAGES_DEFAULT = [
+  { key:'Solicitação de amostra',        label:'Solicitação de amostra' },
+  { key:'Preparação do arquivo digital', label:'Preparação do arquivo digital' },
+  { key:'Impressão',                     label:'Impressão' },
+  { key:'Aguardando',                    label:'Aguardando' },
+  { key:'Aprovado',                      label:'Aprovado' },
+  { key:'Reprovado',                     label:'Reprovado' },
+];
+let kanStagesConfig = KAN_STAGES_DEFAULT.map(s => ({...s}));
+// Mantém compatibilidade: KAN_STAGES continua existindo como lista simples de chaves
+let KAN_STAGES = kanStagesConfig.map(s => s.key);
+
+async function loadKanStagesConfig() {
+  try {
+    const { data } = await SB.from('app_config').select('valor').eq('chave','kan_stages_amostra').maybeSingle();
+    if (data?.valor && Array.isArray(data.valor) && data.valor.length) {
+      kanStagesConfig = data.valor;
+    } else {
+      kanStagesConfig = KAN_STAGES_DEFAULT.map(s => ({...s}));
+    }
+  } catch(e) {
+    console.warn('Falha ao carregar etapas customizadas, usando padrão:', e);
+    kanStagesConfig = KAN_STAGES_DEFAULT.map(s => ({...s}));
+  }
+  KAN_STAGES = kanStagesConfig.map(s => s.key);
+}
+
+function kanStageLabel(key) {
+  const s = kanStagesConfig.find(s => s.key === key);
+  return s ? s.label : key;
+}
+
+// ── Gerenciador de Etapas (Admin) ──
+let kanStagesEditorList = [];
+
+function openGerenciarEtapas() {
+  if (!isAdm()) return;
+  kanStagesEditorList = kanStagesConfig.map(s => ({...s}));
+  renderKanStagesEditor();
+  openM('m-kan-stages');
+}
+
+function renderKanStagesEditor() {
+  const box = document.getElementById('kan-stages-list');
+  box.innerHTML = kanStagesEditorList.map((s, i) => {
+    const emUso = kanCache.some(e => (e.etapa_digital||KAN_STAGES[0]) === s.key);
+    return `
+    <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px">
+      <input type="text" class="form-input" value="${s.label.replace(/"/g,'&quot;')}" oninput="kanStagesEditorList[${i}].label=this.value" style="flex:1">
+      <button class="kan-edit-btn adm" onclick="removeKanStageRowAt(${i})" title="${emUso?'Há cards nessa etapa — mova-os antes de remover':'Remover etapa'}" ${emUso?'style="opacity:0.35;cursor:not-allowed"':''}>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function addKanStageRow() {
+  const nome = prompt('Nome da nova etapa:');
+  if (!nome || !nome.trim()) return;
+  const key = nome.trim();
+  if (kanStagesEditorList.some(s => s.key === key)) { alert('Já existe uma etapa com esse nome.'); return; }
+  kanStagesEditorList.push({ key, label: key });
+  renderKanStagesEditor();
+}
+
+function removeKanStageRowAt(i) {
+  const s = kanStagesEditorList[i];
+  const emUso = kanCache.some(e => (e.etapa_digital||KAN_STAGES[0]) === s.key);
+  if (emUso) { alert(`Ainda há cards na etapa "${s.label}". Mova-os para outra etapa antes de removê-la.`); return; }
+  if (kanStagesEditorList.length <= 1) { alert('É preciso manter pelo menos uma etapa.'); return; }
+  if (!confirm(`Remover a etapa "${s.label}"?`)) return;
+  kanStagesEditorList.splice(i, 1);
+  renderKanStagesEditor();
+}
+
+async function salvarKanStagesConfig() {
+  if (!isAdm()) return;
+  if (kanStagesEditorList.some(s => !s.label.trim())) { alert('Nenhuma etapa pode ficar com nome em branco.'); return; }
+  ld('Salvando etapas...');
+  try {
+    const { error } = await SB.from('app_config').upsert({ chave:'kan_stages_amostra', valor: kanStagesEditorList });
+    if (error) throw error;
+    kanStagesConfig = kanStagesEditorList.map(s => ({...s}));
+    KAN_STAGES = kanStagesConfig.map(s => s.key);
+    closeM('m-kan-stages');
+    if (kanActiveTab === 'amostra') renderKanban();
+  } catch(e) { alert('Erro ao salvar: '+e.message); }
+  finally { uld(); }
+}
+
 function kanStageIcon(stage,color){ const map={'Solicitação de amostra':'fileText','Preparação do arquivo digital':'monitor','Impressão':'printer','Aguardando':'clock','Aprovado':'checkCircle','Reprovado':'xCircle'}; return ic(map[stage]||'fileText',14,color); }
 const KAN_COLORS = {'Solicitação de amostra':'#1B3A5C','Preparação do arquivo digital':'#254D78','Impressão':'#7A4A2A','Aguardando':'#C07A00','Aprovado':'#2D7A3A','Reprovado':'#C0392B'};
 let kanCache = [];
@@ -2954,12 +3065,10 @@ let kanDragId = null;
 
 // Movimentação sempre sequencial: só permite ir para a etapa seguinte
 // (a partir de "Aguardando" pode ramificar para Aprovado OU Reprovado)
+// Movimentação livre: qualquer cartão pode ir para qualquer etapa,
+// desde que o usuário tenha permissão para a etapa de destino (checado em outro ponto).
 function kanTransicaoValida(etapaAtual, etapaNova) {
-  const atual = KAN_STAGES.indexOf(etapaAtual || KAN_STAGES[0]);
-  const nova  = KAN_STAGES.indexOf(etapaNova);
-  if (nova === atual + 1) return true; // próxima etapa normal
-  if (etapaAtual === 'Aguardando' && (etapaNova === 'Aprovado' || etapaNova === 'Reprovado')) return true;
-  return false;
+  return true;
 }
 
 async function renderKanban() {
@@ -2977,9 +3086,10 @@ async function renderKanban() {
   const podeArrastar = kanPodeArrastar();
 
   const board = document.getElementById('kan-board');
-  board.innerHTML = KAN_STAGES.map(stage => {
-    const color = KAN_COLORS[stage];
-    const cards = items.filter(e => (e.etapa_digital||'Solicitação de amostra') === stage);
+  board.innerHTML = kanStagesConfig.map(stageObj => {
+    const stage = stageObj.key;
+    const color = KAN_COLORS[stage] || '#4A2A7A';
+    const cards = items.filter(e => (e.etapa_digital||KAN_STAGES[0]) === stage);
     const cardsHtml = cards.length ? cards.map(e => {
       return `
       <div class="kan-card" draggable="${podeArrastar}" data-id="${e.id}"
@@ -3008,7 +3118,7 @@ async function renderKanban() {
       <div class="kan-col">
         <div class="kan-col-head" style="background:var(--navy)">
           <span style="color:#fff">${kanStageIcon(stage,'#fff')}</span>
-          <div class="kan-col-title">${stage}</div>
+          <div class="kan-col-title">${stageObj.label}</div>
           <span class="kan-col-count" style="color:var(--navy)">${cards.length}</span>
         </div>
         <div class="kan-col-body" data-stage="${stage}"
@@ -3305,6 +3415,7 @@ function switchKanTab(tab) {
   document.getElementById('op-board').style.display = tab==='ppcp' ? 'flex' : 'none';
   document.getElementById('btn-add-kan-card').style.display = tab==='amostra' && canAddKanbanCard() ? '' : 'none';
   document.getElementById('btn-add-op').style.display = tab==='ppcp' && canAddOP() ? '' : 'none';
+  document.getElementById('btn-manage-stages').style.display = tab==='amostra' && isAdm() ? '' : 'none';
   document.getElementById('btn-kan-arquivadas').onclick = tab==='amostra' ? openArquivadasKanban : openArquivadasOP;
   // Ícone do cabeçalho e o próprio menu seguem o mesmo padrão colorido das outras páginas (verde para Amostra, navy para PPCP)
   const phIcon = document.getElementById('kan-ph-icon');
