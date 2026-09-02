@@ -1179,7 +1179,7 @@ tr:hover td{background:var(--bg)}
       <div style="flex:1"></div>
       <button class="btn btn-ghost btn-sm" id="det-print"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Imprimir Ficha</button>
       <button class="btn btn-ghost" onclick="closeM('m-detalhe')">Fechar</button>
-      <button class="btn btn-primary adm" id="det-edit"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar</button>
+      <button class="btn btn-primary" id="det-edit"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar</button>
     </div>
   </div>
 </div>
@@ -1210,6 +1210,9 @@ tr:hover td{background:var(--bg)}
           <div style="border:1.5px solid var(--border);border-radius:9px;padding:10px 13px;display:flex;flex-direction:column;gap:7px;margin-top:4px">
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
               <input type="checkbox" id="perm-nova-estampa" style="width:15px;height:15px;cursor:pointer"><span style="font-size:13px;font-weight:600;color:var(--ink)">Nova estampa</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
+              <input type="checkbox" id="perm-editar-estampa" style="width:15px;height:15px;cursor:pointer"><span style="font-size:13px;font-weight:600;color:var(--ink)">Editar estampa</span>
             </label>
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
               <input type="checkbox" id="perm-nova-amostra" style="width:15px;height:15px;cursor:pointer"><span style="font-size:13px;font-weight:600;color:var(--ink)">Amostra</span>
@@ -1635,6 +1638,13 @@ function kanPodeArrastar() {
 }
 
 // Tenta restaurar sessão salva no navegador (evita pedir login a cada F5)
+function goToLastPage() {
+  let last = 'home';
+  try { last = sessionStorage.getItem('sge_last_page') || 'home'; } catch(e) {}
+  if (last === 'usuarios' && !isAdm()) last = 'home';
+  go(last, true);
+}
+
 async function tryRestoreSession() {
   const savedId = localStorage.getItem('stampos_session');
   if (!savedId) { showLogin(); return; }
@@ -1651,7 +1661,7 @@ async function tryRestoreSession() {
           document.getElementById('login-screen').style.display = 'none';
           document.getElementById('app').style.display = 'block';
           applyPerms();
-          go('home');
+          goToLastPage();
           showOfflineBanner(cachedCU.savedAt);
           return;
         }
@@ -1664,7 +1674,7 @@ async function tryRestoreSession() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     applyPerms();
-    go('home');
+    goToLastPage();
     checkAvisosPendentes();
     atualizarNotifBadge();
     assinarNotificacoesRealtime();
@@ -1678,7 +1688,7 @@ async function tryRestoreSession() {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app').style.display = 'block';
         applyPerms();
-        go('home');
+        goToLastPage();
         showOfflineBanner(cachedCU.savedAt);
         return;
       }
@@ -1709,6 +1719,9 @@ function applyPerms() {
   // Botão "Adicionar Card" no Kanban — visível para Admin OU Visualizador com permissão
   const btnAddKan = document.getElementById('btn-add-kan-card');
   if (btnAddKan) btnAddKan.style.display = canAddKanbanCard() ? '' : 'none';
+  // Botão "Editar" na ficha de detalhe da estampa — visível para Admin OU Visualizador com permissão
+  const btnDetEdit = document.getElementById('det-edit');
+  if (btnDetEdit) btnDetEdit.style.display = canEditEstampa() ? '' : 'none';
 }
 
 // ═══════════════════════════════════════
@@ -1835,6 +1848,7 @@ function go(name, skipHistory) {
   document.getElementById('page-'+name).classList.add('active');
   const nb = document.getElementById('nb-'+name); if(nb) nb.classList.add('active');
   if (!skipHistory) { try { history.pushState({ page:name }, ''); } catch(e) { console.warn('pushState indisponível:', e); } }
+  try { sessionStorage.setItem('sge_last_page', name); } catch(e) {}
   if (name==='estampas')  renderEstampas();
   if (name==='kanban')    { document.getElementById('btn-add-kan-card').style.display = kanActiveTab==='amostra'&&canAddKanbanCard()?'':'none'; document.getElementById('btn-add-op').style.display = kanActiveTab==='ppcp'&&canAddOP()?'':'none'; renderActiveKanBoard(); }
   if (name==='amostras')  renderAmostras();
@@ -1858,7 +1872,14 @@ function openM(id) {
 }
 function closeM(id) { document.getElementById(id).classList.remove('open'); }
 document.addEventListener('DOMContentLoaded', async () => {
-  document.querySelectorAll('.mo').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); }));
+  document.querySelectorAll('.mo').forEach(m => {
+    let downOnBackdrop = false;
+    m.addEventListener('mousedown', e => { downOnBackdrop = (e.target === m); });
+    m.addEventListener('mouseup', e => {
+      if (downOnBackdrop && e.target === m) m.classList.remove('open');
+      downOnBackdrop = false;
+    });
+  });
   // Conexão automática com Supabase
   const SB_URL = 'https://pihxaodqwtrndsyskxte.supabase.co';
   const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpaHhhb2Rxd3RybmRzeXNreHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2OTMyODAsImV4cCI6MjA5NjI2OTI4MH0.C-q6EsQzBv9FR_ueIp4_lRkJlcHEdSRt71MwDXmoJwI';
@@ -2587,9 +2608,16 @@ function buildDet(e) {
     ${e.updated_by?`<div style="font-size:11px;color:var(--ink3);margin-top:12px;text-align:right">Atualizado por ${e.updated_by}</div>`:''}`;
 }
 
-function editEst(id) {
-  if (!isAdm()) return;
-  const e = estCache.find(x=>x.id===id); if(!e) return;
+function canEditEstampa() { return CU && (CU.role === 'admin' || CU.perm_editar_estampa === true); }
+async function editEst(id) {
+  if (!canEditEstampa()) return;
+  ld('Carregando estampa...');
+  const { data: e, error } = await SB.from('estampas').select('*').eq('id', id).single();
+  uld();
+  if (error || !e) { alert('Não foi possível carregar a estampa.'); return; }
+  // Mantém o cache local sincronizado, útil pras outras telas que dependem dele
+  const idx = estCache.findIndex(x => x.id === id);
+  if (idx >= 0) estCache[idx] = e; else estCache.push(e);
   editEstId = id;
   pants     = e.pantones             ? [...e.pantones]             : [];
   tlEvts    = e.timeline             ? [...e.timeline]             : [];
@@ -2954,9 +2982,9 @@ async function renderKanban() {
           <button class="kan-edit-btn" draggable="false" onmousedown="event.stopPropagation()" onclick="event.stopPropagation();printEtiqueta('${e.id}')" title="Imprimir Etiqueta">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           </button>
-          <button class="kan-edit-btn adm" draggable="false" onmousedown="event.stopPropagation()" onclick="event.stopPropagation();editEst('${e.id}')" title="Editar">
+          ${canEditEstampa()?`<button class="kan-edit-btn" draggable="false" onmousedown="event.stopPropagation()" onclick="event.stopPropagation();editEst('${e.id}')" title="Editar">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          </button>
+          </button>`:''}
           <button class="kan-edit-btn adm" draggable="false" onmousedown="event.stopPropagation()" onclick="event.stopPropagation();removeKanCard('${e.id}')" title="Remover do Kanban">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
           </button>
@@ -4293,7 +4321,7 @@ async function renderUsuarios() {
   }).join('');
 }
 
-const PERM_FIELDS = ['perm-nova-estampa','perm-nova-amostra','perm-kanban-add','perm-kanban-preparacao','perm-kanban-impressao','perm-kanban-aguardando','perm-kanban-aprovado','perm-kanban-reprovado','perm-op-add','perm-op-impressao','perm-op-pausada','perm-op-concluida'];
+const PERM_FIELDS = ['perm-nova-estampa','perm-editar-estampa','perm-nova-amostra','perm-kanban-add','perm-kanban-preparacao','perm-kanban-impressao','perm-kanban-aguardando','perm-kanban-aprovado','perm-kanban-reprovado','perm-op-add','perm-op-impressao','perm-op-pausada','perm-op-concluida'];
 // Converte id do checkbox (kebab-case) para nome de coluna no banco (snake_case)
 function permIdToCol(id) { return id.replace(/-/g,'_'); }
 
