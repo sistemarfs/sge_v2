@@ -2314,6 +2314,11 @@ async function saveEstampa() {
     if (error) throw error;
     closeM('m-estampa');
     await renderEstampas();
+    // Se a tela do Kanban estiver aberta, atualiza ela também — sem isso o card
+    // editado (ex: mudança de etapa) só aparecia depois de um F5.
+    if (document.getElementById('page-kanban')?.classList.contains('active')) {
+      renderActiveKanBoard();
+    }
     if (isNovaEstampa) enviarAvisoNovaEstampa(row);
   } catch(e) { alert('Erro ao salvar: '+e.message); }
   finally { uld(); editEstId = null; }
@@ -2683,6 +2688,9 @@ async function toggleArquivarEstampa() {
     if (error) throw error;
     closeM('m-estampa');
     await renderEstampas();
+    if (document.getElementById('page-kanban')?.classList.contains('active')) {
+      renderActiveKanBoard();
+    }
   } catch(err) { alert('Erro: '+err.message); }
   finally { uld(); }
 }
