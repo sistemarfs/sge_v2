@@ -2295,7 +2295,7 @@ function openNovaEstampa() {
 }
 
 async function saveEstampa() {
-  const podeSalvar = editEstId ? isAdm() : canCreateEstampa();
+  const podeSalvar = editEstId ? canEditEstampa() : canCreateEstampa();
   if (!podeSalvar) return;
   const ref = gv('e-ref').trim();
   if (!ref) { alert('Informe a referência interna.'); return; }
@@ -2992,6 +2992,7 @@ async function loadKanStagesConfig() {
     console.warn('Falha ao carregar etapas customizadas, usando padrão:', e);
     kanStagesConfig = KAN_STAGES_DEFAULT.map(s => ({...s}));
   }
+  kanStagesConfig = ordenarKanStages(kanStagesConfig);
   KAN_STAGES = kanStagesConfig.map(s => s.key);
 }
 
@@ -3005,7 +3006,7 @@ let kanStagesEditorList = [];
 
 function openGerenciarEtapas() {
   if (!isAdm()) return;
-  kanStagesEditorList = kanStagesConfig.map(s => ({...s}));
+  kanStagesEditorList = ordenarKanStages(kanStagesConfig.map(s => ({...s})));
   renderKanStagesEditor();
   openM('m-kan-stages');
 }
@@ -3013,13 +3014,15 @@ function openGerenciarEtapas() {
 function renderKanStagesEditor() {
   const box = document.getElementById('kan-stages-list');
   box.innerHTML = kanStagesEditorList.map((s, i) => {
-    const emUso = kanCache.some(e => (e.etapa_digital||KAN_STAGES[0]) === s.key);
+    const protegida = KAN_PROTECTED_STAGES.includes(s.key);
     return `
     <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px">
       <input type="text" class="form-input" value="${s.label.replace(/"/g,'&quot;')}" oninput="kanStagesEditorList[${i}].label=this.value" style="flex:1">
-      <button class="kan-edit-btn adm" onclick="removeKanStageRowAt(${i})" title="${emUso?'Há cards nessa etapa — mova-os antes de remover':'Remover etapa'}" ${emUso?'style="opacity:0.35;cursor:not-allowed"':''}>
+      ${protegida
+        ? `<span style="font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:0.3px;padding:0 4px" title="Etapa fixa do fluxo — não pode ser removida">${ic('lock',12)} Fixa</span>`
+        : `<button class="kan-edit-btn adm" onclick="removeKanStageRowAt(${i})" title="Remover etapa">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-      </button>
+      </button>`}
     </div>`;
   }).join('');
 }
@@ -3033,10 +3036,29 @@ function addKanStageRow() {
   renderKanStagesEditor();
 }
 
-function removeKanStageRowAt(i) {
+// Estas 3 etapas são fixas no fim do fluxo — não podem ser removidas,
+// e sempre aparecem nessa ordem, no final do quadro, não importa a ordem salva.
+const KAN_PROTECTED_STAGES = ['Aguardando', 'Aprovado', 'Reprovado'];
+
+// Garante que as etapas protegidas fiquem sempre no final, na ordem certa
+function ordenarKanStages(list) {
+  const livres = list.filter(s => !KAN_PROTECTED_STAGES.includes(s.key));
+  const protegidas = KAN_PROTECTED_STAGES
+    .map(key => list.find(s => s.key === key))
+    .filter(Boolean);
+  return [...livres, ...protegidas];
+}
+
+async function removeKanStageRowAt(i) {
   const s = kanStagesEditorList[i];
-  const emUso = kanCache.some(e => (e.etapa_digital||KAN_STAGES[0]) === s.key);
-  if (emUso) { alert(`Ainda há cards na etapa "${s.label}". Mova-os para outra etapa antes de removê-la.`); return; }
+  if (KAN_PROTECTED_STAGES.includes(s.key)) {
+    alert(`"${s.label}" é uma etapa fixa do fluxo e não pode ser removida.`);
+    return;
+  }
+  ld('Verificando uso da etapa...');
+  const { count } = await SB.from('estampas').select('id', { count:'exact', head:true }).eq('etapa_digital', s.key);
+  uld();
+  if (count > 0) { alert(`Ainda há ${count} estampa(s) usando a etapa "${s.label}" (incluindo arquivadas). Mova-as antes de remover.`); return; }
   if (kanStagesEditorList.length <= 1) { alert('É preciso manter pelo menos uma etapa.'); return; }
   if (!confirm(`Remover a etapa "${s.label}"?`)) return;
   kanStagesEditorList.splice(i, 1);
@@ -3046,11 +3068,12 @@ function removeKanStageRowAt(i) {
 async function salvarKanStagesConfig() {
   if (!isAdm()) return;
   if (kanStagesEditorList.some(s => !s.label.trim())) { alert('Nenhuma etapa pode ficar com nome em branco.'); return; }
+  const listaFinal = ordenarKanStages(kanStagesEditorList);
   ld('Salvando etapas...');
   try {
-    const { error } = await SB.from('app_config').upsert({ chave:'kan_stages_amostra', valor: kanStagesEditorList });
+    const { error } = await SB.from('app_config').upsert({ chave:'kan_stages_amostra', valor: listaFinal });
     if (error) throw error;
-    kanStagesConfig = kanStagesEditorList.map(s => ({...s}));
+    kanStagesConfig = listaFinal.map(s => ({...s}));
     KAN_STAGES = kanStagesConfig.map(s => s.key);
     closeM('m-kan-stages');
     if (kanActiveTab === 'amostra') renderKanban();
