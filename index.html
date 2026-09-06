@@ -1613,11 +1613,11 @@ async function doLogin() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     applyPerms();
+    await loadKanStagesConfig();
     go('home');
     checkAvisosPendentes();
     atualizarNotifBadge();
     assinarNotificacoesRealtime();
-    loadKanStagesConfig();
   } catch(e) {
     err.textContent = e.message; err.style.display = 'block';
   } finally {
@@ -1692,11 +1692,11 @@ async function tryRestoreSession() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     applyPerms();
+    await loadKanStagesConfig(); // precisa terminar ANTES de ir pra última página (evita mostrar etapas erradas se cair no Kanban)
     goToLastPage();
     checkAvisosPendentes();
     atualizarNotifBadge();
     assinarNotificacoesRealtime();
-    loadKanStagesConfig();
   } catch(e) {
     uld();
     // Erro de rede (offline) — tenta usar o perfil salvo localmente antes de deslogar
@@ -2977,6 +2977,7 @@ const KAN_STAGES_DEFAULT = [
   { key:'Reprovado',                     label:'Reprovado' },
 ];
 let kanStagesConfig = KAN_STAGES_DEFAULT.map(s => ({...s}));
+let kanStagesLoaded = false; // vira true assim que a config real (do banco) é carregada, pelo menos uma vez
 // Mantém compatibilidade: KAN_STAGES continua existindo como lista simples de chaves
 let KAN_STAGES = kanStagesConfig.map(s => s.key);
 
@@ -2994,6 +2995,7 @@ async function loadKanStagesConfig() {
   }
   kanStagesConfig = ordenarKanStages(kanStagesConfig);
   KAN_STAGES = kanStagesConfig.map(s => s.key);
+  kanStagesLoaded = true;
 }
 
 function kanStageLabel(key) {
@@ -3095,6 +3097,8 @@ function kanTransicaoValida(etapaAtual, etapaNova) {
 }
 
 async function renderKanban() {
+  // Proteção extra: nunca desenha o quadro sem antes garantir que a config real (do banco) já chegou
+  if (!kanStagesLoaded) await loadKanStagesConfig();
   ld('Carregando Kanban...');
   const { data, error } = await SB.from('estampas').select('*').eq('tipo','Digital').eq('em_kanban',true).eq('arquivado',false).order('created_at',{ascending:false});
   uld();
