@@ -388,6 +388,17 @@ tr:hover td{background:var(--bg)}
 .avz-list-meta{font-size:10.5px;color:var(--ink3);margin-top:8px;display:flex;align-items:center;gap:8px}
 .avz-toggle{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;cursor:pointer;user-select:none}
 
+/* ── BUSCA GLOBAL ── */
+.gs-group-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink3);margin:14px 0 6px;display:flex;align-items:center;gap:6px}
+.gs-group-title:first-child{margin-top:0}
+.gs-result{display:flex;gap:10px;align-items:center;padding:8px 9px;border-radius:9px;cursor:pointer;transition:background 0.13s}
+.gs-result:hover{background:var(--surface2)}
+.gs-thumb{width:36px;height:36px;border-radius:7px;object-fit:cover;flex-shrink:0;background:var(--surface2)}
+.gs-thumb-empty{border:1px solid var(--border)}
+.gs-result-text{min-width:0;flex:1}
+.gs-result-title{font-size:13px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gs-result-sub{font-size:11px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
 /* ── TESTES DE QUALIDADE (Amostras) ── */
 .teste-item{border:1.5px solid var(--border);border-radius:11px;padding:12px 14px;margin-bottom:9px;background:var(--surface)}
 .teste-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
@@ -617,6 +628,9 @@ tr:hover td{background:var(--bg)}
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
     <span>Instalar</span>
   </button>
+  <button class="ni-btn" id="btn-global-search" onclick="openGlobalSearch()" title="Busca global (estampas, amostras, OBs)">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+  </button>
   <button class="ni-btn" id="btn-dark" onclick="toggleDarkMode()" title="Alternar modo escuro">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dark-icon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
   </button>
@@ -806,6 +820,7 @@ tr:hover td{background:var(--bg)}
 <div class="page" id="page-amostras">
   <div class="ph"><div class="ph-icon ic-g"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2D7A3A" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg></div><h2>Amostras Solicitadas</h2>
     <button class="btn btn-primary" id="btn-nova-amostra" onclick="openNovaAmostra()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nova Amostra</button>
+    <button class="btn btn-ghost btn-sm adm" id="btn-config-arquivamento" onclick="openConfigArquivamento()" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Arquivamento Automático</button>
   </div>
   <div class="pb">
     <div class="sw">
@@ -813,6 +828,9 @@ tr:hover td{background:var(--bg)}
         <div class="sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="q-am" placeholder="Fornecedor, produto, referência..." oninput="amRenderLimit=40;renderAmostras()"></div>
         <div class="sc" style="gap:3px"><label>Status</label><select id="f-am-st" onchange="renderAmostras()"><option value="">Todos</option><option>Aguardando</option><option>Aprovada</option><option>Reprovada</option><option>Solicitada</option></select></div>
       </div>
+      <label style="display:flex;align-items:center;gap:6px;margin-top:9px;cursor:pointer;user-select:none;font-size:12px;color:var(--ink2)">
+        <input type="checkbox" id="am-show-arquivadas" onchange="renderAmostras()" style="width:14px;height:14px;cursor:pointer"> Mostrar arquivadas
+      </label>
     </div>
     <div class="tw"><table><thead><tr><th>Fornecedor</th><th>Produto</th><th>Qtd</th><th>Destino</th><th>Status</th><th>Custo</th><th>Solicitante</th><th>Data / Prazo</th><th>Ações</th></tr></thead><tbody id="am-tbody"></tbody></table></div>
   </div>
@@ -980,6 +998,7 @@ tr:hover td{background:var(--bg)}
         <button class="tab" onclick="swTab('t-cores',this)">Cores & Pantones</button>
         <button class="tab" onclick="swTab('t-timeline',this)">Timeline</button>
         <button class="tab" id="tab-kanban-btn" style="display:none" onclick="swTab('t-kanban',this)">Kanban Digital</button>
+        <button class="tab" onclick="swTab('t-historico',this)">Histórico</button>
       </div>
       <div class="tp active" id="t-dados">
         <div class="fg2">
@@ -1005,6 +1024,10 @@ tr:hover td{background:var(--bg)}
             </div>
             <input type="hidden" id="e-img-url">
             <input type="hidden" id="e-cobertura-pct">
+            <div id="e-versoes-wrap" style="display:none;margin-top:12px;padding-top:12px;border-top:1px dashed var(--border)">
+              <label class="fl">Versões Anteriores da Arte</label>
+              <div id="e-versoes-list" style="white-space:nowrap;overflow-x:auto;padding:6px 0"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -1115,6 +1138,10 @@ tr:hover td{background:var(--bg)}
         </div>
         <p style="font-size:11px;color:var(--ink3);margin-top:8px">Somente o Responsável (ou Admin) pode mover o card no quadro Kanban, e sempre para a próxima etapa da sequência.</p>
       </div>
+      <div class="tp" id="t-historico">
+        <div class="st-title">Histórico de Alterações</div>
+        <div id="e-historico-list"><p style="font-size:12px;color:var(--ink3)">Salve o registro pela primeira vez para começar a ver o histórico.</p></div>
+      </div>
     </div>
     <div class="mf">
       <button class="btn btn-ghost btn-sm adm" id="btn-arquivar-estampa" onclick="toggleArquivarEstampa()" style="display:none">
@@ -1137,6 +1164,7 @@ tr:hover td{background:var(--bg)}
         <button class="tab active" onclick="swTab('t-am-dados',this)">Dados</button>
         <button class="tab" onclick="swTab('t-am-testes',this)">Testes de Qualidade</button>
         <button class="tab" onclick="swTab('t-am-timeline',this)">Timeline</button>
+        <button class="tab" onclick="swTab('t-am-historico',this)">Histórico</button>
       </div>
       <div class="tp active" id="t-am-dados">
         <div class="fg2">
@@ -1165,8 +1193,18 @@ tr:hover td{background:var(--bg)}
         <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px"><div class="st-title" style="margin:0">Histórico da Amostra</div><button class="btn btn-ghost btn-sm" onclick="addAmTL()">+ Evento</button></div>
         <div id="am-tl-list"></div>
       </div>
+      <div class="tp" id="t-am-historico">
+        <div class="st-title">Histórico de Alterações</div>
+        <div id="a-historico-list"><p style="font-size:12px;color:var(--ink3)">Salve o registro pela primeira vez para começar a ver o histórico.</p></div>
+      </div>
     </div>
-    <div class="mf"><button class="btn btn-ghost" onclick="closeM('m-amostra')">Cancelar</button><button class="btn btn-primary" onclick="saveAmostra()">Salvar Amostra</button></div>
+    <div class="mf">
+      <button class="btn btn-ghost btn-sm adm" id="btn-arquivar-amostra" onclick="toggleArquivarAmostra()" style="display:none">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+      </button>
+      <div style="flex:1"></div>
+      <button class="btn btn-ghost" onclick="closeM('m-amostra')">Cancelar</button><button class="btn btn-primary" onclick="saveAmostra()">Salvar Amostra</button>
+    </div>
   </div>
 </div>
 
@@ -1336,6 +1374,39 @@ tr:hover td{background:var(--bg)}
 
 <!-- MODAL: NOVA ORDEM DE PRODUÇÃO (PPCP) -->
 <!-- MODAL: GERENCIAR ETAPAS DO KANBAN AMOSTRA DIGITAL -->
+<!-- MODAL: BUSCA GLOBAL -->
+<!-- MODAL: CONFIGURAR ARQUIVAMENTO AUTOMÁTICO -->
+<div class="mo" id="m-config-arquivamento">
+  <div class="modal" style="max-width:420px">
+    <div class="mh"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7CCC8A" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg><h3>Arquivamento Automático de Amostras</h3><button class="mc" onclick="closeM('m-config-arquivamento')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mb">
+      <p style="font-size:12px;color:var(--ink3);margin-bottom:14px">Amostras com status <b>Aprovada</b> ou <b>Reprovada</b>, sem nenhuma alteração há mais do que o prazo abaixo, são arquivadas automaticamente todo dia — sem precisar de ninguém logado.</p>
+      <div class="fg">
+        <label class="fl">Arquivar após quantos dias sem alteração</label>
+        <input type="number" class="form-input" id="cfg-arq-dias" min="1" placeholder="Ex: 60">
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-ghost" onclick="closeM('m-config-arquivamento')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarConfigArquivamento()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="m-global-search">
+  <div class="modal" style="max-width:560px;margin-top:60px">
+    <div class="mb" style="padding:16px 16px 8px">
+      <div class="sm" style="margin:0">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="gs-input" placeholder="Buscar estampas, amostras, ordens de produção..." oninput="onGlobalSearchInput()" autocomplete="off">
+      </div>
+    </div>
+    <div class="mb" style="padding-top:0;max-height:60vh;overflow-y:auto">
+      <div id="gs-results"><p style="color:var(--ink3);font-size:12px;text-align:center;padding:20px">Digite pelo menos 2 letras para buscar.</p></div>
+    </div>
+  </div>
+</div>
+
 <div class="mo" id="m-kan-stages">
   <div class="modal" style="max-width:480px">
     <div class="mh"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7CCC8A" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><h3>Gerenciar Etapas — Amostra Digital</h3><button class="mc" onclick="closeM('m-kan-stages')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
@@ -1890,6 +1961,200 @@ function openM(id) {
   if (id==='m-backup') updateBkStats();
 }
 function closeM(id) { document.getElementById(id).classList.remove('open'); }
+
+// ═══════════════════════════════════════
+// HISTÓRICO DE ALTERAÇÕES
+// ═══════════════════════════════════════
+// Campos rastreados (nome técnico → rótulo amigável) — só campos simples,
+// não rastreia campos compostos (pantones, timeline, testes) pra não poluir o histórico.
+const HIST_CAMPOS_ESTAMPA = {
+  ref:'Referência', nome:'Nome', tipo:'Tipo', status:'Status', cod_interno:'Cliente',
+  cod_eng:'Cód. Engenharia', fornecedor_est:'Fornecedor Estamparia', cod_est:'Cód. Estamparia',
+  fornecedor_grav:'Fornecedor Gravadora', cod_grav:'Cód. Gravadora', tingimento:'Tingimento',
+  tecnica:'Técnica', artigo:'Artigo', mesh:'Mesh', variante:'Variante', obs:'Observações',
+  cobertura_pct:'Cobertura', resolucao_dpi:'Resolução', passadas:'Passadas', perfil_cor:'Perfil de Cor',
+  etapa_digital:'Etapa do Kanban', em_kanban:'No Kanban',
+};
+const HIST_CAMPOS_AMOSTRA = {
+  fornecedor:'Fornecedor', produto:'Produto', qtd:'Quantidade', status:'Status',
+  urgencia:'Urgência', custo:'Custo', custo_unidade:'Unidade de Custo', destino:'Destino',
+  ref_cliente:'Ref. do Cliente', data_sol:'Data de Solicitação', data_prev:'Previsão', obs:'Observações',
+};
+
+// Compara o "antes" e o "depois" de um registro e grava uma linha de histórico por campo alterado
+async function registrarHistorico(tabela, registroId, antes, depois, camposMap) {
+  if (!antes || !registroId) return;
+  const linhas = [];
+  for (const campo in camposMap) {
+    const vAntes = antes[campo] ?? null;
+    const vDepois = depois[campo] ?? null;
+    // Compara como texto pra evitar falso positivo de tipo (number vs string, etc.)
+    if (String(vAntes ?? '') !== String(vDepois ?? '')) {
+      linhas.push({
+        tabela, registro_id: registroId, usuario_nome: CU?.nome || 'Desconhecido',
+        campo: camposMap[campo],
+        valor_anterior: vAntes===null||vAntes===''? '—' : String(vAntes),
+        valor_novo: vDepois===null||vDepois===''? '—' : String(vDepois),
+      });
+    }
+  }
+  if (linhas.length) {
+    try { await SB.from('historico_alteracoes').insert(linhas); }
+    catch(e) { console.warn('Falha ao registrar histórico:', e); }
+  }
+}
+
+async function renderHistoricoBox(containerId, tabela, registroId) {
+  const box = document.getElementById(containerId);
+  if (!registroId) { box.innerHTML = '<p style="font-size:12px;color:var(--ink3)">Salve o registro pela primeira vez para começar a ver o histórico.</p>'; return; }
+  box.innerHTML = '<p style="font-size:12px;color:var(--ink3)">Carregando histórico...</p>';
+  const { data } = await SB.from('historico_alteracoes').select('*').eq('tabela',tabela).eq('registro_id',registroId).order('criado_em',{ascending:false}).limit(80);
+  if (!data || !data.length) { box.innerHTML = '<p style="font-size:12px;color:var(--ink3)">Nenhuma alteração registrada ainda.</p>'; return; }
+  box.innerHTML = data.map(h => {
+    const dt = new Date(h.criado_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+    return `<div style="border-left:2.5px solid var(--green);padding:6px 0 6px 12px;margin-bottom:8px">
+      <div style="font-size:12px;font-weight:700;color:var(--navy)">${h.campo}</div>
+      <div style="font-size:12px;color:var(--ink2);margin:2px 0"><span style="text-decoration:line-through;color:var(--ink3)">${h.valor_anterior}</span> → <span style="font-weight:600">${h.valor_novo}</span></div>
+      <div style="font-size:10.5px;color:var(--ink3)">${h.usuario_nome} · ${dt}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Versionamento da Imagem/Arte da Estampa ──
+async function renderVersoesImagem(estampaId) {
+  const box = document.getElementById('e-versoes-list');
+  const wrap = document.getElementById('e-versoes-wrap');
+  if (!box || !wrap) return;
+  if (!estampaId) { wrap.style.display = 'none'; return; }
+  const { data } = await SB.from('estampa_versoes_imagem').select('*').eq('estampa_id', estampaId).order('criado_em',{ascending:false});
+  if (!data || !data.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  box.innerHTML = data.map(v => {
+    const dt = new Date(v.criado_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+    return `<div style="display:inline-block;text-align:center;margin-right:10px;vertical-align:top;width:78px">
+      <img src="${v.img_url}" style="width:78px;height:78px;object-fit:cover;border-radius:8px;border:1.5px solid var(--border);cursor:pointer" onclick="window.open('${v.img_url}','_blank')" title="Ver em tamanho real">
+      <div style="font-size:9.5px;color:var(--ink3);margin-top:3px">${dt}</div>
+      <button class="btn btn-ghost btn-sm" style="padding:2px 6px;font-size:10px;margin-top:2px" onclick="restaurarVersaoImagem('${v.img_url.replace(/'/g,"\\'")}')">Restaurar</button>
+    </div>`;
+  }).join('');
+}
+
+// Traz uma versão antiga de volta pro campo de imagem do formulário — ainda precisa Salvar pra confirmar
+function restaurarVersaoImagem(url) {
+  if (!confirm('Restaurar esta versão da imagem? Isso substitui a imagem atual do formulário — clique em "Salvar Estampa" depois para confirmar.')) return;
+  document.getElementById('e-img-url').value = url;
+  const prev = document.getElementById('e-img-prev');
+  prev.src = url; prev.style.display = 'block';
+  covImgData = null;
+}
+
+
+// ═══════════════════════════════════════
+// BUSCA GLOBAL (Estampas + Amostras + Ordens de Produção)
+// ═══════════════════════════════════════
+let gsTimeout = null;
+
+// Atalho de teclado Ctrl+K (ou Cmd+K no Mac) pra abrir a busca global de qualquer lugar
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    if (CU) openGlobalSearch();
+  }
+});
+
+function openGlobalSearch() {
+  document.getElementById('gs-input').value = '';
+  document.getElementById('gs-results').innerHTML = '<p style="color:var(--ink3);font-size:12px;text-align:center;padding:20px">Digite pelo menos 2 letras para buscar.</p>';
+  openM('m-global-search');
+  setTimeout(() => document.getElementById('gs-input').focus(), 150);
+}
+
+function onGlobalSearchInput() {
+  clearTimeout(gsTimeout);
+  const q = document.getElementById('gs-input').value.trim();
+  if (q.length < 2) {
+    document.getElementById('gs-results').innerHTML = '<p style="color:var(--ink3);font-size:12px;text-align:center;padding:20px">Digite pelo menos 2 letras para buscar.</p>';
+    return;
+  }
+  gsTimeout = setTimeout(() => performGlobalSearch(q), 300);
+}
+
+async function performGlobalSearch(q) {
+  document.getElementById('gs-results').innerHTML = '<p style="color:var(--ink3);font-size:12px;text-align:center;padding:20px">Buscando...</p>';
+  const like = `%${q}%`;
+  const [estRes, amRes, opRes] = await Promise.all([
+    SB.from('estampas').select('id,ref,nome,cod_interno,cod_eng,tipo,status,img_url')
+      .or(`ref.ilike.${like},nome.ilike.${like},cod_interno.ilike.${like},cod_eng.ilike.${like},cod_est.ilike.${like}`)
+      .limit(6),
+    SB.from('amostras').select('id,fornecedor,produto,ref_cliente,status')
+      .or(`fornecedor.ilike.${like},produto.ilike.${like},ref_cliente.ilike.${like}`)
+      .limit(6),
+    SB.from('ordens_producao').select('id,numero_op,etapa,estampa_id,estampas(ref,nome)')
+      .ilike('numero_op', like)
+      .limit(6),
+  ]);
+
+  const est = estRes.data || [];
+  const am = amRes.data || [];
+  const ops = opRes.data || [];
+
+  if (!est.length && !am.length && !ops.length) {
+    document.getElementById('gs-results').innerHTML = `<p style="color:var(--ink3);font-size:12px;text-align:center;padding:20px">${ic('search',26,'#7A9A7C')}<br><br>Nenhum resultado para "${q}".</p>`;
+    return;
+  }
+
+  let html = '';
+  if (est.length) {
+    html += `<div class="gs-group-title">${ic('palette',12)} Estampas</div>`;
+    html += est.map(e => `
+      <div class="gs-result" onclick="openGlobalSearchResult('estampa','${e.id}')">
+        ${e.img_url?`<img src="${e.img_url}" class="gs-thumb">`:`<div class="gs-thumb gs-thumb-empty"></div>`}
+        <div class="gs-result-text">
+          <div class="gs-result-title">${e.ref}${e.nome?' — '+e.nome:''}</div>
+          <div class="gs-result-sub">${e.tipo||''}${e.cod_interno?' · '+e.cod_interno:''}${e.status?' · '+e.status:''}</div>
+        </div>
+      </div>`).join('');
+  }
+  if (am.length) {
+    html += `<div class="gs-group-title">${ic('scissors',12)} Amostras</div>`;
+    html += am.map(a => `
+      <div class="gs-result" onclick="openGlobalSearchResult('amostra','${a.id}')">
+        <div class="gs-thumb gs-thumb-empty"></div>
+        <div class="gs-result-text">
+          <div class="gs-result-title">${a.fornecedor}${a.produto?' — '+a.produto:''}</div>
+          <div class="gs-result-sub">${a.ref_cliente||''}${a.status?' · '+a.status:''}</div>
+        </div>
+      </div>`).join('');
+  }
+  if (ops.length) {
+    html += `<div class="gs-group-title">${ic('clipboardList',12)} Ordens de Beneficiamento</div>`;
+    html += ops.map(op => `
+      <div class="gs-result" onclick="openGlobalSearchResult('op','${op.estampa_id}')">
+        <div class="gs-thumb gs-thumb-empty"></div>
+        <div class="gs-result-text">
+          <div class="gs-result-title">OB ${op.numero_op}${op.estampas?.ref?' — '+op.estampas.ref:''}</div>
+          <div class="gs-result-sub">${op.etapa||''}</div>
+        </div>
+      </div>`).join('');
+  }
+  document.getElementById('gs-results').innerHTML = html;
+}
+
+async function openGlobalSearchResult(tipo, id) {
+  closeM('m-global-search');
+  if (tipo === 'estampa') {
+    go('estampas');
+    await renderEstampas();
+    openDet(id);
+  } else if (tipo === 'amostra') {
+    go('amostras');
+    await renderAmostras();
+    editAm(id);
+  } else if (tipo === 'op') {
+    await openOPPrint(id);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   document.querySelectorAll('.mo').forEach(m => {
     let downOnBackdrop = false;
@@ -2262,6 +2527,7 @@ function bulkExportEstampas() {
 
 
 let editEstId = null;
+let editEstBeforeSnapshot = null;
 
 const EF = ['e-ref','e-nome','e-tipo','e-status','e-dim','e-ncores','e-artigo','e-ting','e-tec','e-mesh','e-obs',
             'e-ci','e-ce','e-fg','e-cg','e-fe','e-cest','e-cext','e-var','e-ncil','e-scil',
@@ -2272,7 +2538,7 @@ function gv(id) { const el=document.getElementById(id); return el?el.value:''; }
 
 function openNovaEstampa() {
   if (!canCreateEstampa()) return;
-  editEstId = null; pants = []; tlEvts = []; malhaRegs = []; tingRegs = [];
+  editEstId = null; editEstBeforeSnapshot = null; pants = []; tlEvts = []; malhaRegs = []; tingRegs = [];
   EF.forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
   document.getElementById('e-img-url').value = '';
   document.getElementById('e-img-prev').style.display = 'none';
@@ -2280,6 +2546,10 @@ function openNovaEstampa() {
   document.getElementById('e-em-kanban').checked = false;
   document.getElementById('e-cobertura-pct').value = '';
   document.getElementById('e-resolucao-outra').value = '';
+  const histBox = document.getElementById('e-historico-list');
+  if (histBox) histBox.innerHTML = '<p style="font-size:12px;color:var(--ink3)">Salve o registro pela primeira vez para começar a ver o histórico.</p>';
+  const versoesWrap = document.getElementById('e-versoes-wrap');
+  if (versoesWrap) versoesWrap.style.display = 'none';
   document.getElementById('e-resolucao-outra').style.display = 'none';
   document.getElementById('cov-vel-hint').innerHTML = '';
   covImgData = null; covBgColor = null;
@@ -2331,6 +2601,17 @@ async function saveEstampa() {
       ? await SB.from('estampas').update(row).eq('id', editEstId)
       : await SB.from('estampas').insert(row);
     if (error) throw error;
+    if (!isNovaEstampa && editEstBeforeSnapshot) {
+      registrarHistorico('estampas', editEstId, editEstBeforeSnapshot, row, HIST_CAMPOS_ESTAMPA);
+      // Se a imagem foi trocada, guarda a versão anterior antes que ela seja "esquecida"
+      if (editEstBeforeSnapshot.img_url && editEstBeforeSnapshot.img_url !== row.img_url) {
+        SB.from('estampa_versoes_imagem').insert({
+          estampa_id: editEstId,
+          img_url: editEstBeforeSnapshot.img_url,
+          substituido_por: CU?.nome || null,
+        }).then(({error}) => { if (error) console.warn('Falha ao salvar versão da imagem:', error); });
+      }
+    }
     closeM('m-estampa');
     await renderEstampas();
     // Se a tela do Kanban estiver aberta, atualiza ela também — sem isso o card
@@ -2643,6 +2924,9 @@ async function editEst(id) {
   const idx = estCache.findIndex(x => x.id === id);
   if (idx >= 0) estCache[idx] = e; else estCache.push(e);
   editEstId = id;
+  editEstBeforeSnapshot = {...e}; // "antes" pro histórico de alterações
+  renderHistoricoBox('e-historico-list', 'estampas', id);
+  renderVersoesImagem(id);
   pants     = e.pantones             ? [...e.pantones]             : [];
   tlEvts    = e.timeline             ? [...e.timeline]             : [];
   malhaRegs = e.malha_registros      ? [...e.malha_registros]      : [];
@@ -2718,6 +3002,7 @@ async function toggleArquivarEstampa() {
 // AMOSTRAS
 // ═══════════════════════════════════════
 let amCache = [], editAmId = null;
+let editAmBeforeSnapshot = null;
 let amRenderLimit = 40; // paginação: quantas linhas desenhar de cada vez na tela
 let amTlEvts = [];
 
@@ -2783,15 +3068,19 @@ function setTesteObs(id, obs) {
 
 function openNovaAmostra() {
   if (!canRequestSamples()) return;
-  editAmId = null; amTlEvts = []; amTestes = {};
+  editAmId = null; editAmBeforeSnapshot = null; amTlEvts = []; amTestes = {};
   ['a-forn','a-prod','a-qtd','a-qtdm','a-st','a-urg','a-custo','a-custo-unid','a-dest','a-refc','a-dsol','a-dprev','a-obs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('a-solic').value = CU?.nome || '';
   document.getElementById('a-dsol').value = new Date().toISOString().slice(0,10);
   document.getElementById('m-am-title').textContent = 'Nova Amostra';
   addAmTL({ descricao: 'Amostra solicitada', tipo: 'info' });
   renderAmTestes();
+  const histBoxAm = document.getElementById('a-historico-list');
+  if (histBoxAm) histBoxAm.innerHTML = '<p style="font-size:12px;color:var(--ink3)">Salve o registro pela primeira vez para começar a ver o histórico.</p>';
   document.querySelectorAll('#m-amostra .tab').forEach((t,i)=>t.classList.toggle('active',i===0));
   document.querySelectorAll('#m-amostra .tp').forEach((p,i)=>p.classList.toggle('active',i===0));
+  const btnArqAmNovo = document.getElementById('btn-arquivar-amostra');
+  if (btnArqAmNovo) btnArqAmNovo.style.display = 'none';
   openM('m-amostra');
 }
 
@@ -2808,13 +3097,16 @@ async function saveAmostra() {
     destino:gv('a-dest'), ref_cliente:gv('a-refc'),
     solicitante: editAmId ? gv('a-solic') : (CU?.nome || gv('a-solic')),
     data_sol:gv('a-dsol')||null, data_prev:gv('a-dprev')||null, obs:gv('a-obs'),
-    timeline: amTlEvts, testes_qualidade: amTestes
+    timeline: amTlEvts, testes_qualidade: amTestes, updated_at: new Date().toISOString()
   };
   try {
     const { error } = editAmId
       ? await SB.from('amostras').update(row).eq('id',editAmId)
       : await SB.from('amostras').insert(row);
     if (error) throw error;
+    if (!isNova && editAmBeforeSnapshot) {
+      registrarHistorico('amostras', editAmId, editAmBeforeSnapshot, row, HIST_CAMPOS_AMOSTRA);
+    }
     closeM('m-amostra'); await renderAmostras();
     if (isNova) enviarEmailCadastroAmostra(row);
   } catch(e) { alert('Erro: '+e.message); }
@@ -2898,7 +3190,9 @@ async function renderAmostras() {
   }
   const q  = (document.getElementById('q-am')?.value||'').toLowerCase();
   const st = document.getElementById('f-am-st')?.value||'';
+  const showArquivadas = document.getElementById('am-show-arquivadas')?.checked || false;
   const items = amCache.filter(a=>{
+    if(!showArquivadas && a.arquivado) return false;
     if(q && ![a.fornecedor,a.produto,a.ref_cliente,a.obs,a.solicitante].join(' ').toLowerCase().includes(q)) return false;
     if(st && a.status!==st) return false;
     return true;
@@ -2921,8 +3215,9 @@ async function renderAmostras() {
     const nAprov = testesVals.filter(t=>t.resultado==='Aprovado').length;
     const nReprov = testesVals.filter(t=>t.resultado==='Reprovado').length;
     const testesBadge = testesVals.length ? `<span class="tag ${nReprov>0?'t-alert':nAprov===6?'t-ok':'t-pend'}" style="margin-left:4px" title="Testes de qualidade">${ic('checkCircle',10)} ${nAprov}/6</span>` : '';
-    return `<tr>
-      <td style="font-weight:600">${a.fornecedor}</td><td>${a.produto||'—'}${urgTag}${testesBadge}</td><td>${a.qtd||'—'}</td>
+    const arqTag = a.arquivado ? `<span class="tag" style="margin-left:4px;background:var(--surface2);color:var(--ink3)">${ic('archive',10)} Arquivada</span>` : '';
+    return `<tr style="${a.arquivado?'opacity:0.6':''}">
+      <td style="font-weight:600">${a.fornecedor}</td><td>${a.produto||'—'}${urgTag}${testesBadge}${arqTag}</td><td>${a.qtd||'—'}</td>
       <td><span style="font-size:12px">${a.destino||'—'}</span>${a.ref_cliente?`<br><span style="color:var(--ink3);font-size:11px">${a.ref_cliente}</span>`:''}</td>
       <td><span class="tag ${sc}">${a.status}</span></td>
       <td>${a.custo?'R$ '+parseFloat(a.custo).toFixed(2):'—'}</td>
@@ -2942,6 +3237,8 @@ function editAm(id) {
   const canEdit = isAdm() || (canRequestSamples() && a.solicitante===CU?.nome);
   if (!canEdit) return;
   editAmId = id;
+  editAmBeforeSnapshot = {...a};
+  renderHistoricoBox('a-historico-list', 'amostras', id);
   amTlEvts = a.timeline ? [...a.timeline] : [];
   amTestes = a.testes_qualidade ? {...a.testes_qualidade} : {};
   const m = {'a-forn':a.fornecedor,'a-prod':a.produto,'a-qtd':a.qtd,'a-qtdm':a.qtd_min,
@@ -2953,8 +3250,35 @@ function editAm(id) {
   document.getElementById('m-am-title').textContent = 'Editar Amostra';
   document.querySelectorAll('#m-amostra .tab').forEach((t,i)=>t.classList.toggle('active',i===0));
   document.querySelectorAll('#m-amostra .tp').forEach((p,i)=>p.classList.toggle('active',i===0));
+  const btnArqAm = document.getElementById('btn-arquivar-amostra');
+  if (btnArqAm) {
+    btnArqAm.style.display = isAdm() ? 'flex' : 'none';
+    btnArqAm.innerHTML = a.arquivado
+      ? `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg> Restaurar`
+      : `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg> Arquivar`;
+  }
   openM('m-amostra');
 }
+
+async function toggleArquivarAmostra() {
+  if (!isAdm() || !editAmId) return;
+  const a = amCache.find(x=>x.id===editAmId); if(!a) return;
+  const novoEstado = !a.arquivado;
+  const label = novoEstado ? 'arquivar' : 'restaurar';
+  if (!confirm(`Deseja ${label} esta amostra?`)) return;
+  ld(novoEstado ? 'Arquivando...' : 'Restaurando...');
+  try {
+    const { error } = await SB.from('amostras').update({
+      arquivado: novoEstado,
+      arquivado_em: novoEstado ? new Date().toISOString() : null
+    }).eq('id', editAmId);
+    if (error) throw error;
+    closeM('m-amostra');
+    await renderAmostras();
+  } catch(err) { alert('Erro: '+err.message); }
+  finally { uld(); }
+}
+
 
 async function delAm(id) {
   if (!isAdm()||!confirm('Excluir amostra?')) return;
@@ -3079,6 +3403,30 @@ async function salvarKanStagesConfig() {
     KAN_STAGES = kanStagesConfig.map(s => s.key);
     closeM('m-kan-stages');
     if (kanActiveTab === 'amostra') renderKanban();
+  } catch(e) { alert('Erro ao salvar: '+e.message); }
+  finally { uld(); }
+}
+
+// ── Configuração de Arquivamento Automático (Amostras) ──
+async function openConfigArquivamento() {
+  if (!isAdm()) return;
+  ld('Carregando configuração...');
+  const { data } = await SB.from('app_config').select('valor').eq('chave','auto_arquivamento_dias').maybeSingle();
+  uld();
+  document.getElementById('cfg-arq-dias').value = data?.valor ?? 60;
+  openM('m-config-arquivamento');
+}
+
+async function salvarConfigArquivamento() {
+  if (!isAdm()) return;
+  const dias = parseInt(document.getElementById('cfg-arq-dias').value, 10);
+  if (!dias || dias < 1) { alert('Informe um número de dias válido.'); return; }
+  ld('Salvando...');
+  try {
+    const { error } = await SB.from('app_config').upsert({ chave:'auto_arquivamento_dias', valor: dias });
+    if (error) throw error;
+    closeM('m-config-arquivamento');
+    alert(`Configurado! Amostras Aprovadas/Reprovadas sem alteração há mais de ${dias} dias serão arquivadas automaticamente.`);
   } catch(e) { alert('Erro ao salvar: '+e.message); }
   finally { uld(); }
 }
@@ -4202,6 +4550,7 @@ function imprimirFichasSelecionadas() {
 function renderRelList() {
   const f = getRelFilters();
   const items = estCache.filter(e => {
+    if (e.arquivado) return false; // Relatório não mostra arquivadas, igual o Dashboard já fazia
     if (f.statusOk.size && !f.statusOk.has(e.status)) return false;
     if (f.tiposOk.size  && !f.tiposOk.has(e.tipo))   return false;
     if (!relMatchText(e, f.q)) return false;
@@ -4272,7 +4621,7 @@ function renderRelList() {
 function renderRelSearch() {
   const q = (document.getElementById('q-rel')?.value||'').toLowerCase().trim();
   const ps = e => (e.pantones||[]).map(p=>p.nome+' '+p.receita).join(' ');
-  const items = estCache.filter(e=>!q||[e.ref,e.nome,e.cod_interno,e.cod_eng,e.cod_grav,e.cod_est,e.cod_ext,e.variante,e.tecnica,e.artigo,e.tingimento,e.dimensoes,e.obs,ps(e),e.fornecedor_est].join(' ').toLowerCase().includes(q));
+  const items = estCache.filter(e=>!e.arquivado && (!q||[e.ref,e.nome,e.cod_interno,e.cod_eng,e.cod_grav,e.cod_est,e.cod_ext,e.variante,e.tecnica,e.artigo,e.tingimento,e.dimensoes,e.obs,ps(e),e.fornecedor_est].join(' ').toLowerCase().includes(q)));
   const res = document.getElementById('rel-res');
   if (!q) { res.innerHTML=''; return; }
   if (!items.length) { res.innerHTML='<p style="color:var(--ink3)">Nenhuma estampa encontrada.</p>'; document.getElementById('rel-rep').innerHTML=''; return; }
