@@ -3670,7 +3670,9 @@ async function kanDrop(ev, novaEtapa) {
   }
   ld('Movendo card...');
   try {
-    const statusMap = { 'Aprovado':'Aprovada', 'Reprovado':'Reprovada', 'Aguardando':'Aguardando' };
+    // Usa o RÓTULO atual da etapa (pode ter sido renomeado pelo Admin, ex: "Reprovado" → "Pedido"),
+    // pra esse texto aparecer certinho em todo o sistema (Estampas, Relatório, Dashboard).
+    const statusMap = { 'Aprovado': kanStageLabel('Aprovado'), 'Reprovado': kanStageLabel('Reprovado'), 'Aguardando': kanStageLabel('Aguardando') };
     const row = { etapa_digital: novaEtapa };
     if (statusMap[novaEtapa]) row.status = statusMap[novaEtapa];
     else row.status = 'Em andamento';
