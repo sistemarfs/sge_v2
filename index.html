@@ -2640,8 +2640,12 @@ function matchE(e, q, tipo, status, tec, art, rap) {
 }
 
 // ── FILTRO DROPDOWN (MENU 3 PONTOS) ──
+// Status "conhecidos" pelo filtro — qualquer status FORA dessa lista (ex: um nome
+// customizado como "Pedido", vindo de uma etapa renomeada no Kanban) nunca é escondido
+// pelo filtro, já que o usuário não tem como "marcar" uma opção que não existe no menu.
+const STATUS_CONHECIDOS = ['Em andamento','Aprovada','Reprovada','Aguardando'];
 const TG = {
-  status: new Set(['Em andamento','Aprovada','Reprovada','Aguardando']),
+  status: new Set(STATUS_CONHECIDOS),
   tipo:   new Set(['Rotativa','Digital','Sublimação','DTF','TPU','Flocagem/Silkscreen']),
   forn:   new Set()
 };
@@ -2799,7 +2803,7 @@ async function renderEstampas() {
     if (showArquivadas) { if (!e.arquivado) return false; }
     else { if (e.arquivado) return false; }
     // Filtros de toggle
-    if (TG.status.size > 0 && !TG.status.has(e.status)) return false;
+    if (TG.status.size > 0 && STATUS_CONHECIDOS.includes(e.status) && !TG.status.has(e.status)) return false;
     if (TG.tipo.size > 0 && !TG.tipo.has(e.tipo)) return false;
     if (TG.forn.size > 0) {
       const fEst  = e.fornecedor_est  || '';
@@ -4446,7 +4450,7 @@ function setRelMode(mode) {
 
 // ── RELATÓRIO FILTER STATE ──
 const RLF = {
-  status: new Set(['Em andamento','Aprovada','Reprovada','Aguardando']),
+  status: new Set(STATUS_CONHECIDOS),
   tipo:   new Set(['Rotativa','Digital','Sublimação','DTF','TPU','Flocagem/Silkscreen']),
   exibir: new Set(['img','cod','tec','pant','forn','obs'])
 };
@@ -4553,7 +4557,7 @@ function renderRelList() {
   const f = getRelFilters();
   const items = estCache.filter(e => {
     if (e.arquivado) return false; // Relatório não mostra arquivadas, igual o Dashboard já fazia
-    if (f.statusOk.size && !f.statusOk.has(e.status)) return false;
+    if (f.statusOk.size && STATUS_CONHECIDOS.includes(e.status) && !f.statusOk.has(e.status)) return false;
     if (f.tiposOk.size  && !f.tiposOk.has(e.tipo))   return false;
     if (!relMatchText(e, f.q)) return false;
     return true;
