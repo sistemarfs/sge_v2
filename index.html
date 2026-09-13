@@ -993,6 +993,7 @@ tr:hover td{background:var(--bg)}
 <div class="page" id="page-usuarios">
   <div class="ph"><div class="ph-icon ic-n"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><h2>Gestão de Usuários</h2>
     <button class="btn btn-primary" onclick="openNovoUsuario()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Novo Usuário</button>
+    <button class="btn btn-ghost btn-sm" onclick="openLogAcessos()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Log de Acessos</button>
   </div>
   <div class="pb">
     <div class="usr-grid" id="usr-grid"></div>
@@ -1389,6 +1390,21 @@ tr:hover td{background:var(--bg)}
 <!-- MODAL: GERENCIAR ETAPAS DO KANBAN AMOSTRA DIGITAL -->
 <!-- MODAL: BUSCA GLOBAL -->
 <!-- MODAL: CONFIGURAR ARQUIVAMENTO AUTOMÁTICO -->
+<!-- MODAL: LOG DE ACESSOS -->
+<div class="mo" id="m-log-acessos">
+  <div class="modal" style="max-width:720px">
+    <div class="mh"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7CCC8A" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><h3>Log de Acessos</h3><button class="mc" onclick="closeM('m-log-acessos')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mb" style="max-height:65vh;overflow-y:auto">
+      <p style="font-size:12px;color:var(--ink3);margin-bottom:12px">Sessões ativas ficam marcadas em verde. Encerrar uma sessão desloga a pessoa na próxima verificação automática (até 1 minuto).</p>
+      <div class="tw"><table>
+        <thead><tr><th>Usuário</th><th>Dispositivo</th><th>Login em</th><th>Última atividade</th><th>Status</th><th>Ação</th></tr></thead>
+        <tbody id="log-acessos-tbody"></tbody>
+      </table></div>
+    </div>
+    <div class="mf"><button class="btn btn-ghost" onclick="closeM('m-log-acessos')">Fechar</button><button class="btn btn-primary btn-sm" onclick="renderLogAcessos()">Atualizar</button></div>
+  </div>
+</div>
+
 <div class="mo" id="m-config-arquivamento">
   <div class="modal" style="max-width:420px">
     <div class="mh"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7CCC8A" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg><h3>Arquivamento Automático de Amostras</h3><button class="mc" onclick="closeM('m-config-arquivamento')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
@@ -1703,6 +1719,7 @@ async function doLogin() {
     checkAvisosPendentes();
     atualizarNotifBadge();
     assinarNotificacoesRealtime();
+    criarSessaoAcesso();
   } catch(e) {
     err.textContent = e.message; err.style.display = 'block';
   } finally {
@@ -1713,6 +1730,13 @@ async function doLogin() {
 
 function doLogout() {
   if (notifChannel) { SB.removeChannel(notifChannel); notifChannel = null; }
+  if (sessaoHeartbeatInterval) { clearInterval(sessaoHeartbeatInterval); sessaoHeartbeatInterval = null; }
+  if (currentSessionToken) {
+    SB.from('sessoes_acesso').update({ ativa:false, encerrada_em:new Date().toISOString() }).eq('id', currentSessionToken)
+      .then(() => {}).catch(() => {});
+  }
+  localStorage.removeItem('stampos_session_token');
+  currentSessionToken = null;
   CU = null;
   localStorage.removeItem('stampos_session');
   showLogin();
@@ -1748,6 +1772,89 @@ function goToLastPage() {
   go(last, true);
 }
 
+// ═══════════════════════════════════════
+// LOG DE ACESSOS — sessões, dispositivo, encerramento remoto
+// ═══════════════════════════════════════
+let currentSessionToken = null;
+let sessaoHeartbeatInterval = null;
+
+function getDeviceInfo() {
+  const ua = navigator.userAgent;
+  let dispositivo = 'Computador';
+  if (/iPad|Tablet/i.test(ua)) dispositivo = 'Tablet';
+  else if (/Mobi|Android|iPhone/i.test(ua)) dispositivo = 'Celular';
+  let navegador = 'Navegador';
+  if (ua.includes('Edg/')) navegador = 'Edge';
+  else if (ua.includes('Firefox/')) navegador = 'Firefox';
+  else if (ua.includes('Chrome/') && !ua.includes('Edg/')) navegador = 'Chrome';
+  else if (ua.includes('Safari/') && !ua.includes('Chrome/')) navegador = 'Safari';
+  return { dispositivo, navegador };
+}
+
+// Cria um novo registro de sessão (chamado a cada login de verdade, não em restauração)
+async function criarSessaoAcesso() {
+  if (!CU) return;
+  const { dispositivo, navegador } = getDeviceInfo();
+  try {
+    const { data } = await SB.from('sessoes_acesso').insert({
+      usuario_id: CU.id, usuario_nome: CU.nome, dispositivo, navegador
+    }).select().single();
+    if (data) {
+      currentSessionToken = data.id;
+      localStorage.setItem('stampos_session_token', currentSessionToken);
+      iniciarHeartbeatSessao();
+    }
+  } catch(e) { console.warn('Falha ao registrar sessão de acesso:', e); }
+}
+
+// Roda a cada 60s: avisa que a sessão continua ativa, e checa se um Admin encerrou ela remotamente
+function iniciarHeartbeatSessao() {
+  if (sessaoHeartbeatInterval) clearInterval(sessaoHeartbeatInterval);
+  sessaoHeartbeatInterval = setInterval(async () => {
+    if (!currentSessionToken) return;
+    try {
+      const { data } = await SB.from('sessoes_acesso').select('ativa').eq('id', currentSessionToken).maybeSingle();
+      if (data && data.ativa === false) {
+        clearInterval(sessaoHeartbeatInterval);
+        alert('Sua sessão foi encerrada remotamente por um Administrador. Você precisa entrar novamente.');
+        localStorage.removeItem('stampos_session');
+        localStorage.removeItem('stampos_session_token');
+        location.reload();
+        return;
+      }
+      await SB.from('sessoes_acesso').update({ ultima_atividade: new Date().toISOString() }).eq('id', currentSessionToken);
+    } catch(e) { /* falha de rede momentânea — ignora e tenta de novo no próximo ciclo */ }
+  }, 60000);
+}
+
+// Ao restaurar uma sessão salva (reabrir o app/F5), confirma que ela continua ativa.
+// Retorna false se a sessão foi encerrada remotamente — nesse caso, o chamador deve deslogar.
+async function verificarOuCriarSessaoNaRestauracao() {
+  const token = localStorage.getItem('stampos_session_token');
+  if (!token) {
+    // Sessão de antes dessa funcionalidade existir — cria um registro novo, sem bloquear o acesso
+    await criarSessaoAcesso();
+    return true;
+  }
+  try {
+    const { data } = await SB.from('sessoes_acesso').select('ativa').eq('id', token).maybeSingle();
+    if (!data) {
+      // Registro não existe mais (ex: banco foi limpo) — recria, sem bloquear
+      await criarSessaoAcesso();
+      return true;
+    }
+    if (data.ativa === false) return false; // foi encerrada remotamente
+    currentSessionToken = token;
+    iniciarHeartbeatSessao();
+    SB.from('sessoes_acesso').update({ ultima_atividade: new Date().toISOString() }).eq('id', token).then(()=>{}).catch(()=>{});
+    return true;
+  } catch(e) {
+    // Falha de rede ao verificar — não bloqueia o acesso, só não confirma o encerramento remoto agora
+    currentSessionToken = token;
+    return true;
+  }
+}
+
 async function tryRestoreSession() {
   const savedId = localStorage.getItem('stampos_session');
   if (!savedId) { showLogin(); return; }
@@ -1774,6 +1881,16 @@ async function tryRestoreSession() {
     if (!data) { localStorage.removeItem('stampos_session'); showLogin(); return; }
     CU = data;
     offlineCacheSet('cu', CU);
+    // Confirma que a sessão salva ainda está ativa (não foi encerrada remotamente por um Admin)
+    const sessaoOk = await verificarOuCriarSessaoNaRestauracao();
+    if (!sessaoOk) {
+      alert('Sua sessão foi encerrada remotamente por um Administrador. Faça login novamente.');
+      localStorage.removeItem('stampos_session');
+      localStorage.removeItem('stampos_session_token');
+      CU = null;
+      showLogin();
+      return;
+    }
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     applyPerms();
@@ -4924,6 +5041,49 @@ function renderChart(canvasId, type, labels, data, colors) {
 // USUÁRIOS
 // ═══════════════════════════════════════
 let editUsrId = null;
+
+// ── Log de Acessos (Admin) ──
+function openLogAcessos() {
+  if (!isAdm()) return;
+  renderLogAcessos();
+  openM('m-log-acessos');
+}
+
+async function renderLogAcessos() {
+  const tbody = document.getElementById('log-acessos-tbody');
+  tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--ink3)">Carregando...</td></tr>`;
+  const { data } = await SB.from('sessoes_acesso').select('*').order('ultima_atividade',{ascending:false}).limit(100);
+  if (!data || !data.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--ink3)">Nenhum acesso registrado ainda.</td></tr>`;
+    return;
+  }
+  const agora = Date.now();
+  tbody.innerHTML = data.map(s => {
+    // Considera "realmente ativa agora" se teve atividade nos últimos 3 minutos (3x o intervalo do heartbeat)
+    const minsInativa = (agora - new Date(s.ultima_atividade).getTime()) / 60000;
+    const online = s.ativa && minsInativa < 3;
+    const criadoFmt = new Date(s.criado_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const ativFmt = new Date(s.ultima_atividade).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    return `<tr style="${s.ativa?'':'opacity:0.55'}">
+      <td style="font-weight:600">${s.usuario_nome||'—'}</td>
+      <td><span style="font-size:12px">${s.dispositivo||'—'} · ${s.navegador||'—'}</span></td>
+      <td><span style="font-size:12px">${criadoFmt}</span></td>
+      <td><span style="font-size:12px">${ativFmt}</span></td>
+      <td>${!s.ativa?`<span class="tag t-pend">Encerrada</span>`:online?`<span class="tag t-ok">${ic('checkCircle',10)} Online</span>`:`<span class="tag" style="background:var(--surface2);color:var(--ink3)">Inativa</span>`}</td>
+      <td>${s.ativa?`<button class="btn btn-danger btn-sm" onclick="encerrarSessaoRemota('${s.id}')">Encerrar</button>`:'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function encerrarSessaoRemota(id) {
+  if (!confirm('Encerrar essa sessão remotamente? A pessoa será desconectada em até 1 minuto.')) return;
+  ld('Encerrando sessão...');
+  try {
+    await SB.from('sessoes_acesso').update({ ativa:false, encerrada_em:new Date().toISOString() }).eq('id', id);
+    await renderLogAcessos();
+  } catch(e) { alert('Erro: '+e.message); }
+  finally { uld(); }
+}
 
 async function renderUsuarios() {
   ld('Carregando usuários...');
