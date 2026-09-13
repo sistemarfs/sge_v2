@@ -767,6 +767,19 @@ tr:hover td{background:var(--bg)}
           <input type="checkbox" id="chk-arquivadas" onchange="renderEstampas()" style="width:14px;height:14px;cursor:pointer">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px"><rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg> Mostrar arquivadas
         </label>
+        <!-- Filtros Salvos -->
+        <div class="fm-wrap" id="fm-wrap-filtros-salvos">
+          <button class="fm-trigger" onclick="toggleMenu('filtros-salvos');renderFiltrosSalvosLista()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M17 3H7a2 2 0 0 0-2 2v16l7-3 7 3V5a2 2 0 0 0-2-2z"/></svg> Filtros Salvos
+          </button>
+          <div class="fm-dropdown" id="fm-filtros-salvos" style="min-width:240px">
+            <div class="fm-section">
+              <div class="fm-section-label">Filtros Salvos</div>
+              <div id="filtros-salvos-lista" style="margin-bottom:8px"><p style="font-size:11px;color:var(--ink3);padding:6px 0">Carregando...</p></div>
+              <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center" onclick="salvarFiltroAtual()">+ Salvar filtro atual</button>
+            </div>
+          </div>
+        </div>
         <!-- Limpar -->
         <button class="btn btn-ghost btn-sm" onclick="clearF()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Limpar
@@ -1649,6 +1662,7 @@ const ICONS = {
   user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
   userCheck: '<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/>',
   lock: '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  bookmark: '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
   edit: '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>',
   calendar: '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
   clipboardList: '<rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="15" y2="16"/>',
@@ -2774,6 +2788,96 @@ function clearF() {
   }
   document.getElementById('chk-arquivadas').checked = false;
   renderEstampas();
+}
+
+// ═══════════════════════════════════════
+// FILTROS SALVOS (Estampas)
+// ═══════════════════════════════════════
+let filtrosSalvosCache = [];
+
+async function renderFiltrosSalvosLista() {
+  const box = document.getElementById('filtros-salvos-lista');
+  if (!CU) return;
+  box.innerHTML = '<p style="font-size:11px;color:var(--ink3);padding:6px 0">Carregando...</p>';
+  const { data } = await SB.from('filtros_salvos').select('*').eq('usuario_id', CU.id).eq('tela','estampas').order('criado_em',{ascending:false});
+  filtrosSalvosCache = data || [];
+  if (!filtrosSalvosCache.length) {
+    box.innerHTML = '<p style="font-size:11px;color:var(--ink3);padding:6px 0">Nenhum filtro salvo ainda.</p>';
+    return;
+  }
+  box.innerHTML = filtrosSalvosCache.map(f => `
+    <div class="fm-item" style="justify-content:space-between" onclick="aplicarFiltroSalvo('${f.id}')">
+      <span style="display:flex;align-items:center;gap:7px">${ic('bookmark',12)} ${f.nome}</span>
+      <button class="kan-edit-btn" onclick="event.stopPropagation();excluirFiltroSalvo('${f.id}')" title="Excluir filtro salvo" style="width:20px;height:20px">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>`).join('');
+}
+
+async function salvarFiltroAtual() {
+  if (!CU) return;
+  const nome = prompt('Nome pra esse filtro (ex: "Digital em andamento — Dimatex"):');
+  if (!nome || !nome.trim()) return;
+  const filtros = {
+    q: document.getElementById('q-est')?.value || '',
+    tec: document.getElementById('f-tec')?.value || '',
+    art: document.getElementById('f-art')?.value || '',
+    rap: document.getElementById('f-rap')?.value || '',
+    arquivadas: document.getElementById('chk-arquivadas')?.checked || false,
+    status: [...TG.status],
+    tipo: [...TG.tipo],
+    forn: [...TG.forn],
+  };
+  ld('Salvando filtro...');
+  try {
+    const { error } = await SB.from('filtros_salvos').insert({
+      usuario_id: CU.id, tela: 'estampas', nome: nome.trim(), filtros
+    });
+    if (error) throw error;
+    await renderFiltrosSalvosLista();
+  } catch(e) { alert('Erro ao salvar filtro: '+e.message); }
+  finally { uld(); }
+}
+
+function aplicarFiltroSalvo(id) {
+  const f = filtrosSalvosCache.find(x => x.id === id);
+  if (!f) return;
+  const filtros = f.filtros || {};
+  document.getElementById('q-est').value = filtros.q || '';
+  document.getElementById('f-tec').value = filtros.tec || '';
+  document.getElementById('f-art').value = filtros.art || '';
+  document.getElementById('f-rap').value = filtros.rap || '';
+  document.getElementById('chk-arquivadas').checked = !!filtros.arquivadas;
+
+  TG.status = new Set(filtros.status || STATUS_CONHECIDOS);
+  TG.tipo   = new Set(filtros.tipo   || []);
+  TG.forn   = new Set(filtros.forn   || []);
+
+  // Sincroniza a aparência (marcado/desmarcado) dos checkboxes com o filtro carregado
+  ['status','tipo'].forEach(group => {
+    const container = document.querySelector(`#fm-${group} .fm-row`);
+    if (!container) return;
+    container.querySelectorAll('.fm-item').forEach(i => i.classList.toggle('fm-checked', TG[group].has(i.dataset.val)));
+    fmUpdateTrigger(group);
+  });
+  const fornContainer = document.getElementById('fm-forn-rows');
+  if (fornContainer) {
+    fornContainer.querySelectorAll('.fm-item').forEach(i => i.classList.toggle('fm-checked', TG.forn.has(i.dataset.val)));
+    fmUpdateTrigger('forn');
+  }
+
+  document.querySelectorAll('.fm-dropdown').forEach(d => d.classList.remove('open'));
+  renderEstampas();
+}
+
+async function excluirFiltroSalvo(id) {
+  if (!confirm('Excluir esse filtro salvo?')) return;
+  ld('Excluindo...');
+  try {
+    await SB.from('filtros_salvos').delete().eq('id', id);
+    await renderFiltrosSalvosLista();
+  } catch(e) { alert('Erro: '+e.message); }
+  finally { uld(); }
 }
 
 async function renderEstampas() {
