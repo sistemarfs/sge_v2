@@ -3337,6 +3337,16 @@ function kanStageLabel(key) {
   return s ? s.label : key;
 }
 
+// Garante que o texto salvo no campo Status siga sempre o mesmo padrão de escrita
+// (Primeira Letra Maiúscula, resto minúsculo), não importa como o Admin digitou o
+// nome da etapa em "Gerenciar Etapas" — evita duplicidade tipo "Aguardando" vs "AGUARDANDO"
+// no Dashboard e nos filtros.
+function normalizarStatus(texto) {
+  if (!texto) return texto;
+  const t = texto.trim();
+  return t.charAt(0).toUpperCase() + t.slice(1).toLowerCase();
+}
+
 // ── Gerenciador de Etapas (Admin) ──
 let kanStagesEditorList = [];
 
@@ -3682,7 +3692,7 @@ async function kanDrop(ev, novaEtapa) {
   try {
     // Usa o RÓTULO atual da etapa (pode ter sido renomeado pelo Admin, ex: "Reprovado" → "Pedido"),
     // pra esse texto aparecer certinho em todo o sistema (Estampas, Relatório, Dashboard).
-    const statusMap = { 'Aprovado': kanStageLabel('Aprovado'), 'Reprovado': kanStageLabel('Reprovado'), 'Aguardando': kanStageLabel('Aguardando') };
+    const statusMap = { 'Aprovado': normalizarStatus(kanStageLabel('Aprovado')), 'Reprovado': normalizarStatus(kanStageLabel('Reprovado')), 'Aguardando': normalizarStatus(kanStageLabel('Aguardando')) };
     const row = { etapa_digital: novaEtapa };
     if (statusMap[novaEtapa]) row.status = statusMap[novaEtapa];
     else row.status = 'Em andamento';
@@ -4747,9 +4757,18 @@ async function renderDashboard() {
     <div class="smi"><div class="smi-v" style="color:${amAtrasadas>0?'var(--red)':'inherit'}">${amAtrasadas}</div><div class="smi-l">Amostras Atrasadas</div></div>`;
 
   // ── Gráfico 1: Estampas por Status ──
+  // Agrupa ignorando maiúsculas/minúsculas — protege contra qualquer variação de escrita
+  // que ainda exista nos dados (ex: registros antigos salvos antes da normalização).
   const statusCounts = {};
-  estAtivas.forEach(e=>{ const s=e.status||'Sem status'; statusCounts[s]=(statusCounts[s]||0)+1; });
-  renderChart('chart-status','bar',Object.keys(statusCounts),Object.values(statusCounts),['#1B3A5C','#2D7A3A','#C07A00','#C0392B','#7A9A7C']);
+  const statusLabelCanon = {}; // guarda a primeira grafia encontrada, pra usar como rótulo do gráfico
+  estAtivas.forEach(e=>{
+    const raw = e.status || 'Sem status';
+    const norm = raw.toLowerCase();
+    if (!statusLabelCanon[norm]) statusLabelCanon[norm] = raw;
+    statusCounts[norm] = (statusCounts[norm]||0) + 1;
+  });
+  const statusLabels = Object.keys(statusCounts).map(norm => statusLabelCanon[norm]);
+  renderChart('chart-status','bar',statusLabels,Object.values(statusCounts),['#1B3A5C','#2D7A3A','#C07A00','#C0392B','#7A9A7C']);
 
   // ── Gráfico 2: Estampas por Tipo ──
   const tipoCounts = {};
