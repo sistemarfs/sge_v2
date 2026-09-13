@@ -715,8 +715,8 @@ tr:hover td{background:var(--bg)}
                 <div class="fm-item fm-checked" data-group="status" data-val="Aprovada" onclick="fmToggleItem(this)">
                   <div class="fm-check"></div><div class="fm-dot" style="background:#2D7A3A"></div><span>Aprovada</span>
                 </div>
-                <div class="fm-item fm-checked" data-group="status" data-val="Reprovada" onclick="fmToggleItem(this)">
-                  <div class="fm-check"></div><div class="fm-dot" style="background:#C0392B"></div><span>Reprovada</span>
+                <div class="fm-item fm-checked" data-group="status" data-val="Pedido" onclick="fmToggleItem(this)">
+                  <div class="fm-check"></div><div class="fm-dot" style="background:#1B3A5C"></div><span>Pedido</span>
                 </div>
                 <div class="fm-item fm-checked" data-group="status" data-val="Aguardando" onclick="fmToggleItem(this)">
                   <div class="fm-check"></div><div class="fm-dot" style="background:#1B3A5C"></div><span>Aguardando</span>
@@ -893,7 +893,7 @@ tr:hover td{background:var(--bg)}
               <div class="fm-row">
                 <div class="fm-item fm-checked" data-group="rel-status" data-val="Em andamento" onclick="relToggleItem(this,'status')"><div class="fm-check"></div><div class="fm-dot" style="background:#C07A00"></div><span>Em andamento</span></div>
                 <div class="fm-item fm-checked" data-group="rel-status" data-val="Aprovada"     onclick="relToggleItem(this,'status')"><div class="fm-check"></div><div class="fm-dot" style="background:#2D7A3A"></div><span>Aprovada</span></div>
-                <div class="fm-item fm-checked" data-group="rel-status" data-val="Reprovada"    onclick="relToggleItem(this,'status')"><div class="fm-check"></div><div class="fm-dot" style="background:#C0392B"></div><span>Reprovada</span></div>
+                <div class="fm-item fm-checked" data-group="rel-status" data-val="Pedido"       onclick="relToggleItem(this,'status')"><div class="fm-check"></div><div class="fm-dot" style="background:#1B3A5C"></div><span>Pedido</span></div>
                 <div class="fm-item fm-checked" data-group="rel-status" data-val="Aguardando"   onclick="relToggleItem(this,'status')"><div class="fm-check"></div><div class="fm-dot" style="background:#1B3A5C"></div><span>Aguardando</span></div>
               </div>
             </div>
@@ -1005,7 +1005,7 @@ tr:hover td{background:var(--bg)}
           <div class="fg"><label class="fl">Referência Interna *</label><input type="text" class="form-input" id="e-ref" placeholder="Ex: 23878"></div>
           <div class="fg"><label class="fl">Nome / Descrição</label><input type="text" class="form-input" id="e-nome"></div>
           <div class="fg"><label class="fl">Tipo *</label><select class="form-input" id="e-tipo" onchange="eTipoChanged()"><option value="">Selecione...</option><option>Rotativa</option><option>Digital</option><option>Sublimação</option><option>DTF</option><option>TPU</option><option>Flocagem/Silkscreen</option></select></div>
-          <div class="fg"><label class="fl">Status</label><select class="form-input" id="e-status"><option>Em andamento</option><option>Aguardando</option><option>Aprovada</option><option>Reprovada</option></select></div>
+          <div class="fg"><label class="fl">Status</label><select class="form-input" id="e-status"><option>Em andamento</option><option>Aguardando</option><option>Aprovada</option><option>Pedido</option></select></div>
           <div class="fg"><label class="fl">Rapport / Dimensões</label><input type="text" class="form-input" id="e-dim" placeholder="Ex: 32cm"></div>
           <div class="fg"><label class="fl">Nº de Cores</label><input type="number" class="form-input" id="e-ncores" min="1"></div>
           <div class="fg"><label class="fl">Artigo (Tecido)</label><input type="text" class="form-input" id="e-artigo" placeholder="Ex: Meia Malha"></div>
@@ -2643,7 +2643,7 @@ function matchE(e, q, tipo, status, tec, art, rap) {
 // Status "conhecidos" pelo filtro — qualquer status FORA dessa lista (ex: um nome
 // customizado como "Pedido", vindo de uma etapa renomeada no Kanban) nunca é escondido
 // pelo filtro, já que o usuário não tem como "marcar" uma opção que não existe no menu.
-const STATUS_CONHECIDOS = ['Em andamento','Aprovada','Reprovada','Aguardando'];
+const STATUS_CONHECIDOS = ['Em andamento','Aprovada','Pedido','Aguardando'];
 const TG = {
   status: new Set(STATUS_CONHECIDOS),
   tipo:   new Set(['Rotativa','Digital','Sublimação','DTF','TPU','Flocagem/Silkscreen']),
@@ -2845,7 +2845,7 @@ async function renderEstampas() {
         <div class="sc2-name">${e.nome||'—'}</div>
         <div class="sc2-tags">
           ${e.tipo?`<span class="tag t-type">${e.tipo}</span>`:''}
-          ${e.status==='Aprovada'?`<span class="tag t-ok">${ic('check',11)} Aprovada</span>`:e.status==='Reprovada'?`<span class="tag t-alert">${ic('x',11)} Reprovada</span>`:e.status==='Em andamento'?`<span class="tag t-pend">${ic('clock',11)} Em andamento</span>`:e.status?`<span class="tag t-pend">${e.status}</span>`:''}
+          ${e.status==='Aprovada'?`<span class="tag t-ok">${ic('check',11)} Aprovada</span>`:e.status==='Pedido'?`<span class="tag t-type">${ic('clipboardList',11)} Pedido</span>`:e.status==='Em andamento'?`<span class="tag t-pend">${ic('clock',11)} Em andamento</span>`:e.status?`<span class="tag t-pend">${e.status}</span>`:''}
         </div>
         ${e.fornecedor_est?`<div style="font-size:11px;color:var(--ink3);margin-top:5px;font-weight:600">${ic('mapPin',11)} ${e.fornecedor_est}</div>`:''}
         ${(e.pantones||[]).filter(p=>p.nome).length?`<div style="font-size:11px;color:var(--ink3);margin-top:2px">${ic('palette',11)} ${(e.pantones||[]).map(p=>p.nome).filter(Boolean).join(', ')}</div>`:''}
@@ -4571,7 +4571,7 @@ function renderRelList() {
     listEl.innerHTML = `<div class="empty"><div class="empty-icon">${ic('search',34,'#7A9A7C')}</div><p>Nenhuma estampa encontrada com os filtros selecionados.</p></div>`;
     return;
   }
-  const stTag = s => s==='Aprovada'?'t-ok':s==='Reprovada'?'t-alert':'t-pend';
+  const stTag = s => s==='Aprovada'?'t-ok':s==='Pedido'?'t-type':'t-pend';
   listEl.innerHTML = items.map(e => {
     const pSwatches = f.showPant && (e.pantones||[]).length
       ? `<div class="rel-list-pant">${(e.pantones||[]).map(p=>`<div class="rel-list-sw" style="background:${p.cor}" title="${p.nome}"></div>`).join('')}<span style="font-size:11px;color:var(--ink3);margin-left:3px">${(e.pantones||[]).map(p=>p.nome).filter(Boolean).join(', ')}</span></div>`
@@ -4646,7 +4646,7 @@ function buildFichaHtml(e) {
         <div><div style="font-size:10px;color:#7CCC8A;font-weight:700;margin-bottom:3px;letter-spacing:0.5px">FICHA TÉCNICA DE ESTAMPA</div>
           <h2>${e.ref}${e.variante?' · '+e.variante:''}</h2>
           <div style="color:rgba(255,255,255,0.6);font-size:12px;margin-top:3px">${e.nome||''}</div></div>
-        <span class="tag ${e.status==='Aprovada'?'t-ok':e.status==='Reprovada'?'t-alert':'t-pend'}" style="height:fit-content">${e.status||''}</span>
+        <span class="tag ${e.status==='Aprovada'?'t-ok':e.status==='Pedido'?'t-type':'t-pend'}" style="height:fit-content">${e.status||''}</span>
       </div>
       ${e.img_url?`<img src="${e.img_url}" style="width:100%;max-height:220px;object-fit:cover;border-radius:8px;margin-bottom:4px">`:''}
       <div class="rep-sl">Identificação</div>
