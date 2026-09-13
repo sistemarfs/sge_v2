@@ -2477,6 +2477,7 @@ function renderTL() {
 // ESTAMPAS
 // ═══════════════════════════════════════
 let estCache = [];
+let estRenderSeq = 0; // evita que uma busca antiga (mais lenta) sobrescreva uma mais nova, se o usuário clicar em vários filtros rápido
 let estRenderLimit = 40; // paginação: quantos cards desenhar de cada vez na tela
 let estSelMode = false;
 let estSelected = new Set();
@@ -2778,9 +2779,11 @@ function clearF() {
 }
 
 async function renderEstampas() {
+  const mySeq = ++estRenderSeq; // marca essa chamada como "a mais nova até agora"
   ld('Carregando estampas...');
   const { data, error } = await SB.from('estampas').select('*').order('created_at',{ascending:false});
   uld();
+  if (mySeq !== estRenderSeq) return; // uma busca mais nova já começou — descarta esse resultado desatualizado
   if (error && !navigator.onLine) {
     const cached = offlineCacheGet('estampas');
     if (cached) { estCache = cached.data; showOfflineBanner(cached.savedAt); }
@@ -3006,6 +3009,7 @@ async function toggleArquivarEstampa() {
 // AMOSTRAS
 // ═══════════════════════════════════════
 let amCache = [], editAmId = null;
+let amRenderSeq = 0; // mesma proteção contra corrida usada em renderEstampas
 let editAmBeforeSnapshot = null;
 let amRenderLimit = 40; // paginação: quantas linhas desenhar de cada vez na tela
 let amTlEvts = [];
@@ -3180,9 +3184,11 @@ async function enviarAvisoNovaEstampa(estampa) {
 }
 
 async function renderAmostras() {
+  const mySeq = ++amRenderSeq;
   ld('Carregando amostras...');
   const { data, error } = await SB.from('amostras').select('*').order('created_at',{ascending:false});
   uld();
+  if (mySeq !== amRenderSeq) return;
   if (error && !navigator.onLine) {
     const cached = offlineCacheGet('amostras');
     if (cached) { amCache = cached.data; showOfflineBanner(cached.savedAt); }
