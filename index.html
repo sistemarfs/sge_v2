@@ -2715,15 +2715,20 @@ async function saveEstampa() {
   if (!podeSalvar) return;
   const ref = gv('e-ref').trim();
   if (!ref) { alert('Informe a referência interna.'); return; }
-  // Impede referência duplicada — seja num cadastro novo, seja editando pra um valor já usado por OUTRA estampa
+  // Impede duplicar a MESMA combinação de Referência + Variante — variantes diferentes
+  // da mesma referência (ex: 23878 variante 01, 23878 variante 02) são permitidas de propósito.
+  const varianteAtual = gv('e-var').trim();
   ld('Verificando referência...');
   try {
     let query = SB.from('estampas').select('id').ilike('ref', ref);
+    query = varianteAtual ? query.ilike('variante', varianteAtual) : query.or('variante.is.null,variante.eq.');
     if (editEstId) query = query.neq('id', editEstId);
     const { data: duplicadas } = await query.limit(1);
     if (duplicadas && duplicadas.length > 0) {
       uld();
-      alert(`Já existe uma estampa cadastrada com a referência "${ref}". Use uma referência diferente.`);
+      alert(varianteAtual
+        ? `Já existe uma estampa com a referência "${ref}" e variante "${varianteAtual}". Use uma variante diferente, ou confira se não é duplicidade.`
+        : `Já existe uma estampa com a referência "${ref}" sem variante definida. Se forem versões diferentes, preencha o campo "Variante" pra diferenciar.`);
       return;
     }
   } catch(e) { /* se a checagem falhar por algum motivo, segue o fluxo normal — não bloqueia o salvamento */ }
