@@ -3732,10 +3732,12 @@ async function renderKanban() {
   const podeArrastar = kanPodeArrastar();
 
   const board = document.getElementById('kan-board');
+  const kanOrdemDe = e => e.ordem_kanban || new Date(e.created_at).getTime();
   board.innerHTML = kanStagesConfig.map(stageObj => {
     const stage = stageObj.key;
     const color = KAN_COLORS[stage] || '#4A2A7A';
-    const cards = items.filter(e => (e.etapa_digital||KAN_STAGES[0]) === stage);
+    const cards = items.filter(e => (e.etapa_digital||KAN_STAGES[0]) === stage)
+      .sort((a,b) => kanOrdemDe(a) - kanOrdemDe(b));
     const cardsHtml = cards.length ? cards.map(e => {
       return `
       <div class="kan-card" draggable="${podeArrastar}" data-id="${e.id}"
@@ -3930,23 +3932,51 @@ async function kanDrop(ev, novaEtapa) {
   ev.currentTarget.classList.remove('kan-dragover');
   if (!kanDragId) return;
   const card = kanCache.find(e => e.id === kanDragId);
+  const draggedId = kanDragId;
   kanDragId = null;
   if (!card) return;
   const etapaAtual = card.etapa_digital || KAN_STAGES[0];
-  if (etapaAtual === novaEtapa) return;
-  if (!canMoveToStage(novaEtapa)) { alert(`Você não tem permissão para mover cards para a etapa "${novaEtapa}".`); return; }
-  if (!kanTransicaoValida(etapaAtual, novaEtapa)) {
-    alert('Movimentação inválida: os cards só podem avançar para a próxima etapa da sequência.');
-    return;
+  const mudouEtapa = etapaAtual !== novaEtapa;
+  if (mudouEtapa) {
+    if (!canMoveToStage(novaEtapa)) { alert(`Você não tem permissão para mover cards para a etapa "${novaEtapa}".`); return; }
+    if (!kanTransicaoValida(etapaAtual, novaEtapa)) {
+      alert('Movimentação inválida: os cards só podem avançar para a próxima etapa da sequência.');
+      return;
+    }
   }
+
+  // Calcula a posição exata onde o card foi solto dentro da coluna, comparando a
+  // altura do mouse (Y) com a posição de cada card já existente ali.
+  const cardsNaColuna = [...ev.currentTarget.querySelectorAll('.kan-card')].filter(el => el.dataset.id !== draggedId);
+  const kanOrdemDe = e => e.ordem_kanban || new Date(e.created_at).getTime();
+  let novaOrdem;
+  if (!cardsNaColuna.length) {
+    novaOrdem = Date.now();
+  } else {
+    let insertIndex = cardsNaColuna.length; // por padrão, no final da coluna
+    for (let i = 0; i < cardsNaColuna.length; i++) {
+      const rect = cardsNaColuna[i].getBoundingClientRect();
+      if (ev.clientY < rect.top + rect.height / 2) { insertIndex = i; break; }
+    }
+    const getOrdemEl = el => { const c = kanCache.find(x => x.id === el.dataset.id); return c ? kanOrdemDe(c) : Date.now(); };
+    if (insertIndex === 0) {
+      novaOrdem = getOrdemEl(cardsNaColuna[0]) - 1000;
+    } else if (insertIndex === cardsNaColuna.length) {
+      novaOrdem = getOrdemEl(cardsNaColuna[cardsNaColuna.length-1]) + 1000;
+    } else {
+      novaOrdem = Math.floor((getOrdemEl(cardsNaColuna[insertIndex-1]) + getOrdemEl(cardsNaColuna[insertIndex])) / 2);
+    }
+  }
+
   ld('Movendo card...');
   try {
-    // Usa o RÓTULO atual da etapa (pode ter sido renomeado pelo Admin, ex: "Reprovado" → "Pedido"),
-    // pra esse texto aparecer certinho em todo o sistema (Estampas, Relatório, Dashboard).
-    const statusMap = { 'Aprovado': normalizarStatus(kanStageLabel('Aprovado')), 'Reprovado': normalizarStatus(kanStageLabel('Reprovado')), 'Aguardando': normalizarStatus(kanStageLabel('Aguardando')) };
-    const row = { etapa_digital: novaEtapa };
-    if (statusMap[novaEtapa]) row.status = statusMap[novaEtapa];
-    else row.status = 'Em andamento';
+    const row = { etapa_digital: novaEtapa, ordem_kanban: novaOrdem };
+    if (mudouEtapa) {
+      // Usa o RÓTULO atual da etapa (pode ter sido renomeado pelo Admin, ex: "Reprovado" → "Pedido"),
+      // pra esse texto aparecer certinho em todo o sistema (Estampas, Relatório, Dashboard).
+      const statusMap = { 'Aprovado': normalizarStatus(kanStageLabel('Aprovado')), 'Reprovado': normalizarStatus(kanStageLabel('Reprovado')), 'Aguardando': normalizarStatus(kanStageLabel('Aguardando')) };
+      row.status = statusMap[novaEtapa] || 'Em andamento';
+    }
     const { error } = await SB.from('estampas').update(row).eq('id', card.id);
     if (error) throw error;
     await renderKanban();
