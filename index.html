@@ -108,6 +108,20 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--navy);heigh
 .hcards{display:flex;gap:15px;flex-wrap:wrap;justify-content:center;padding:30px 36px 14px;max-width:960px;margin:0 auto}
 .hcard{background:var(--surface);border:1.5px solid var(--border);border-radius:15px;padding:24px 20px;width:190px;text-align:center;cursor:pointer;transition:all 0.18s;color:inherit;display:flex;flex-direction:column;align-items:center;gap:10px}
 .hcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--green)}
+.nb-wrap{position:relative}
+a.nb,a.hcard{text-decoration:none}
+/* compacto: só o ícone (a barra já é apertada para o Admin); o texto entra em telas largas */
+#nb-modulos span,#nb-modulos .chev{display:none}
+@media(min-width:1500px){#nb-modulos span{display:inline}#nb-modulos .chev{display:block}}
+.nb .chev{width:11px;height:11px;margin-left:-1px;transition:transform 0.15s}
+.nb-wrap.open .chev{transform:rotate(180deg)}
+.mod-menu{display:none;position:absolute;top:calc(100% + 10px);left:0;min-width:262px;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;box-shadow:var(--shadow-lg);padding:6px;z-index:130}
+.nb-wrap.open .mod-menu{display:block}
+.mod-menu a{display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:8px;text-decoration:none;color:var(--ink)}
+.mod-menu a:hover,.mod-menu a:focus-visible{background:var(--navy-pale);outline:none}
+.mod-menu .mm-ic{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mod-menu b{display:block;font-size:13px;font-weight:700}
+.mod-menu small{display:block;font-size:11px;color:var(--ink3);margin-top:1px}
 .hcard-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center}
 .ic-n{background:var(--navy-pale)}.ic-g{background:var(--green-pale)}.ic-m{background:linear-gradient(135deg,var(--navy-pale),var(--green-pale))}
 /* Modo escuro: ícones com cor fixa no SVG precisam de override pra continuar visíveis */
@@ -506,6 +520,7 @@ tr:hover td{background:var(--bg)}
   .pb{padding:12px}
   .fg2{grid-template-columns:1fr}.fg2 .fg.s2{grid-column:span 1}
   .rep-grid{grid-template-columns:1fr}
+  .mod-menu{position:fixed;top:60px;left:8px;right:8px;min-width:0}
   nav{padding:0 8px}.nb span{display:none}
   .nav-un,.nav-ur{display:none}
 
@@ -617,6 +632,15 @@ tr:hover td{background:var(--bg)}
   <button class="nb" id="nb-amostras" onclick="go('amostras')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg><span>Amostras</span></button>
   <button class="nb" id="nb-followup" onclick="go('followup')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span>Follow-up</span></button>
   <button class="nb" id="nb-relatorio" onclick="go('relatorio')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span>Relatório</span></button>
+  <div class="nb-wrap" id="mod-wrap">
+    <button class="nb" id="nb-modulos" type="button" aria-label="Módulos" aria-haspopup="true" aria-expanded="false" title="Módulos: Artes, Estamparia, Laboratório e Qualidade" onclick="toggleModulos(event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M17.5 14v7M14 17.5h7"/></svg><span>Módulos</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="6 9 12 15 18 9"/></svg></button>
+    <div class="mod-menu" id="mod-menu" role="menu">
+      <a role="menuitem" href="01_Artes.html"><span class="mm-ic ic-n"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.9"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg></span><span><b>Artes</b><small>Ficha técnica: imagens, pantones e aplicações.</small></span></a>
+      <a role="menuitem" href="02_Estamparia.html"><span class="mm-ic ic-g"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2D7A3A" stroke-width="1.9"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></span><span><b>Estamparia</b><small>Pedidos e OPs da estampa localizada.</small></span></a>
+      <a role="menuitem" href="03_Laboratorio.html"><span class="mm-ic ic-n"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.9"><path d="M9 3h6"/><path d="M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2.2h12.4a1.5 1.5 0 0 0 1.3-2.2L14 9V3"/><path d="M7.5 15h9"/></svg></span><span><b>Laboratório</b><small>Receitas de tinta, pantones e estoque.</small></span></a>
+      <a role="menuitem" href="04_Qualidade.html"><span class="mm-ic ic-g"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2D7A3A" stroke-width="1.9"><path d="M9 3h6a1 1 0 0 1 1 1v2H8V4a1 1 0 0 1 1-1z"/><path d="M8 5H6a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><path d="m9 14 2 2 4-4"/></svg></span><span><b>Qualidade</b><small>Testes e aprovação por pedido.</small></span></a>
+    </div>
+  </div>
   <button class="nb" id="nb-usuarios" style="display:none" onclick="go('usuarios')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Usuários</span></button>
   <div class="nav-spacer"></div>
   <div class="nav-user">
@@ -662,6 +686,13 @@ tr:hover td{background:var(--bg)}
     <div class="hcard" onclick="go('followup')"><div class="hcard-icon ic-m"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><h3>Follow-up</h3><p>Painel de prazos críticos.</p></div></div>
     <div class="hcard" onclick="go('relatorio')"><div class="hcard-icon ic-n"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div><h3>Relatório</h3><p>Ficha técnica para impressão.</p></div></div>
     <div class="hcard" id="hcard-usr" onclick="go('usuarios')" style="display:none"><div class="hcard-icon ic-n"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><h3>Usuários</h3><p>Gestão de acessos e permissões.</p></div></div>
+  </div>
+  <div style="max-width:960px;margin:6px auto 0;padding:0 36px"><div class="st-title">Módulos · fluxo da Estampa Localizada</div></div>
+  <div class="hcards" style="padding-top:6px">
+    <a class="hcard" href="01_Artes.html"><div class="hcard-icon ic-n"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg></div><div><h3>Artes</h3><p>Ficha técnica: imagens, pantones e aplicações.</p></div></a>
+    <a class="hcard" href="02_Estamparia.html"><div class="hcard-icon ic-g"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2D7A3A" stroke-width="1.8"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></div><div><h3>Estamparia</h3><p>Pedidos e OPs da estampa localizada.</p></div></a>
+    <a class="hcard" href="03_Laboratorio.html"><div class="hcard-icon ic-n"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.8"><path d="M9 3h6"/><path d="M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2.2h12.4a1.5 1.5 0 0 0 1.3-2.2L14 9V3"/><path d="M7.5 15h9"/></svg></div><div><h3>Laboratório</h3><p>Receitas de tinta, pantones e estoque.</p></div></a>
+    <a class="hcard" href="04_Qualidade.html"><div class="hcard-icon ic-g"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2D7A3A" stroke-width="1.8"><path d="M9 3h6a1 1 0 0 1 1 1v2H8V4a1 1 0 0 1 1-1z"/><path d="M8 5H6a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><path d="m9 14 2 2 4-4"/></svg></div><div><h3>Qualidade</h3><p>Testes e aprovação por pedido.</p></div></a>
   </div>
   <div style="max-width:660px;margin:0 auto;padding:0 36px 52px">
     <div class="st-title">Alertas Ativos</div>
@@ -2063,6 +2094,18 @@ function uToggleSolicitarRow() {
 // ═══════════════════════════════════════
 // NAV / MODAL / TABS
 // ═══════════════════════════════════════
+function fecharModulos(){
+  const w = document.getElementById('mod-wrap'); if (!w) return;
+  w.classList.remove('open'); document.getElementById('nb-modulos').setAttribute('aria-expanded', 'false');
+}
+function toggleModulos(e){
+  if (e) e.stopPropagation();
+  const w = document.getElementById('mod-wrap'), on = !w.classList.contains('open');
+  w.classList.toggle('open', on); document.getElementById('nb-modulos').setAttribute('aria-expanded', String(on));
+  if (on) { const a = w.querySelector('.mod-menu a'); if (a) a.focus({ preventScroll: true }); }
+}
+document.addEventListener('click', e => { if (!e.target.closest('#mod-wrap')) fecharModulos(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharModulos(); });
 function go(name, skipHistory) {
   if (name==='usuarios' && !isAdm()) return;
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
