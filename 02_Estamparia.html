@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Artes — SGE</title>
+<title>Estamparia — SGE</title>
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1B3A5C">
@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Source+Serif+4:wght@600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
+
 :root{
   --navy:#1B3A5C;--navy2:#254D78;--navy-pale:#E8EFF6;
   --green:#2D7A3A;--green2:#358544;--green-pale:#D8EEDC;
@@ -139,69 +140,83 @@ textarea.form-input{resize:vertical;min-height:80px}
 .at-toolbar h3{font-family:'Source Serif 4',serif;font-size:15px;font-weight:700;color:var(--navy)}
 .at-toolbar p{font-size:12px;color:var(--ink3);margin-top:1px}
 
-/* ── CARDS DE ARTE ── */
+/* ── CARDS ── */
 .cards-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:14px;align-items:start}
-#estampasContainer{display:contents}
+.grid-2{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:14px;align-items:start}
+.stack{display:flex;flex-direction:column;gap:14px;min-width:0}
 .ac{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;min-width:0}
+.ac.flush{padding:0;overflow:hidden}
+.ac.flush .tw{border:none;border-radius:0}
 .ac-head{display:flex;align-items:flex-start;gap:8px;margin-bottom:12px}
 .ac-head-main{flex:1;min-width:0}
-.ac-title{width:100%;font-family:'Source Serif 4',serif;font-size:15px;font-weight:600;color:var(--navy);border:1.5px solid transparent;background:transparent;border-radius:6px;padding:2px 6px;margin-left:-7px;outline:none;transition:all 0.14s}
-.ac-title:hover:not(:disabled){background:var(--navy-pale)}
-.ac-title:focus{background:var(--bg);border-color:var(--green);box-shadow:0 0 0 3px var(--green-pale)}
-.ac-title:disabled{opacity:1;cursor:default}
-.ac-title::placeholder{color:var(--navy);opacity:1}
+.ac-name{font-family:'Source Serif 4',serif;font-size:15px;font-weight:600;color:var(--navy)}
 .ac-sub{font-size:11.5px;color:var(--ink3);margin-top:1px}
+.st-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:var(--ink3);margin-bottom:10px}
+.muted{font-size:12px;color:var(--ink3)}
 
-/* upload de imagem (padrão .iu do app) */
-.iu{border:2px dashed var(--border);border-radius:var(--radius);padding:22px 14px;text-align:center;cursor:pointer;transition:all 0.14s;background:var(--bg)}
-.iu:hover,.iu.drag{border-color:var(--green);background:var(--green-pale)}
-.iu svg{width:30px;height:30px;color:var(--ink3)}
-.iu p{color:var(--ink3);font-size:12px;margin-top:5px;line-height:1.5}
-.iu-prog{color:var(--green);font-weight:600}
-.img-empty{border:2px dashed var(--border);border-radius:var(--radius);padding:22px 14px;text-align:center;color:var(--ink3);font-size:12px;background:var(--bg)}
-.img-box{position:relative;border:1.5px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;background:#fff}
-.img-box img{width:100%;display:block;max-height:280px;object-fit:contain;background:#fff}
-.zoom-btn{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:7px;border:none;background:rgba(27,58,92,0.78);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.zoom-btn:hover{background:var(--navy)}
-.zoom-btn svg{width:15px;height:15px}
-.img-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px}
-.img-actions .tag{margin-left:auto}
-
-/* controle segmentado (padrão .rel-mode-btn) */
+/* controle segmentado (padrão .rel-mode-btn do app) */
 .seg{display:flex;gap:4px}
-.seg-btn{flex:1;display:flex;align-items:center;justify-content:center;padding:7px 13px;border-radius:6px;border:1.5px solid var(--border);background:var(--surface);color:var(--ink2);font-family:'Source Sans 3',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.14s}
+.seg-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:7px 13px;border-radius:6px;border:1.5px solid var(--border);background:var(--surface);color:var(--ink2);font-family:'Source Sans 3',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.14s}
 .seg-btn:hover:not(:disabled){border-color:var(--navy);color:var(--navy)}
 .seg-btn.active{background:var(--navy);border-color:var(--navy);color:#fff}
 .seg-btn:disabled{cursor:default}
+.seg-btn .count{opacity:0.75;font-weight:700}
+.seg-auto{flex-wrap:wrap}
+.seg-auto .seg-btn{flex:0 0 auto}
 
-/* pantones */
-.pt-head,.pt-row{display:grid;grid-template-columns:22px 36px minmax(0,1fr) 58px 58px 28px;gap:6px;align-items:center}
-.pt-head{margin:12px 0 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink3)}
-.pt-row{margin-bottom:6px}
-.pt-seq{width:22px;height:22px;border-radius:6px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
-.pt-swatch{width:36px;height:34px;border-radius:var(--radius-sm);border:1.5px solid var(--border);padding:2px;background:var(--bg);cursor:pointer}
-.pt-swatch:disabled{cursor:default}
-.pt-row .form-input{padding:7px 6px;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:12px;min-width:0}
-.pt-rm{width:28px;height:28px;border-radius:7px;border:none;background:transparent;color:var(--ink3);cursor:pointer;display:flex;align-items:center;justify-content:center}
-.pt-rm:hover{background:var(--red-pale);color:var(--red)}
-.pt-rm svg{width:14px;height:14px}
-.pt-add{margin-top:4px}
+/* ordens de produção */
+.op-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:16px}
+.op-cols,.op-row{display:grid;grid-template-columns:26px minmax(0,1fr) 110px 30px;gap:8px;align-items:center}
+.op-cols{margin:10px 0 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink3)}
+.op-row{margin-bottom:6px}
+.op-seq{width:24px;height:24px;border-radius:6px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.op-row .form-input{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;min-width:0}
+.op-rm{width:28px;height:28px;border-radius:7px;border:none;background:transparent;color:var(--ink3);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.op-rm:hover{background:var(--red-pale);color:var(--red)}
+.op-rm svg{width:14px;height:14px}
+.op-total{margin-top:10px;font-size:12.5px;color:var(--ink3);font-weight:600}
+.op-total b{color:var(--navy);font-family:'IBM Plex Mono',monospace}
 
-/* histórico e recentes */
-.st-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:var(--ink3);margin-bottom:10px}
-.ac-block{margin-top:14px}
+/* tabelas (padrão table/th/td do app) */
+.tw{overflow-x:auto;border-radius:var(--radius);border:1.5px solid var(--border)}
+table.tbl{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--ink3);background:var(--surface2);border-bottom:1.5px solid var(--border);white-space:nowrap}
+.tbl td{padding:9px 12px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl tbody tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover td{background:var(--bg)}
+.tbl .cell-mono{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--navy);white-space:nowrap}
+.tbl .cell-sub{font-size:12px;color:var(--ink3)}
+.tbl .cell-act{white-space:nowrap;text-align:right}
+.tbl .cell-act .btn+.btn{margin-left:5px}
+.tbl-empty{text-align:center;padding:26px 12px!important;color:var(--ink3);font-size:13px}
+.tbl-mini th,.tbl-mini td{padding:5px 8px;font-size:12px}
+.sw-dot{display:inline-block;width:16px;height:16px;border-radius:4px;border:1px solid var(--border);vertical-align:middle}
+
+/* ficha de Artes em leitura */
+.ro-val{font-size:13px;color:var(--ink);background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;min-height:36px;display:flex;align-items:center;overflow-wrap:anywhere}
+.ro-val.empty{color:var(--ink3);font-style:italic}
+.img-box{position:relative;border:1.5px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;background:#fff}
+.img-box img{width:100%;display:block;max-height:240px;object-fit:contain;background:#fff}
+.zoom-btn{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:7px;border:none;background:rgba(27,58,92,0.78);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.zoom-btn:hover{background:var(--navy)}
+.zoom-btn svg{width:15px;height:15px}
+.img-meta{margin-top:8px}
+.ficha-empty{grid-column:1/-1;border:2px dashed var(--border);border-radius:var(--radius);padding:30px 16px;text-align:center;color:var(--ink3);font-size:13px;line-height:1.6;background:var(--surface)}
+.ficha-empty a{color:var(--green);font-weight:700}
+
+/* ordens da referência (Digital + Localizada) */
+.ops-item{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid var(--border)}
+.ops-item:last-child{border-bottom:none}
+.ops-num{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13px;color:var(--navy)}
+.ops-det{font-size:12px;color:var(--ink3)}
+.ops-item.arq .ops-num{opacity:0.6}
+
+/* histórico */
 .hist-item{border-left:2.5px solid var(--green);padding:6px 0 6px 12px;margin-bottom:8px}
 .hist-campo{font-size:12px;font-weight:700;color:var(--navy)}
 .hist-vals{font-size:12px;color:var(--ink2);margin:2px 0;overflow-wrap:anywhere}
 .hist-old{text-decoration:line-through;color:var(--ink3)}
 .hist-meta{font-size:10.5px;color:var(--ink3)}
-.muted{font-size:12px;color:var(--ink3)}
-.recent-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr));gap:10px}
-.recent-item{display:flex;align-items:center;gap:8px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:9px 11px}
-.recent-main{flex:1;min-width:0}
-.recent-ref{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:14px;color:var(--navy)}
-.recent-meta{font-size:11px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.below-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:14px;align-items:start;margin-top:14px}
 
 /* ── MODAL (padrão do app) ── */
 .mo{display:none;position:fixed;inset:0;background:rgba(27,58,92,0.52);backdrop-filter:blur(3px);z-index:200;align-items:center;justify-content:center;padding:20px}
@@ -299,6 +314,13 @@ textarea.form-input{resize:vertical;min-height:80px}
   .mf .btn{flex:1;min-width:100px;justify-content:center}
   .toast-stack{left:12px;right:12px;max-width:none}
 }
+
+@media(max-width:900px){.grid-2{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:640px){
+  .op-cols,.op-row{grid-template-columns:24px minmax(0,1fr) 84px 28px}
+  .seg-auto{width:100%}
+}
+
 </style>
 </head>
 <body>
@@ -337,8 +359,8 @@ textarea.form-input{resize:vertical;min-height:80px}
       <div class="nav-logo-mark"><img src="icon-192.png" alt="SGE" style="width:100%;height:100%;object-fit:contain"></div>
     </a>
     <a class="nb" href="index.html" id="nb-home"></a>
-    <button class="nb active" type="button" id="nb-artes"></button>
-    <a class="nb" href="02_Estamparia.html" id="nb-est"></a>
+    <a class="nb" href="01_Artes.html" id="nb-artes"></a>
+    <button class="nb active" type="button" id="nb-est"></button>
     <div class="nav-spacer"></div>
     <div class="nav-user">
       <div class="nav-av" id="nav-av">A</div>
@@ -353,8 +375,8 @@ textarea.form-input{resize:vertical;min-height:80px}
     <div class="ph">
       <div class="ph-icon ic-g" id="ph-icon"></div>
       <div class="ph-title">
-        <h2>Estampa Localizada</h2>
-        <div class="ph-sub">Artes · ficha técnica com estampas, tagless e pantones</div>
+        <h2>Estamparia</h2>
+        <div class="ph-sub">Pedido e ordens de produção da Estampa Localizada</div>
       </div>
       <div class="ph-actions">
         <button class="btn btn-ghost" id="btnOpenSearch" type="button"></button>
@@ -364,46 +386,86 @@ textarea.form-input{resize:vertical;min-height:80px}
     </div>
 
     <div class="pb">
-      <div class="ro-banner" id="roBanner" role="status">Modo somente leitura — você pode consultar e imprimir. Para editar, peça ao Administrador a permissão de editar estampa.</div>
+      <div class="ro-banner" id="roBanner" role="status">Modo somente leitura — você pode consultar e imprimir. Para editar, peça ao Administrador a permissão de adicionar OP.</div>
 
       <div class="sw">
         <div class="sc">
-          <label for="refInput">Referência</label>
+          <label for="refInput">Referência (ficha de Artes)</label>
           <input id="refInput" class="form-input ref-input" type="text" placeholder="00000" maxlength="20" autocomplete="off">
         </div>
-        <button class="btn btn-navy" id="btnLoadRef" type="button">Carregar</button>
-        <button class="btn btn-ghost" id="btnNewRef" type="button">Nova ficha</button>
-        <span class="ref-status" id="refStatus"></span>
+        <button class="btn btn-navy" id="btnLoadRef" type="button">Carregar ficha</button>
+        <button class="btn btn-ghost" id="btnNewPedido" type="button">Novo pedido</button>
+        <span class="ref-status" id="fichaChip"></span>
       </div>
 
-      <div class="at-toolbar">
+      <div class="grid-2">
+        <div class="ac">
+          <div class="ac-head">
+            <div class="ac-head-main">
+              <div class="ac-name">Pedido</div>
+              <div class="ac-sub">Um pedido pode ter várias ordens de produção</div>
+            </div>
+            <span id="pedidoChip"></span>
+          </div>
+
+          <div class="fl" style="margin-top:0">
+            <label for="pedidoInput">Número do pedido</label>
+            <input type="text" id="pedidoInput" class="form-input mono" placeholder="Ex: PD-4321" autocomplete="off">
+          </div>
+
+          <div class="fl">
+            <div class="fl-label" id="status-lbl">Situação</div>
+            <div class="seg" role="group" aria-labelledby="status-lbl" id="statusSeg"></div>
+          </div>
+
+          <div class="op-title">
+            <div class="fl-label">Ordens de produção</div>
+            <button class="btn btn-ghost btn-sm" id="btnAddOp" type="button"></button>
+          </div>
+          <div class="op-cols" aria-hidden="true"><span>#</span><span>Número da OP</span><span>Quantidade</span><span></span></div>
+          <div id="opRows"></div>
+          <div class="op-total" id="opTotal"></div>
+        </div>
+
+        <div class="stack">
+          <div class="ac">
+            <div class="st-title">Observações de produção</div>
+            <textarea class="form-input" id="observacoesPedido" placeholder="Notas específicas para a estamparia deste pedido..." aria-label="Observações de produção"></textarea>
+          </div>
+          <div class="ac">
+            <div class="st-title">Ordens desta referência</div>
+            <div id="opsRef"></div>
+          </div>
+          <div class="ac">
+            <div class="st-title">Histórico de alterações</div>
+            <div id="histBox"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="at-toolbar" style="margin-top:22px">
+        <div>
+          <h3>Pedidos cadastrados</h3>
+          <p>Também disponíveis para o Laboratório (receita) e a Qualidade.</p>
+        </div>
+        <div class="seg seg-auto" role="group" aria-label="Filtrar pedidos por situação" id="filterTabs"></div>
+      </div>
+      <div class="ac flush">
+        <div class="tw">
+          <table class="tbl">
+            <thead><tr><th>Pedido</th><th>Referência</th><th>Ordens de produção</th><th>Qtd. total</th><th>Situação</th><th>Qualidade</th><th>Salvo em</th><th></th></tr></thead>
+            <tbody id="pedidosBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="at-toolbar" style="margin-top:22px">
         <div>
           <h3>Estampas e tagless</h3>
-          <p>Na ordem de produção, lado a lado.</p>
-        </div>
-        <button class="btn btn-primary" id="btnAddEstampa" type="button"></button>
-      </div>
-
-      <div class="cards-row">
-        <div id="estampasContainer"></div>
-        <div id="taglessContainer" style="display:contents"></div>
-      </div>
-
-      <div class="below-grid">
-        <div class="ac">
-          <div class="st-title">Observações</div>
-          <textarea class="form-input" id="observacoes" placeholder="Notas gerais para o serigrafista..." aria-label="Observações"></textarea>
-        </div>
-        <div class="ac">
-          <div class="st-title">Histórico de alterações</div>
-          <div id="histBox"></div>
+          <p>Puxados da ficha de Artes pela referência. Somente leitura.</p>
         </div>
       </div>
-
-      <div class="ac ac-block">
-        <div class="st-title">Últimas fichas salvas</div>
-        <div class="recent-list" id="recentList"></div>
-      </div>
+      <div class="cards-row" id="fichaPreviewRow"></div>
     </div>
   </main>
 </div>
@@ -418,12 +480,8 @@ textarea.form-input{resize:vertical;min-height:80px}
     <div class="mb">
       <div class="sf-grid">
         <div class="fl"><label for="sRef">Referência</label><input class="form-input mono" id="sRef" type="text" placeholder="Ex: 29001"></div>
-        <div class="fl"><label for="sDesc">Descrição ou palavra-chave</label><input class="form-input" id="sDesc" type="text" placeholder="Ex: Frente localizada"></div>
-        <div class="fl"><label for="sApp">Aplicação</label>
-          <select class="form-input" id="sApp"><option value="">Qualquer</option></select></div>
-        <div class="fl"><label for="sPant">Código Pantone</label><input class="form-input mono" id="sPant" type="text" placeholder="Ex: 485"></div>
-        <div class="fl"><label for="sTec">Técnica do tagless</label>
-          <select class="form-input" id="sTec"><option value="">Qualquer</option><option value="tampografia">Tampografia</option><option value="silk">Silk</option></select></div>
+        <div class="fl"><label for="sPedido">Pedido</label><input class="form-input mono" id="sPedido" type="text" placeholder="Ex: PD-4321"></div>
+        <div class="fl"><label for="sOp">Número da OP</label><input class="form-input mono" id="sOp" type="text" placeholder="Ex: OP-5561"></div>
       </div>
       <div class="res-wrap" id="sResults" aria-live="polite">
         <div class="empty">Preencha um ou mais filtros e clique em Buscar.</div>
@@ -461,11 +519,8 @@ textarea.form-input{resize:vertical;min-height:80px}
 ═══════════════════════════════════════ */
 const SB_URL = 'https://pihxaodqwtrndsyskxte.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpaHhhb2Rxd3RybmRzeXNreHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2OTMyODAsImV4cCI6MjA5NjI2OTI4MH0.C-q6EsQzBv9FR_ueIp4_lRkJlcHEdSRt71MwDXmoJwI';
-const BUCKET = 'estampas-imagens';
-const APLICACOES = ['Foil','Floco','Termo','Aplicação','Bordado','DTF'];
 const TECNICAS_TAGLESS = { tampografia:'Tampografia', silk:'Silk' };
 const COR_PADRAO = '#CCCCCC';
-const LIMITE_BUSCA = 300;
 
 let SB = null;
 let CU = null;
@@ -579,9 +634,6 @@ function updateConnectionIndicator(){
    LOGIN, SESSÃO E PERMISSÕES (padrão do SGE)
 ═══════════════════════════════════════ */
 const isAdm = () => !!CU && CU.role === 'admin';
-// Quem pode editar estampas (Admin, ou Visualizador com "Editar estampa" / "Nova estampa") pode editar as Artes.
-const canEdit = () => !!CU && (CU.role === 'admin' || CU.perm_editar_estampa === true || CU.perm_nova_estampa === true);
-const canDelete = () => isAdm();
 
 function showLogin(){
   $('#login-screen').style.display = 'flex';
@@ -648,18 +700,6 @@ async function verificarOuCriarSessaoNaRestauracao(){
   } catch(e) { currentSessionToken = token; return true; }
 }
 
-function entrarNoApp(){
-  $('#login-screen').style.display = 'none';
-  $('#app').style.display = 'block';
-  applyPerms();
-  novaFicha(true);
-  refreshRecent();
-  renderHistorico();
-  try {
-    const refParam = (new URLSearchParams(location.search).get('ref') || '').trim();
-    if (refParam) { $('#refInput').value = refParam; carregarFicha(refParam); }
-  } catch(e) { /* ambiente sem URLSearchParams */ }
-}
 
 async function doLogin(){
   const u = $('#lg-user').value.trim().toLowerCase();
@@ -737,603 +777,7 @@ async function tryRestoreSession(){
   }
 }
 
-function applyPerms(){
-  $('#nav-un').textContent = CU.nome;
-  $('#nav-ur').textContent = isAdm() ? 'Administrador' : 'Visualizador';
-  const colors = ['#1B3A5C','#2D7A3A','#7A4A2A','#4A2A7A','#2A6A7A'];
-  $('#nav-av').style.background = colors[CU.nome.charCodeAt(0) % colors.length];
-  $('#nav-av').textContent = CU.nome.charAt(0).toUpperCase();
-  const pode = canEdit();
-  $('#btnSave').style.display = pode ? '' : 'none';
-  $('#btnAddEstampa').style.display = pode ? '' : 'none';
-  $('#roBanner').style.display = pode ? 'none' : 'block';
-  $('#observacoes').disabled = !pode;
-  $('#refInput').disabled = false;
-}
 
-/* ═══════════════════════════════════════
-   ESTADO DA FICHA
-   (mesmo formato JSON que o Módulo 02 - Estamparia já lê de "fichas.dados")
-═══════════════════════════════════════ */
-function makePantone(){ return { id: uid(), color: COR_PADRAO, code: '', ink: '', fabric: '' }; }
-function makeEstampa(){ return { id: uid(), name: '', image: null, addedAt: null, description: '', application: '', applicationDescription: '', pantones: [makePantone()] }; }
-function makeTagless(){ return { image: null, addedAt: null, technique: 'tampografia', description: '', pantones: [makePantone()] }; }
-
-let state = { estampas: [makeEstampa()], tagless: makeTagless(), observacoes: '' };
-let meta = { fichaId: null, loadedRef: null, atualizadoEm: null, atualizadoPor: null, offline: false };
-
-const corValida = c => /^#[0-9a-fA-F]{6}$/.test(c || '') ? c : COR_PADRAO;
-function normPantones(arr){
-  const lista = (Array.isArray(arr) ? arr : []).map(p => ({
-    id: (p && p.id) || uid(), color: corValida(p && p.color),
-    code: String((p && p.code) || ''), ink: String((p && p.ink) || ''), fabric: String((p && p.fabric) || '')
-  }));
-  return lista.length ? lista : [makePantone()];
-}
-function normalizar(d){
-  d = d || {};
-  const est = (Array.isArray(d.estampas) && d.estampas.length ? d.estampas : [{}]).map(e => ({
-    id: e.id || uid(), name: String(e.name || ''), image: e.image || null, addedAt: e.addedAt || null,
-    description: String(e.description || ''), application: String(e.application || ''),
-    applicationDescription: String(e.applicationDescription || ''), pantones: normPantones(e.pantones)
-  }));
-  const t = d.tagless || {};
-  return {
-    estampas: est,
-    tagless: {
-      image: t.image || null, addedAt: t.addedAt || null,
-      technique: TECNICAS_TAGLESS[t.technique] ? t.technique : 'tampografia',
-      description: String(t.description || ''), pantones: normPantones(t.pantones)
-    },
-    observacoes: String(d.observacoes || '')
-  };
-}
-const pantoneVazio = p => !p.code.trim() && !p.ink.trim() && !p.fabric.trim() && p.color.toUpperCase() === COR_PADRAO;
-function serializar(ref){
-  const pant = arr => arr.filter(p => !pantoneVazio(p)).map(p => ({ id: p.id, color: p.color, code: p.code.trim(), ink: p.ink.trim(), fabric: p.fabric.trim() }));
-  return {
-    reference: ref,
-    estampas: state.estampas.map(e => ({
-      id: e.id, name: e.name.trim(), image: e.image || null, addedAt: e.addedAt || null,
-      description: e.description.trim(), application: e.application,
-      applicationDescription: e.applicationDescription.trim(), pantones: pant(e.pantones)
-    })),
-    tagless: {
-      image: state.tagless.image || null, addedAt: state.tagless.addedAt || null, technique: state.tagless.technique,
-      description: state.tagless.description.trim(), pantones: pant(state.tagless.pantones)
-    },
-    observacoes: state.observacoes.trim(),
-    atualizadoPor: CU ? CU.nome : null
-  };
-}
-// Assinatura do conteúdo: serve pra saber se há alterações não salvas (sem pesar com imagens antigas em base64)
-let baseline = '', ultimoSujo = false;
-function assinatura(){
-  const s = serializar('');
-  delete s.atualizadoPor;
-  s.estampas.forEach(e => { if (e.image && String(e.image).startsWith('data:')) e.image = 'data:legado'; });
-  if (s.tagless.image && String(s.tagless.image).startsWith('data:')) s.tagless.image = 'data:legado';
-  return JSON.stringify(s);
-}
-const sujo = () => assinatura() !== baseline;
-function marcarLimpo(){ baseline = assinatura(); ultimoSujo = false; }
-function atualizarSujo(){
-  if (!CU) return;
-  const s = sujo();
-  if (s !== ultimoSujo) { ultimoSujo = s; renderRefStatus(); }
-}
-const uploadsPendentes = () => state.estampas.some(e => e._uploading) || !!state.tagless._uploading;
-
-/* ═══════════════════════════════════════
-   IMAGENS (compressão + bucket estampas-imagens)
-═══════════════════════════════════════ */
-function comprimirImagem(file, maxDim, quality){
-  maxDim = maxDim || 1600; quality = quality || 0.82;
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      const s = Math.min(1, maxDim / Math.max(img.naturalWidth, img.naturalHeight));
-      const w = Math.round(img.naturalWidth * s), h = Math.round(img.naturalHeight * s);
-      const c = document.createElement('canvas'); c.width = w; c.height = h;
-      const x = c.getContext('2d');
-      x.fillStyle = '#fff'; x.fillRect(0, 0, w, h);   // fundo branco: PNG transparente não vira preto no JPEG
-      x.drawImage(img, 0, 0, w, h);
-      c.toBlob(b => {
-        if (!b) { resolve(file); return; }
-        resolve(new File([b], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' }));
-      }, 'image/jpeg', quality);
-    };
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('não foi possível ler essa imagem. Use JPG, PNG ou WebP.')); };
-    img.src = url;
-  });
-}
-async function subirImagem(file, ref){
-  const slug = String(ref || 'sem-ref').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'sem-ref';
-  const fn = `artes_${slug}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}.jpg`;
-  const { error } = await SB.storage.from(BUCKET).upload(fn, file, { upsert: true, contentType: file.type || 'image/jpeg' });
-  if (error) throw error;
-  return SB.storage.from(BUCKET).getPublicUrl(fn).data.publicUrl;
-}
-async function enviarImagem(file, alvo, rerender){
-  if (!file) return;
-  if (!/^image\//.test(file.type)) { showToast('Selecione um arquivo de imagem (JPG, PNG ou WebP).', 'err'); return; }
-  if (!navigator.onLine) { showToast('Sem conexão: não é possível enviar imagens agora.', 'err'); return; }
-  alvo._uploading = true; rerender();
-  try {
-    const otimizada = await comprimirImagem(file);
-    alvo.image = await subirImagem(otimizada, $('#refInput').value.trim());
-    alvo.addedAt = nowIso();
-  } catch(e) {
-    showToast('Não foi possível enviar a imagem: ' + errMsg(e), 'err');
-  } finally {
-    alvo._uploading = false; rerender();
-  }
-}
-// Fichas antigas guardavam a imagem dentro do JSON (base64). Ao salvar, move pro bucket.
-async function migrarImagemLegada(alvo, ref){
-  if (!alvo.image || !String(alvo.image).startsWith('data:')) return;
-  try {
-    const blob = await (await fetch(alvo.image)).blob();
-    alvo.image = await subirImagem(new File([blob], 'legado.jpg', { type: blob.type || 'image/jpeg' }), ref);
-  } catch(e) { console.warn('Imagem antiga mantida no formato original:', e); }
-}
-
-/* ═══════════════════════════════════════
-   RENDER — cards de estampa / tagless
-═══════════════════════════════════════ */
-function estampaNomePadrao(idx){ return state.estampas.length > 1 ? `Estampa Localizada ${idx + 1}` : 'Estampa Localizada'; }
-function estampaTitulo(e, idx){ return e.name.trim() || estampaNomePadrao(idx); }
-
-function blocoImagem(alvo, altTxt, rerender, ro){
-  const wrap = document.createElement('div');
-  const fileInput = document.createElement('input');
-  fileInput.type = 'file'; fileInput.accept = 'image/*'; fileInput.hidden = true;
-  fileInput.addEventListener('change', () => { const f = fileInput.files[0]; fileInput.value = ''; enviarImagem(f, alvo, rerender); });
-  wrap.appendChild(fileInput);
-
-  if (alvo._uploading) {
-    wrap.insertAdjacentHTML('beforeend', `<div class="iu" style="cursor:default"><p class="iu-prog" role="status">⏳ Otimizando e enviando imagem...</p></div>`);
-  } else if (alvo.image) {
-    wrap.insertAdjacentHTML('beforeend', `
-      <div class="img-box"><img src="${esc(alvo.image)}" alt="${esc(altTxt)}"><button type="button" class="zoom-btn" aria-label="Ampliar imagem">${ic('zoomIn', 15)}</button></div>
-      <div class="img-actions">
-        ${ro ? '' : `<button type="button" class="btn btn-ghost btn-sm" data-a="trocar">${withIcon('refresh', 'Trocar imagem')}</button>
-        <button type="button" class="btn btn-danger btn-sm" data-a="remover">${withIcon('trash', 'Remover')}</button>`}
-        ${alvo.addedAt ? `<span class="tag t-ok">${ic('clock')} ${esc(fmtDataHora(alvo.addedAt))}</span>` : ''}
-      </div>`);
-    $('.zoom-btn', wrap).addEventListener('click', () => abrirLightbox(alvo.image));
-    const t = $('[data-a="trocar"]', wrap), r = $('[data-a="remover"]', wrap);
-    if (t) t.addEventListener('click', () => fileInput.click());
-    if (r) r.addEventListener('click', () => { alvo.image = null; alvo.addedAt = null; rerender(); });
-  } else if (ro) {
-    wrap.insertAdjacentHTML('beforeend', `<div class="img-empty">Sem imagem cadastrada</div>`);
-  } else {
-    const dz = document.createElement('div');
-    dz.className = 'iu'; dz.tabIndex = 0; dz.setAttribute('role', 'button');
-    dz.setAttribute('aria-label', 'Selecionar imagem: ' + altTxt);
-    dz.innerHTML = `${ic('upload', 30)}<p>Arraste uma imagem ou clique para selecionar</p>`;
-    dz.addEventListener('click', () => fileInput.click());
-    dz.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); } });
-    ['dragover', 'dragleave', 'drop'].forEach(evt => dz.addEventListener(evt, e => {
-      e.preventDefault();
-      dz.classList.toggle('drag', evt === 'dragover');
-      if (evt === 'drop') enviarImagem(e.dataTransfer.files[0], alvo, rerender);
-    }));
-    wrap.appendChild(dz);
-  }
-  return wrap;
-}
-
-function blocoPantones(lista, rotulo, ro){
-  const wrap = document.createElement('div');
-  wrap.className = 'ac-block';
-  wrap.innerHTML = `<div class="fl-label">${esc(rotulo)}</div>
-    <div class="pt-head" aria-hidden="true"><span>#</span><span>Cor</span><span>Pantone</span><span>Tinta</span><span>Tecido</span><span></span></div>
-    <div data-role="rows"></div>`;
-  const rows = $('[data-role="rows"]', wrap);
-  const desenhar = () => {
-    rows.innerHTML = '';
-    lista.forEach((p, i) => {
-      const r = document.createElement('div');
-      r.className = 'pt-row';
-      r.innerHTML = `<span class="pt-seq">${i + 1}</span>
-        <input type="color" class="pt-swatch" value="${esc(p.color)}" aria-label="Cor do pantone ${i + 1}" ${ro ? 'disabled' : ''}>
-        <input type="text" class="form-input" value="${esc(p.code)}" placeholder="485 C" aria-label="Código Pantone ${i + 1}" ${ro ? 'disabled' : ''}>
-        <input type="text" class="form-input" value="${esc(p.ink)}" placeholder="Tinta" title="Código interno do tipo de tinta" aria-label="Código da tinta ${i + 1}" ${ro ? 'disabled' : ''}>
-        <input type="text" class="form-input" value="${esc(p.fabric)}" placeholder="Tecido" title="Código interno do tipo de tecido técnico" aria-label="Código do tecido ${i + 1}" ${ro ? 'disabled' : ''}>
-        ${ro ? '<span></span>' : `<button type="button" class="pt-rm" aria-label="Remover pantone ${i + 1}">${ic('x', 14)}</button>`}`;
-      const [sw, code, ink, fab] = r.querySelectorAll('input');
-      sw.addEventListener('input', () => { p.color = sw.value; });
-      code.addEventListener('input', () => { p.code = code.value; });
-      ink.addEventListener('input', () => { p.ink = ink.value; });
-      fab.addEventListener('input', () => { p.fabric = fab.value; });
-      const rm = $('.pt-rm', r);
-      if (rm) rm.addEventListener('click', () => { lista.splice(i, 1); if (!lista.length) lista.push(makePantone()); desenhar(); atualizarSujo(); });
-      rows.appendChild(r);
-    });
-  };
-  desenhar();
-  if (!ro) {
-    const add = document.createElement('button');
-    add.type = 'button'; add.className = 'btn btn-ghost btn-sm pt-add';
-    add.innerHTML = withIcon('plus', 'Adicionar pantone');
-    add.addEventListener('click', () => { lista.push(makePantone()); desenhar(); atualizarSujo(); });
-    wrap.appendChild(add);
-  }
-  return wrap;
-}
-
-function campoTexto(id, rotulo, valor, placeholder, ro, onInput){
-  const d = document.createElement('div');
-  d.className = 'fl';
-  d.innerHTML = `<label for="${esc(id)}">${esc(rotulo)}</label><input class="form-input" type="text" id="${esc(id)}" value="${esc(valor)}" placeholder="${esc(placeholder)}" ${ro ? 'disabled' : ''}>`;
-  $('input', d).addEventListener('input', e => onInput(e.target.value));
-  return d;
-}
-
-function renderEstampas(){
-  const ro = !canEdit();
-  const host = $('#estampasContainer');
-  host.innerHTML = '';
-  state.estampas.forEach((e, idx) => {
-    const card = document.createElement('div');
-    card.className = 'ac';
-    const total = state.estampas.length;
-    card.innerHTML = `<div class="ac-head">
-        <div class="ac-head-main">
-          <input type="text" class="ac-title" value="${esc(e.name)}" placeholder="${esc(estampaNomePadrao(idx))}" aria-label="Nome da estampa ${idx + 1}" title="${ro ? '' : 'Clique para renomear (ex: Costas)'}" ${ro ? 'disabled' : ''}>
-          <div class="ac-sub">${total > 1 ? `Estampa ${idx + 1} de ${total}` : 'Estampa principal'}</div>
-        </div>
-        ${!ro && total > 1 ? `<button type="button" class="btn btn-danger btn-sm" data-a="del" aria-label="Remover estampa ${idx + 1}">${ic('trash')}</button>` : ''}
-      </div>`;
-    $('.ac-title', card).addEventListener('input', ev => { e.name = ev.target.value; });
-    const del = $('[data-a="del"]', card);
-    if (del) del.addEventListener('click', () => {
-      const comDados = e.image || e.description.trim() || e.applicationDescription.trim() || !e.pantones.every(pantoneVazio);
-      if (comDados && !confirm(`Remover "${estampaTitulo(e, idx)}" da ficha? Isso só vale depois de salvar.`)) return;
-      state.estampas.splice(idx, 1); renderEstampas();
-    });
-    card.appendChild(blocoImagem(e, estampaTitulo(e, idx), renderEstampas, ro));
-    card.appendChild(campoTexto(`est-${e.id}-desc`, 'Descrição', e.description, 'Ex: Silk frente localizada', ro, v => { e.description = v; }));
-
-    const opcoes = APLICACOES.includes(e.application) || !e.application ? APLICACOES : APLICACOES.concat(e.application);
-    const app = document.createElement('div');
-    app.className = 'fl';
-    app.innerHTML = `<label for="est-${esc(e.id)}-app">Aplicação</label>
-      <select class="form-input" id="est-${esc(e.id)}-app" ${ro ? 'disabled' : ''}>
-        <option value="">Nenhuma</option>
-        ${opcoes.map(o => `<option value="${esc(o)}" ${e.application === o ? 'selected' : ''}>${esc(o)}</option>`).join('')}
-      </select>`;
-    $('select', app).addEventListener('change', ev => { e.application = ev.target.value; });
-    card.appendChild(app);
-    card.appendChild(campoTexto(`est-${e.id}-appdesc`, 'Descrição da aplicação', e.applicationDescription, 'Ex: Foil dourado no peito direito', ro, v => { e.applicationDescription = v; }));
-    card.appendChild(blocoPantones(e.pantones, 'Pantones', ro));
-    host.appendChild(card);
-  });
-  atualizarSujo();
-}
-
-function renderTagless(){
-  const ro = !canEdit();
-  const t = state.tagless;
-  const host = $('#taglessContainer');
-  host.innerHTML = '';
-  const card = document.createElement('div');
-  card.className = 'ac';
-  card.innerHTML = `<div class="ac-head"><div class="ac-head-main">
-      <div class="ac-title" style="cursor:default;padding:2px 0;margin-left:0;border-color:transparent">Tagless gola</div>
-      <div class="ac-sub">Etiqueta impressa internamente na gola</div></div></div>`;
-  card.appendChild(blocoImagem(t, 'Tagless gola', renderTagless, ro));
-
-  const tec = document.createElement('div');
-  tec.className = 'fl';
-  tec.innerHTML = `<div class="fl-label" id="tec-lbl">Técnica</div>
-    <div class="seg" role="group" aria-labelledby="tec-lbl">
-      ${Object.keys(TECNICAS_TAGLESS).map(k => `<button type="button" class="seg-btn ${t.technique === k ? 'active' : ''}" aria-pressed="${t.technique === k}" data-v="${k}" ${ro ? 'disabled' : ''}>${esc(TECNICAS_TAGLESS[k])}</button>`).join('')}
-    </div>`;
-  tec.querySelectorAll('.seg-btn').forEach(b => b.addEventListener('click', () => {
-    t.technique = b.dataset.v;
-    tec.querySelectorAll('.seg-btn').forEach(x => { const on = x.dataset.v === t.technique; x.classList.toggle('active', on); x.setAttribute('aria-pressed', on); });
-    atualizarSujo();
-  }));
-  card.appendChild(tec);
-  card.appendChild(campoTexto('tag-desc', 'Descrição', t.description, 'Ex: Tagless gola', ro, v => { t.description = v; }));
-  card.appendChild(blocoPantones(t.pantones, 'Pantones', ro));
-  host.appendChild(card);
-  atualizarSujo();
-}
-
-function renderAll(){
-  renderEstampas(); renderTagless();
-  $('#observacoes').value = state.observacoes;
-  renderRefStatus();
-}
-function renderRefStatus(){
-  const s = $('#refStatus');
-  if (ultimoSujo && canEdit()) {
-    s.innerHTML = `<span class="tag t-pend">${ic('alert')} Alterações não salvas</span>`;
-  } else if (meta.loadedRef) {
-    const quem = meta.atualizadoPor ? ' por ' + esc(meta.atualizadoPor) : '';
-    s.innerHTML = `<span class="tag t-ok">${ic('check')} Ficha salva${meta.atualizadoEm ? ' · ' + esc(fmtDataHora(meta.atualizadoEm)) : ''}${quem}</span>`;
-  } else {
-    s.innerHTML = `<span class="tag t-pend">Nova ficha · ainda não salva</span>`;
-  }
-}
-
-/* ═══════════════════════════════════════
-   CARREGAR / NOVA / SALVAR / EXCLUIR
-═══════════════════════════════════════ */
-let loadSeq = 0;
-function novaFicha(silencioso){
-  if (!silencioso && canEdit() && sujo() && !confirm('Há alterações não salvas. Descartar e começar uma ficha em branco?')) return;
-  state = { estampas: [makeEstampa()], tagless: makeTagless(), observacoes: '' };
-  meta = { fichaId: null, loadedRef: null, atualizadoEm: null, atualizadoPor: null, offline: false };
-  marcarLimpo();
-  $('#refInput').value = '';
-  hideOfflineBanner(); updateConnectionIndicator();
-  renderAll(); renderHistorico();
-  if (!silencioso) showToast('Ficha em branco.');
-}
-
-async function carregarFicha(ref){
-  ref = (ref || '').trim();
-  if (!ref) { showToast('Informe uma referência para carregar.', 'err'); $('#refInput').focus(); return false; }
-  if (canEdit() && sujo() && !confirm('Há alterações não salvas nesta ficha. Carregar outra e descartá-las?')) return false;
-  const seq = ++loadSeq;
-  ld('Carregando ficha...');
-  try {
-    const { data, error } = await SB.from('fichas').select('id, dados, atualizado_em').eq('referencia', ref).maybeSingle();
-    if (seq !== loadSeq) return false;
-    if (error) throw error;
-    if (!data) {
-      uld();
-      showToast(`Ainda não há ficha salva para "${ref}". O que está na tela foi mantido: salve para criar essa ficha, ou use Nova ficha para começar do zero.`);
-      meta.loadedRef = null; meta.fichaId = null; meta.atualizadoEm = null; meta.atualizadoPor = null;
-      renderRefStatus(); renderHistorico();
-      return false;
-    }
-    offlineCacheSet('ficha_' + ref, { id: data.id, dados: data.dados, atualizado_em: data.atualizado_em });
-    aplicarFicha(ref, data);
-    hideOfflineBanner();
-    uld();
-    showToast('Ficha ' + ref + ' carregada.');
-    return true;
-  } catch(e) {
-    if (seq !== loadSeq) return false;
-    uld();
-    const cache = offlineCacheGet('ficha_' + ref);
-    if (cache && !navigator.onLine) {
-      aplicarFicha(ref, cache.data);
-      meta.offline = true;
-      showOfflineBanner(cache.savedAt);
-      return true;
-    }
-    showToast('Não foi possível carregar a ficha: ' + errMsg(e), 'err');
-    return false;
-  }
-}
-function aplicarFicha(ref, row){
-  state = normalizar(row.dados);
-  meta = { fichaId: row.id, loadedRef: ref, atualizadoEm: row.atualizado_em, atualizadoPor: (row.dados && row.dados.atualizadoPor) || null, offline: false };
-  marcarLimpo();
-  $('#refInput').value = ref;
-  renderAll(); renderHistorico();
-}
-
-// ── Histórico de Alterações (tabela historico_alteracoes, mesmo padrão das estampas) ──
-function achatar(d){
-  const o = {};
-  const pant = a => (a || []).map(p => p.code || '—').join(', ') || '—';
-  (d.estampas || []).forEach((e, i) => {
-    const p = `Estampa ${i + 1}`;
-    o[`${p} — Nome`] = e.name; o[`${p} — Descrição`] = e.description;
-    o[`${p} — Aplicação`] = e.application; o[`${p} — Descrição da aplicação`] = e.applicationDescription;
-    o[`${p} — Pantones`] = pant(e.pantones);
-    o[`${p} — Imagem`] = e.image ? 'Com imagem' : '';
-    o[`${p} — Arquivo da imagem`] = e.image && !String(e.image).startsWith('data:') ? e.image.split('/').pop() : (e.image ? 'Imagem antiga' : '');
-  });
-  const t = d.tagless || {};
-  o['Tagless — Técnica'] = TECNICAS_TAGLESS[t.technique] || '';
-  o['Tagless — Descrição'] = t.description; o['Tagless — Pantones'] = pant(t.pantones);
-  o['Tagless — Arquivo da imagem'] = t.image && !String(t.image).startsWith('data:') ? t.image.split('/').pop() : (t.image ? 'Imagem antiga' : '');
-  o['Observações'] = d.observacoes;
-  return o;
-}
-async function registrarHistoricoFicha(fichaId, antes, depois){
-  if (!fichaId || !antes) return;
-  const a = achatar(normalizarParaHistorico(antes)), b = achatar(normalizarParaHistorico(depois));
-  const campos = Object.keys(Object.assign({}, a, b));
-  const linhas = [];
-  campos.forEach(c => {
-    const va = a[c] == null ? '' : String(a[c]), vb = b[c] == null ? '' : String(b[c]);
-    if (c.endsWith('Arquivo da imagem') && va === 'Imagem antiga') return;   // migração automática, não é troca de imagem
-    if (va !== vb) linhas.push({ tabela: 'fichas', registro_id: fichaId, usuario_nome: (CU && CU.nome) || 'Desconhecido', campo: c, valor_anterior: va || '—', valor_novo: vb || '—' });
-  });
-  if (!linhas.length) return;
-  try {
-    const { error } = await SB.from('historico_alteracoes').insert(linhas);
-    if (error) console.warn('Falha ao registrar histórico:', error);
-  } catch(e) { console.warn('Falha ao registrar histórico:', e); }
-}
-const normalizarParaHistorico = d => { const n = normalizar(d); n.estampas.forEach(e => e.pantones = e.pantones.filter(p => !pantoneVazio(p))); n.tagless.pantones = n.tagless.pantones.filter(p => !pantoneVazio(p)); return n; };
-
-let histSeq = 0;
-async function renderHistorico(){
-  const box = $('#histBox'); if (!box) return;
-  if (!meta.fichaId) { box.innerHTML = '<p class="muted">Salve a ficha pela primeira vez para começar a ver o histórico.</p>'; return; }
-  const seq = ++histSeq;
-  box.innerHTML = '<p class="muted">Carregando histórico...</p>';
-  try {
-    const { data, error } = await SB.from('historico_alteracoes').select('*').eq('tabela', 'fichas').eq('registro_id', meta.fichaId).order('criado_em', { ascending: false }).limit(80);
-    if (seq !== histSeq) return;
-    if (error) throw error;
-    if (!data || !data.length) { box.innerHTML = '<p class="muted">Nenhuma alteração registrada ainda.</p>'; return; }
-    box.innerHTML = data.map(h => `<div class="hist-item">
-        <div class="hist-campo">${esc(h.campo)}</div>
-        <div class="hist-vals"><span class="hist-old">${esc(h.valor_anterior)}</span> → <strong>${esc(h.valor_novo)}</strong></div>
-        <div class="hist-meta">${esc(h.usuario_nome)} · ${esc(fmtDataHora(h.criado_em))}</div></div>`).join('');
-  } catch(e) {
-    if (seq !== histSeq) return;
-    box.innerHTML = '<p class="muted">Não foi possível carregar o histórico agora.</p>';
-  }
-}
-
-async function salvar(){
-  if (!canEdit()) return;
-  if (!navigator.onLine) { showToast('Sem conexão: salvar fica disponível quando a conexão voltar.', 'err'); return; }
-  if (uploadsPendentes()) { showToast('Aguarde o envio da imagem terminar para salvar.', 'err'); return; }
-  const ref = $('#refInput').value.trim();
-  if (!ref) { showToast('Informe a referência antes de salvar.', 'err'); $('#refInput').focus(); return; }
-  ld('Salvando ficha...');
-  try {
-    const { data: existente, error: e1 } = await SB.from('fichas').select('id, dados').eq('referencia', ref).maybeSingle();
-    if (e1) throw e1;
-    // Só pergunta quando vai sobrescrever OUTRA ficha que não é a que está aberta na tela
-    if (existente && meta.loadedRef !== ref) {
-      uld();
-      if (!confirm(`Já existe uma ficha salva com a referência "${ref}". Deseja sobrescrever com o que está na tela?`)) return;
-      ld('Salvando ficha...');
-    }
-    if ([...state.estampas.map(e => e.image), state.tagless.image].some(i => i && String(i).startsWith('data:'))) {
-      ld('Movendo imagens antigas para o armazenamento...');
-      for (const e of state.estampas) await migrarImagemLegada(e, ref);
-      await migrarImagemLegada(state.tagless, ref);
-      ld('Salvando ficha...');
-    }
-    state.observacoes = $('#observacoes').value;
-    const dados = serializar(ref);
-    const agora = nowIso();
-    const { data: salvo, error } = await SB.from('fichas')
-      .upsert({ referencia: ref, dados, atualizado_em: agora }, { onConflict: 'referencia' })
-      .select('id, atualizado_em').single();
-    if (error) throw error;
-    if (existente) registrarHistoricoFicha(salvo.id, existente.dados, dados).then(() => { if (meta.fichaId === salvo.id) renderHistorico(); });
-    state = normalizar(dados);
-    meta = { fichaId: salvo.id, loadedRef: ref, atualizadoEm: salvo.atualizado_em || agora, atualizadoPor: CU.nome, offline: false };
-    marcarLimpo();
-    offlineCacheSet('ficha_' + ref, { id: salvo.id, dados, atualizado_em: meta.atualizadoEm });
-    renderAll(); if (!existente) renderHistorico();
-    refreshRecent();
-    showToast(`Ficha ${ref} salva.`);
-  } catch(e) {
-    console.error(e);
-    showToast('Não foi possível salvar: ' + errMsg(e) + ' Tente novamente.', 'err');
-  } finally { uld(); }
-}
-
-async function excluirFicha(id, ref, aposExcluir){
-  if (!canDelete()) return;
-  if (!confirm(`Excluir a ficha "${ref}"? Essa ação não pode ser desfeita.`)) return;
-  ld('Excluindo ficha...');
-  try {
-    const { error } = await SB.from('fichas').delete().eq('referencia', ref);
-    if (error) throw error;
-    if (id) SB.from('historico_alteracoes').insert({ tabela: 'fichas', registro_id: id, usuario_nome: CU.nome, campo: 'Ficha', valor_anterior: ref, valor_novo: 'Excluída' }).then(() => {}, () => {});
-    try { localStorage.removeItem('sge_cache_ficha_' + ref); } catch(e) { /* sem cache */ }
-    if (meta.loadedRef === ref) novaFicha(true);
-    showToast(`Ficha ${ref} excluída.`);
-    refreshRecent();
-    if (aposExcluir) aposExcluir();
-  } catch(e) { showToast('Não foi possível excluir: ' + errMsg(e), 'err'); }
-  finally { uld(); }
-}
-
-/* ═══════════════════════════════════════
-   ÚLTIMAS FICHAS
-═══════════════════════════════════════ */
-let recentSeq = 0;
-async function refreshRecent(){
-  const list = $('#recentList'); if (!list) return;
-  const seq = ++recentSeq;
-  try {
-    const { data, error } = await SB.from('fichas').select('id, referencia, atualizado_em').order('atualizado_em', { ascending: false }).limit(4);
-    if (seq !== recentSeq) return;
-    if (error) throw error;
-    if (!data || !data.length) { list.innerHTML = '<p class="muted">Nenhuma ficha salva ainda. Preencha a referência e clique em Salvar.</p>'; return; }
-    list.innerHTML = '';
-    data.forEach(r => {
-      const it = document.createElement('div');
-      it.className = 'recent-item';
-      it.innerHTML = `<div class="recent-main"><div class="recent-ref">${esc(r.referencia)}</div><div class="recent-meta">${r.atualizado_em ? 'Salva em ' + esc(fmtDataHora(r.atualizado_em)) : ''}</div></div>
-        <button type="button" class="btn btn-ghost btn-sm" data-a="abrir">Abrir</button>
-        ${canDelete() ? `<button type="button" class="btn btn-danger btn-sm" data-a="del" aria-label="Excluir ficha ${esc(r.referencia)}">${ic('trash')}</button>` : ''}`;
-      $('[data-a="abrir"]', it).addEventListener('click', () => carregarFicha(r.referencia));
-      const d = $('[data-a="del"]', it);
-      if (d) d.addEventListener('click', () => excluirFicha(r.id, r.referencia));
-      list.appendChild(it);
-    });
-  } catch(e) {
-    if (seq !== recentSeq) return;
-    list.innerHTML = '<p class="muted">Não foi possível listar as fichas agora.</p>';
-  }
-}
-
-/* ═══════════════════════════════════════
-   BUSCA AVANÇADA
-═══════════════════════════════════════ */
-function abrirBusca(){ $('#m-busca').classList.add('open'); setTimeout(() => $('#sRef').focus(), 30); }
-function fecharBusca(){ $('#m-busca').classList.remove('open'); }
-function limparBusca(){
-  ['sRef', 'sDesc', 'sPant'].forEach(id => { $('#' + id).value = ''; });
-  $('#sApp').value = ''; $('#sTec').value = '';
-  $('#sResults').innerHTML = '<div class="empty">Preencha um ou mais filtros e clique em Buscar.</div>';
-}
-function fichaCombina(d, f){
-  d = d || {};
-  if (f.tec && !(d.tagless && d.tagless.technique === f.tec)) return false;
-  if (f.app && !(d.estampas || []).some(e => e.application === f.app)) return false;
-  if (f.desc) {
-    const texto = [...(d.estampas || []).map(e => [e.description, e.name, e.applicationDescription].join(' ')), d.tagless && d.tagless.description, d.observacoes].join(' ').toLowerCase();
-    if (!texto.includes(f.desc)) return false;
-  }
-  if (f.pant) {
-    const codigos = [...(d.estampas || []).flatMap(e => (e.pantones || []).map(p => p.code || '')), ...((d.tagless && d.tagless.pantones) || []).map(p => p.code || '')].join(' ').toLowerCase();
-    if (!codigos.includes(f.pant)) return false;
-  }
-  return true;
-}
-let searchSeq = 0;
-async function rodarBusca(){
-  const f = { ref: $('#sRef').value.trim(), desc: $('#sDesc').value.trim().toLowerCase(), app: $('#sApp').value, pant: $('#sPant').value.trim().toLowerCase(), tec: $('#sTec').value };
-  const box = $('#sResults');
-  if (!f.ref && !f.desc && !f.app && !f.pant && !f.tec) { box.innerHTML = '<div class="empty">Preencha pelo menos um filtro para buscar.</div>'; return; }
-  const seq = ++searchSeq;
-  box.innerHTML = '<div class="empty">Buscando fichas...</div>';
-  try {
-    let q = SB.from('fichas').select('id, referencia, dados, atualizado_em').order('atualizado_em', { ascending: false }).limit(LIMITE_BUSCA);
-    if (f.ref) q = q.ilike('referencia', '%' + f.ref.replace(/[%_,]/g, '') + '%');
-    const { data, error } = await q;
-    if (seq !== searchSeq) return;
-    if (error) throw error;
-    const achados = (data || []).filter(r => fichaCombina(r.dados, f));
-    if (!achados.length) { box.innerHTML = '<div class="empty">Nenhuma ficha encontrada com esses filtros.</div>'; return; }
-    box.innerHTML = '';
-    achados.forEach(r => {
-      const d = r.dados || {};
-      const tags = [];
-      (d.estampas || []).forEach(e => { if (e.application) tags.push(e.application); });
-      if (d.tagless && TECNICAS_TAGLESS[d.tagless.technique]) tags.push('Tagless · ' + TECNICAS_TAGLESS[d.tagless.technique]);
-      const primeira = (d.estampas && d.estampas[0] && (d.estampas[0].description || d.estampas[0].name)) || '';
-      const it = document.createElement('div');
-      it.className = 'res-item';
-      it.innerHTML = `<div class="res-main"><div class="res-ref">${esc(r.referencia)}</div>
-          <div class="res-desc">${esc(primeira || 'Sem descrição')}</div>
-          <div class="res-tags">${[...new Set(tags)].map(t => `<span class="tag t-type">${esc(t)}</span>`).join('')}</div></div>
-        <button type="button" class="btn btn-ghost btn-sm" data-a="abrir">Abrir</button>
-        ${canDelete() ? `<button type="button" class="btn btn-danger btn-sm" data-a="del" aria-label="Excluir ficha ${esc(r.referencia)}">${ic('trash')}</button>` : ''}`;
-      $('[data-a="abrir"]', it).addEventListener('click', async () => { if (await carregarFicha(r.referencia)) fecharBusca(); });
-      const del = $('[data-a="del"]', it);
-      if (del) del.addEventListener('click', () => excluirFicha(r.id, r.referencia, rodarBusca));
-      box.appendChild(it);
-    });
-    if ((data || []).length >= LIMITE_BUSCA) box.insertAdjacentHTML('beforeend', `<p class="muted" style="margin-top:8px">Mostrando as ${LIMITE_BUSCA} fichas mais recentes. Refine os filtros para ver as demais.</p>`);
-  } catch(e) {
-    if (seq !== searchSeq) return;
-    box.innerHTML = '<div class="empty">Não foi possível buscar agora. Verifique a conexão e tente de novo.</div>';
-  }
-}
 
 /* ═══════════════════════════════════════
    LIGHTBOX
@@ -1347,36 +791,602 @@ function abrirLightbox(src){
 }
 function fecharLightbox(){ $('#lightbox').classList.remove('open'); if (lbFoco && lbFoco.focus) lbFoco.focus(); }
 
+
 /* ═══════════════════════════════════════
-   IMPRESSÃO — Ficha Técnica de Artes
+   PERMISSÕES DO MÓDULO
+═══════════════════════════════════════ */
+// Mesma regra do "Adicionar OP" do PPCP: Admin, ou Visualizador com permissão de adicionar OP.
+const canEdit = () => !!CU && (CU.role === 'admin' || CU.perm_op_add === true);
+const canDelete = () => isAdm();
+
+const LIMITE_LISTA = 500;
+const STATUS_PEDIDO = { pendente: 'Pendente', concluida: 'Concluída' };
+const corValida = c => /^#[0-9a-fA-F]{6}$/.test(c || '') ? c : COR_PADRAO;
+const soLike = s => String(s).replace(/[%_,]/g, '');
+
+/* ═══════════════════════════════════════
+   ESTADO DO PEDIDO
+   (referência fica no campo #refInput; o resto aqui)
+═══════════════════════════════════════ */
+function makeOrdem(){ return { id: uid(), numero: '', quantidade: '' }; }
+function novoEstado(){ return { numero: '', status: 'pendente', ordens: [makeOrdem()], observacoes: '' }; }
+let pedido = novoEstado();
+let meta = { pedidoId: null, loadedNumero: null, atualizadoEm: null, atualizadoPor: null };
+let ficha = null;                 // dados da ficha de Artes (somente leitura)
+let fichaStatus = 'empty';        // empty | loading | found | notfound | error
+let refCarregada = '';
+
+const qtdNum = q => { const t = String(q == null ? '' : q).trim(); return t === '' ? 0 : Number(t); };
+const linhaUsada = o => o.numero.trim() !== '' || String(o.quantidade).trim() !== '';
+
+function coletar(){
+  return {
+    referencia: $('#refInput').value.trim(),
+    numero: pedido.numero.trim(),
+    status: pedido.status === 'concluida' ? 'concluida' : 'pendente',
+    observacoes: pedido.observacoes.trim(),
+    ordens: pedido.ordens.filter(linhaUsada).map(o => ({ numero: o.numero.trim(), quantidade: qtdNum(o.quantidade) }))
+  };
+}
+function validar(d){
+  if (!d.referencia) return 'Informe a referência antes de salvar.';
+  if (!d.numero) return 'Informe o número do pedido antes de salvar.';
+  const usadas = pedido.ordens.map((o, i) => ({ o, i })).filter(x => linhaUsada(x.o));
+  if (!usadas.length) return 'Adicione ao menos uma ordem de produção.';
+  const vistos = new Set();
+  for (const { o, i } of usadas) {
+    if (!o.numero.trim()) return `Informe o número da OP na linha ${i + 1}.`;
+    const q = qtdNum(o.quantidade);
+    if (!Number.isFinite(q) || q < 0) return `Quantidade inválida na linha ${i + 1}.`;
+    const k = o.numero.trim().toLowerCase();
+    if (vistos.has(k)) return `A OP "${o.numero.trim()}" aparece mais de uma vez neste pedido.`;
+    vistos.add(k);
+  }
+  return null;
+}
+
+// Alterações não salvas
+let baseline = '', ultimoSujo = false;
+const assinatura = () => JSON.stringify(coletar());
+const sujo = () => assinatura() !== baseline;
+function marcarLimpo(){ baseline = assinatura(); ultimoSujo = false; }
+function atualizarSujo(){
+  if (!CU) return;
+  const s = sujo();
+  if (s !== ultimoSujo) { ultimoSujo = s; renderPedidoChip(); }
+}
+
+/* ═══════════════════════════════════════
+   PERMISSÕES NA TELA / ENTRADA
+═══════════════════════════════════════ */
+function applyPerms(){
+  $('#nav-un').textContent = CU.nome;
+  $('#nav-ur').textContent = isAdm() ? 'Administrador' : 'Visualizador';
+  const colors = ['#1B3A5C','#2D7A3A','#7A4A2A','#4A2A7A','#2A6A7A'];
+  $('#nav-av').style.background = colors[CU.nome.charCodeAt(0) % colors.length];
+  $('#nav-av').textContent = CU.nome.charAt(0).toUpperCase();
+  const pode = canEdit();
+  $('#btnSave').style.display = pode ? '' : 'none';
+  $('#btnAddOp').style.display = pode ? '' : 'none';
+  $('#roBanner').style.display = pode ? 'none' : 'block';
+  $('#pedidoInput').disabled = !pode;
+  $('#observacoesPedido').disabled = !pode;
+}
+function entrarNoApp(){
+  $('#login-screen').style.display = 'none';
+  $('#app').style.display = 'block';
+  applyPerms();
+  novoPedidoTela(true);
+  refreshPedidos();
+  try {
+    const p = new URLSearchParams(location.search);
+    const ped = (p.get('pedido') || '').trim(), ref = (p.get('ref') || '').trim();
+    if (ped) carregarPedido(ped);
+    else if (ref) { $('#refInput').value = ref; carregarFicha(ref); }
+  } catch(e) { /* ambiente sem URLSearchParams */ }
+}
+
+/* ═══════════════════════════════════════
+   RENDER — pedido, OPs, chips
+═══════════════════════════════════════ */
+function renderPedido(){
+  const ro = !canEdit();
+  $('#pedidoInput').value = pedido.numero;
+  $('#observacoesPedido').value = pedido.observacoes;
+  $('#statusSeg').innerHTML = Object.keys(STATUS_PEDIDO).map(k =>
+    `<button type="button" class="seg-btn ${pedido.status === k ? 'active' : ''}" aria-pressed="${pedido.status === k}" data-v="${k}" ${ro ? 'disabled' : ''}>${esc(STATUS_PEDIDO[k])}</button>`).join('');
+  $('#statusSeg').querySelectorAll('.seg-btn').forEach(b => b.addEventListener('click', () => {
+    pedido.status = b.dataset.v;
+    $('#statusSeg').querySelectorAll('.seg-btn').forEach(x => { const on = x.dataset.v === pedido.status; x.classList.toggle('active', on); x.setAttribute('aria-pressed', on); });
+    atualizarSujo();
+  }));
+  renderOrdens();
+  renderPedidoChip();
+}
+function renderOrdens(){
+  const ro = !canEdit();
+  const host = $('#opRows');
+  host.innerHTML = '';
+  if (!pedido.ordens.length) pedido.ordens.push(makeOrdem());
+  pedido.ordens.forEach((o, i) => {
+    const r = document.createElement('div');
+    r.className = 'op-row';
+    r.innerHTML = `<span class="op-seq">${i + 1}</span>
+      <input type="text" class="form-input" value="${esc(o.numero)}" placeholder="OP-5561" aria-label="Número da OP ${i + 1}" ${ro ? 'disabled' : ''}>
+      <input type="number" min="0" step="1" class="form-input" value="${esc(o.quantidade)}" placeholder="0" aria-label="Quantidade da OP ${i + 1}" ${ro ? 'disabled' : ''}>
+      ${ro ? '<span></span>' : `<button type="button" class="op-rm" aria-label="Remover OP ${i + 1}">${ic('x', 14)}</button>`}`;
+    const [num, qtd] = r.querySelectorAll('input');
+    num.addEventListener('input', () => { o.numero = num.value; });
+    qtd.addEventListener('input', () => { o.quantidade = qtd.value; renderTotal(); });
+    const rm = $('.op-rm', r);
+    if (rm) rm.addEventListener('click', () => { pedido.ordens.splice(i, 1); renderOrdens(); atualizarSujo(); });
+    host.appendChild(r);
+  });
+  renderTotal();
+}
+function renderTotal(){
+  const usadas = pedido.ordens.filter(linhaUsada);
+  const total = usadas.reduce((s, o) => s + (Number(qtdNum(o.quantidade)) || 0), 0);
+  $('#opTotal').innerHTML = `${usadas.length} ordem(ns) de produção · quantidade total: <b>${total}</b>`;
+}
+function renderPedidoChip(){
+  const c = $('#pedidoChip');
+  if (ultimoSujo && canEdit()) c.innerHTML = `<span class="tag t-pend">${ic('alert')} Alterações não salvas</span>`;
+  else if (meta.loadedNumero) {
+    const quem = meta.atualizadoPor ? ' por ' + esc(meta.atualizadoPor) : '';
+    c.innerHTML = `<span class="tag t-ok">${ic('check')} Pedido salvo${meta.atualizadoEm ? ' · ' + esc(fmtDataHora(meta.atualizadoEm)) : ''}${quem}</span>`;
+  } else c.innerHTML = `<span class="tag t-pend">Novo pedido · ainda não salvo</span>`;
+}
+function renderFichaChip(){
+  const c = $('#fichaChip');
+  const map = {
+    found:    ['t-ok', 'check', 'Ficha de Artes encontrada'],
+    notfound: ['t-alert', 'alert', 'Sem ficha de Artes para esta referência'],
+    loading:  ['t-type', 'clock', 'Consultando ficha...'],
+    error:    ['t-pend', 'alert', 'Não foi possível consultar a ficha agora'],
+    empty:    ['t-type', 'alert', 'Informe uma referência']
+  }[fichaStatus];
+  c.innerHTML = `<span class="tag ${map[0]}">${ic(map[1])} ${esc(map[2])}</span>`;
+}
+
+function novoPedidoTela(silencioso){
+  if (!silencioso && canEdit() && sujo() && !confirm('Há alterações não salvas. Descartar e começar um pedido em branco?')) return;
+  pedido = novoEstado();
+  meta = { pedidoId: null, loadedNumero: null, atualizadoEm: null, atualizadoPor: null };
+  $('#refInput').value = '';
+  ficha = null; fichaStatus = 'empty'; refCarregada = '';
+  marcarLimpo();
+  hideOfflineBanner(); updateConnectionIndicator();
+  renderPedido(); renderFichaChip(); renderFichaPreview(); renderHistorico(); carregarOpsRef('');
+  if (!silencioso) showToast('Pedido em branco.');
+}
+
+/* ═══════════════════════════════════════
+   FICHA DE ARTES (somente leitura)
+═══════════════════════════════════════ */
+let fichaSeq = 0;
+async function carregarFicha(ref){
+  ref = (ref || '').trim();
+  refCarregada = ref;
+  if (!ref) { ficha = null; fichaStatus = 'empty'; renderFichaChip(); renderFichaPreview(); carregarOpsRef(''); return; }
+  const seq = ++fichaSeq;
+  fichaStatus = 'loading'; renderFichaChip();
+  try {
+    const { data, error } = await SB.from('fichas').select('id, dados, atualizado_em').eq('referencia', ref).maybeSingle();
+    if (seq !== fichaSeq) return;
+    if (error) throw error;
+    if (data) {
+      ficha = data.dados || {}; fichaStatus = 'found';
+      offlineCacheSet('ficha_' + ref, { id: data.id, dados: data.dados, atualizado_em: data.atualizado_em });
+    } else { ficha = null; fichaStatus = 'notfound'; }
+  } catch(e) {
+    if (seq !== fichaSeq) return;
+    const c = offlineCacheGet('ficha_' + ref);
+    if (c && !navigator.onLine) { ficha = (c.data && c.data.dados) || {}; fichaStatus = 'found'; showOfflineBanner(c.savedAt); }
+    else { ficha = null; fichaStatus = 'error'; }
+  }
+  renderFichaChip(); renderFichaPreview(); carregarOpsRef(ref);
+}
+
+function pantonesReadonly(lista){
+  const uteis = (lista || []).filter(p => p && (p.code || p.ink || p.fabric));
+  if (!uteis.length) return '<div class="ro-val empty">Nenhum pantone cadastrado</div>';
+  return `<div class="tw"><table class="tbl tbl-mini"><thead><tr><th>#</th><th>Cor</th><th>Pantone</th><th>Tinta</th><th>Tecido</th></tr></thead><tbody>${
+    uteis.map((p, i) => `<tr><td>${i + 1}</td><td><span class="sw-dot" style="background:${esc(corValida(p.color))}"></span></td><td>${esc(p.code) || '—'}</td><td>${esc(p.ink) || '—'}</td><td>${esc(p.fabric) || '—'}</td></tr>`).join('')
+  }</tbody></table></div>`;
+}
+const campoLeitura = (rotulo, valor, vazio) =>
+  `<div class="fl"><div class="fl-label">${esc(rotulo)}</div><div class="ro-val ${valor ? '' : 'empty'}">${esc(valor) || esc(vazio || '—')}</div></div>`;
+function imagemLeitura(src, chave, alt, addedAt){
+  if (!src) return `<div class="ro-val empty" style="min-height:120px;justify-content:center">Sem imagem cadastrada</div>`;
+  return `<div class="img-box"><img src="${esc(src)}" alt="${esc(alt)}"><button type="button" class="zoom-btn" data-img="${esc(chave)}" aria-label="Ampliar imagem">${ic('zoomIn', 15)}</button></div>
+    ${addedAt ? `<div class="img-meta"><span class="tag t-ok">${ic('clock')} ${esc(fmtDataHora(addedAt))}</span></div>` : ''}`;
+}
+function renderFichaPreview(){
+  const host = $('#fichaPreviewRow');
+  if (!ficha) {
+    const ref = $('#refInput').value.trim();
+    const msg = {
+      empty: 'Informe uma referência e clique em <b>Carregar ficha</b> para trazer as estampas e o tagless do Artes.',
+      loading: 'Consultando a ficha de Artes...',
+      error: 'Não foi possível consultar a ficha agora. Verifique a conexão e tente de novo.',
+      notfound: `Nenhuma ficha de Artes para a referência <b>${esc(ref)}</b>. <a href="01_Artes.html?ref=${encodeURIComponent(ref)}" target="_blank" rel="noopener">Cadastrar no Artes</a>`
+    }[fichaStatus] || '';
+    host.innerHTML = `<div class="ficha-empty">${msg}</div>`;
+    return;
+  }
+  const est = Array.isArray(ficha.estampas) ? ficha.estampas : [];
+  let h = est.map((e, i) => {
+    const titulo = (e.name && String(e.name).trim()) || (est.length > 1 ? `Estampa Localizada ${i + 1}` : 'Estampa Localizada');
+    return `<div class="ac">
+      <div class="ac-head"><div class="ac-head-main"><div class="ac-name">${esc(titulo)}</div><div class="ac-sub">${est.length > 1 ? `Estampa ${i + 1} de ${est.length}` : 'Estampa principal'}</div></div><span class="tag t-type">Artes</span></div>
+      ${imagemLeitura(e.image, String(i), titulo, e.addedAt)}
+      ${campoLeitura('Descrição', e.description, 'Sem descrição')}
+      ${campoLeitura('Aplicação', e.application, 'Nenhuma')}
+      ${e.applicationDescription ? campoLeitura('Descrição da aplicação', e.applicationDescription) : ''}
+      <div class="fl"><div class="fl-label">Pantones</div>${pantonesReadonly(e.pantones)}</div>
+    </div>`;
+  }).join('');
+  const t = ficha.tagless || {};
+  h += `<div class="ac">
+      <div class="ac-head"><div class="ac-head-main"><div class="ac-name">Tagless gola</div><div class="ac-sub">Etiqueta impressa internamente na gola</div></div><span class="tag t-type">Artes</span></div>
+      ${imagemLeitura(t.image, 'tagless', 'Tagless gola', t.addedAt)}
+      ${campoLeitura('Técnica', TECNICAS_TAGLESS[t.technique] || TECNICAS_TAGLESS.tampografia)}
+      ${campoLeitura('Descrição', t.description, 'Sem descrição')}
+      <div class="fl"><div class="fl-label">Pantones</div>${pantonesReadonly(t.pantones)}</div>
+    </div>`;
+  host.innerHTML = h;
+}
+
+/* ═══════════════════════════════════════
+   ORDENS DESTA REFERÊNCIA (Digital + Localizada, via view do banco)
+═══════════════════════════════════════ */
+let opsRefSeq = 0;
+async function carregarOpsRef(ref){
+  const box = $('#opsRef'); if (!box) return;
+  ref = (ref || '').trim();
+  const seq = ++opsRefSeq;
+  if (!ref) { box.innerHTML = '<p class="muted">Informe a referência para ver as ordens dela.</p>'; return; }
+  box.innerHTML = '<p class="muted">Carregando ordens...</p>';
+  try {
+    const { data, error } = await SB.from('vw_ops_por_referencia').select('*').ilike('referencia', ref.replace(/[\\%_]/g, '\\$&')).limit(80);
+    if (seq !== opsRefSeq) return;
+    if (error) throw error;
+    if (!data || !data.length) { box.innerHTML = '<p class="muted">Nenhuma ordem registrada para esta referência ainda.</p>'; return; }
+    const lista = data.slice().sort((a, b) => (a.tipo === b.tipo ? String(a.numero).localeCompare(String(b.numero)) : (a.tipo === 'Digital' ? -1 : 1)));
+    box.innerHTML = lista.map(o => {
+      const det = [o.situacao, o.tipo === 'Localizada' && o.quantidade != null ? Number(o.quantidade) + ' un' : '', o.pedido ? 'pedido ' + o.pedido : '', o.arquivado ? 'arquivada' : ''].filter(Boolean).join(' · ');
+      return `<div class="ops-item ${o.arquivado ? 'arq' : ''}"><span class="tag ${o.tipo === 'Digital' ? 't-type' : 't-ok'}">${esc(o.tipo)}</span><span class="ops-num">${esc(o.numero)}</span><span class="ops-det">${esc(det)}</span></div>`;
+    }).join('');
+  } catch(e) {
+    if (seq !== opsRefSeq) return;
+    box.innerHTML = '<p class="muted">Não foi possível listar as ordens desta referência agora.</p>';
+  }
+}
+
+/* ═══════════════════════════════════════
+   HISTÓRICO DE ALTERAÇÕES (tabela historico_alteracoes)
+═══════════════════════════════════════ */
+const resumoOrdens = os => (os || []).map(o => `${o.numero} (${Number(o.quantidade) || 0})`).join(', ') || '—';
+function achatarPedido(d){
+  return {
+    'Referência': d.referencia, 'Situação': STATUS_PEDIDO[d.status] || d.status,
+    'Observações': d.observacoes, 'Ordens de produção': resumoOrdens(d.ordens)
+  };
+}
+async function registrarHistoricoPedido(id, antes, depois){
+  if (!id || !antes) return;
+  const a = achatarPedido(antes), b = achatarPedido(depois);
+  const linhas = [];
+  Object.keys(a).forEach(c => {
+    const va = a[c] == null ? '' : String(a[c]), vb = b[c] == null ? '' : String(b[c]);
+    if (va !== vb) linhas.push({ tabela: 'pedidos', registro_id: id, usuario_nome: (CU && CU.nome) || 'Desconhecido', campo: c, valor_anterior: va || '—', valor_novo: vb || '—' });
+  });
+  if (!linhas.length) return;
+  try {
+    const { error } = await SB.from('historico_alteracoes').insert(linhas);
+    if (error) console.warn('Falha ao registrar histórico:', error);
+  } catch(e) { console.warn('Falha ao registrar histórico:', e); }
+}
+let histSeq = 0;
+async function renderHistorico(){
+  const box = $('#histBox'); if (!box) return;
+  if (!meta.pedidoId) { box.innerHTML = '<p class="muted">Salve o pedido pela primeira vez para começar a ver o histórico.</p>'; return; }
+  const seq = ++histSeq;
+  box.innerHTML = '<p class="muted">Carregando histórico...</p>';
+  try {
+    const { data, error } = await SB.from('historico_alteracoes').select('*').eq('tabela', 'pedidos').eq('registro_id', meta.pedidoId).order('criado_em', { ascending: false }).limit(80);
+    if (seq !== histSeq) return;
+    if (error) throw error;
+    if (!data || !data.length) { box.innerHTML = '<p class="muted">Nenhuma alteração registrada ainda.</p>'; return; }
+    box.innerHTML = data.map(h => `<div class="hist-item">
+        <div class="hist-campo">${esc(h.campo)}</div>
+        <div class="hist-vals"><span class="hist-old">${esc(h.valor_anterior)}</span> → <strong>${esc(h.valor_novo)}</strong></div>
+        <div class="hist-meta">${esc(h.usuario_nome)} · ${esc(fmtDataHora(h.criado_em))}</div></div>`).join('');
+  } catch(e) {
+    if (seq !== histSeq) return;
+    box.innerHTML = '<p class="muted">Não foi possível carregar o histórico agora.</p>';
+  }
+}
+
+/* ═══════════════════════════════════════
+   SALVAR / CARREGAR / EXCLUIR PEDIDO
+═══════════════════════════════════════ */
+const deLinhaBanco = row => ({
+  referencia: row.referencia || '', numero: String(row.numero || ''),
+  status: row.status === 'concluida' ? 'concluida' : 'pendente', observacoes: row.observacoes || '',
+  ordens: (row.ordens_localizada || []).slice().sort((a, b) => (a.ordem || 0) - (b.ordem || 0)).map(o => ({ numero: String(o.numero || ''), quantidade: Number(o.quantidade) || 0 }))
+});
+
+async function opsRepetidasEmOutros(ordens, pedidoId){
+  try {
+    let q = SB.from('ordens_localizada').select('numero, pedidos(numero)').in('numero', ordens.map(o => o.numero));
+    if (pedidoId) q = q.neq('pedido_id', pedidoId);
+    const { data, error } = await q;
+    if (error) return [];
+    return (data || []).map(r => ({ numero: r.numero, pedido: r.pedidos && r.pedidos.numero }));
+  } catch(e) { return []; }
+}
+
+async function salvar(){
+  if (!canEdit()) return;
+  if (!navigator.onLine) { showToast('Sem conexão: salvar fica disponível quando a conexão voltar.', 'err'); return; }
+  const d = coletar();
+  const erro = validar(d);
+  if (erro) { showToast(erro, 'err'); return; }
+  ld('Salvando pedido...');
+  try {
+    // 1) A referência tem ficha de Artes? (aviso, não bloqueia)
+    const { data: f } = await SB.from('fichas').select('id').eq('referencia', d.referencia).maybeSingle();
+    if (!f) {
+      uld();
+      if (!confirm(`Não existe ficha de Artes para a referência "${d.referencia}". Salvar o pedido mesmo assim?`)) return;
+      ld('Salvando pedido...');
+    }
+    // 2) Já existe pedido com esse número?
+    const { data: ex, error: e1 } = await SB.from('pedidos').select('id, referencia, status, observacoes, ordens_localizada(id, numero, quantidade, ordem)').eq('numero', d.numero).maybeSingle();
+    if (e1) throw e1;
+    if (ex && meta.loadedNumero !== d.numero) {
+      uld();
+      const outraRef = ex.referencia && ex.referencia.toLowerCase() !== d.referencia.toLowerCase() ? ` (hoje ligado à referência "${ex.referencia}")` : '';
+      if (!confirm(`Já existe um pedido salvo com o número "${d.numero}"${outraRef}. Deseja sobrescrever com o que está na tela?`)) return;
+      ld('Salvando pedido...');
+    }
+    // 3) OP já usada em outro pedido? (aviso, não bloqueia)
+    const rep = await opsRepetidasEmOutros(d.ordens, ex && ex.id);
+    if (rep.length) {
+      uld();
+      const lista = rep.slice(0, 3).map(r => `"${r.numero}" (pedido ${r.pedido || '?'})`).join(', ');
+      if (!confirm(`Estas OPs já existem em outro pedido: ${lista}. Salvar mesmo assim?`)) return;
+      ld('Salvando pedido...');
+    }
+    // 4) Pedido
+    const agora = nowIso();
+    const { data: row, error } = await SB.from('pedidos')
+      .upsert({ numero: d.numero, referencia: d.referencia, status: d.status, observacoes: d.observacoes, atualizado_em: agora, atualizado_por: CU.nome }, { onConflict: 'numero' })
+      .select('id, atualizado_em').single();
+    if (error) throw error;
+    // 5) Ordens: grava as novas ANTES de apagar as antigas (se falhar, nada se perde)
+    const antigas = ((ex && ex.ordens_localizada) || []).map(o => o.id);
+    const { error: eo } = await SB.from('ordens_localizada').insert(d.ordens.map((o, i) => ({ pedido_id: row.id, numero: o.numero, quantidade: o.quantidade, ordem: i })));
+    if (eo) throw eo;
+    if (antigas.length) {
+      const { error: ed } = await SB.from('ordens_localizada').delete().in('id', antigas);
+      if (ed) console.warn('Não foi possível remover ordens antigas:', ed);
+    }
+    if (ex) registrarHistoricoPedido(row.id, deLinhaBanco(ex), d).then(() => { if (meta.pedidoId === row.id) renderHistorico(); });
+    pedido = { numero: d.numero, status: d.status, observacoes: d.observacoes, ordens: d.ordens.map(o => ({ id: uid(), numero: o.numero, quantidade: String(o.quantidade) })) };
+    meta = { pedidoId: row.id, loadedNumero: d.numero, atualizadoEm: row.atualizado_em || agora, atualizadoPor: CU.nome };
+    marcarLimpo();
+    renderPedido(); if (!ex) renderHistorico();
+    refreshPedidos(); carregarOpsRef(d.referencia);
+    if (refCarregada !== d.referencia) carregarFicha(d.referencia);
+    showToast(`Pedido ${d.numero} salvo.`);
+  } catch(e) {
+    console.error(e);
+    showToast('Não foi possível salvar: ' + errMsg(e) + ' Tente novamente.', 'err');
+  } finally { uld(); }
+}
+
+function aplicarPedido(row){
+  const d = deLinhaBanco(row);
+  pedido = { numero: d.numero, status: d.status, observacoes: d.observacoes,
+    ordens: d.ordens.length ? d.ordens.map(o => ({ id: uid(), numero: o.numero, quantidade: String(o.quantidade) })) : [makeOrdem()] };
+  meta = { pedidoId: row.id, loadedNumero: d.numero, atualizadoEm: row.atualizado_em, atualizadoPor: row.atualizado_por || null };
+  $('#refInput').value = d.referencia;
+  marcarLimpo();
+  renderPedido(); renderHistorico();
+}
+let pedidoSeq = 0;
+async function carregarPedido(numero, linhaOffline){
+  numero = (numero || '').trim();
+  if (!numero) return false;
+  if (canEdit() && sujo() && !confirm('Há alterações não salvas. Abrir outro pedido e descartá-las?')) return false;
+  const seq = ++pedidoSeq;
+  ld('Carregando pedido...');
+  try {
+    const { data, error } = await SB.from('pedidos').select('*, ordens_localizada(id, numero, quantidade, ordem)').eq('numero', numero).maybeSingle();
+    if (seq !== pedidoSeq) return false;
+    if (error) throw error;
+    if (!data) { uld(); showToast(`Nenhum pedido encontrado com o número "${numero}".`, 'err'); return false; }
+    aplicarPedido(data);
+  } catch(e) {
+    if (seq !== pedidoSeq) return false;
+    const cache = pedidosCache.find(p => p.numero === numero);
+    if (!navigator.onLine && cache) { aplicarPedido(cache); }
+    else { uld(); showToast('Não foi possível carregar o pedido: ' + errMsg(e), 'err'); return false; }
+  }
+  uld();
+  await carregarFicha($('#refInput').value);
+  showToast(`Pedido ${numero} carregado.`);
+  return true;
+}
+
+async function excluirPedido(id, numero, apos){
+  if (!canDelete()) return;
+  if (!confirm(`Excluir o pedido "${numero}" e suas ordens de produção? Essa ação não pode ser desfeita.`)) return;
+  ld('Excluindo pedido...');
+  try {
+    const r1 = await SB.from('ordens_localizada').delete().eq('pedido_id', id);
+    if (r1.error) throw r1.error;
+    const r2 = await SB.from('pedidos').delete().eq('id', id);
+    if (r2.error) throw r2.error;
+    SB.from('historico_alteracoes').insert({ tabela: 'pedidos', registro_id: id, usuario_nome: CU.nome, campo: 'Pedido', valor_anterior: numero, valor_novo: 'Excluído' }).then(() => {}, () => {});
+    if (meta.loadedNumero === numero) novoPedidoTela(true);
+    showToast(`Pedido ${numero} excluído.`);
+    refreshPedidos(); carregarOpsRef($('#refInput').value);
+    if (apos) apos();
+  } catch(e) { showToast('Não foi possível excluir: ' + errMsg(e), 'err'); }
+  finally { uld(); }
+}
+
+/* ═══════════════════════════════════════
+   LISTA DE PEDIDOS (com filtro de situação)
+═══════════════════════════════════════ */
+let pedidosCache = [], filtro = 'todos', pedidosSeq = 0, listaErro = false;
+const ehConcluido = p => p.status === 'concluida';   // qualquer outro valor conta como pendente (nunca some da lista)
+function qualTag(s){
+  s = String(s || 'pendente').toLowerCase();
+  if (s === 'aprovado') return '<span class="tag t-ok">Aprovado</span>';
+  if (s === 'reprovado') return '<span class="tag t-alert">Reprovado</span>';
+  if (s === 'pendente') return '<span class="tag t-type">Pendente</span>';
+  return `<span class="tag t-type">${esc(s.charAt(0).toUpperCase() + s.slice(1))}</span>`;
+}
+const statusTag = p => ehConcluido(p) ? `<span class="tag t-ok">${ic('check')} Concluída</span>` : `<span class="tag t-pend">${ic('clock')} Pendente</span>`;
+const ordensDe = p => (p.ordens_localizada || []).slice().sort((a, b) => (a.ordem || 0) - (b.ordem || 0));
+const qtdTotalDe = p => ordensDe(p).reduce((s, o) => s + (Number(o.quantidade) || 0), 0);
+
+async function refreshPedidos(){
+  const seq = ++pedidosSeq;
+  listaErro = false;
+  try {
+    const { data, error } = await SB.from('pedidos').select('*, ordens_localizada(numero, quantidade, ordem)').order('atualizado_em', { ascending: false }).limit(LIMITE_LISTA);
+    if (seq !== pedidosSeq) return;
+    if (error) throw error;
+    pedidosCache = data || [];
+    offlineCacheSet('pedidos', pedidosCache);
+  } catch(e) {
+    if (seq !== pedidosSeq) return;
+    const c = offlineCacheGet('pedidos');
+    if (c && !navigator.onLine) { pedidosCache = c.data || []; showOfflineBanner(c.savedAt); }
+    else { pedidosCache = []; listaErro = true; }
+  }
+  renderFiltro(); renderTabela();
+}
+function renderFiltro(){
+  const total = pedidosCache.length, conc = pedidosCache.filter(ehConcluido).length;
+  const itens = [['todos', 'Todos', total], ['pendente', 'Pendentes', total - conc], ['concluida', 'Concluídas', conc]];
+  $('#filterTabs').innerHTML = itens.map(([k, rot, n]) =>
+    `<button type="button" class="seg-btn ${filtro === k ? 'active' : ''}" aria-pressed="${filtro === k}" data-f="${k}">${esc(rot)}${n ? ` <span class="count">(${n})</span>` : ''}</button>`).join('');
+}
+function renderTabela(){
+  const body = $('#pedidosBody');
+  let itens = pedidosCache;
+  if (filtro === 'pendente') itens = itens.filter(p => !ehConcluido(p));
+  if (filtro === 'concluida') itens = itens.filter(ehConcluido);
+  if (!itens.length) {
+    body.innerHTML = `<tr><td colspan="8" class="tbl-empty">${listaErro ? 'Não foi possível listar os pedidos agora. Verifique a conexão e recarregue a página.' : (pedidosCache.length ? 'Nenhum pedido nesta situação.' : 'Nenhum pedido salvo ainda. Preencha o formulário acima e clique em Salvar pedido.')}</td></tr>`;
+    return;
+  }
+  body.innerHTML = '';
+  itens.forEach(p => {
+    const ops = ordensDe(p).map(o => o.numero).filter(Boolean).join(', ') || '—';
+    const qtd = qtdTotalDe(p);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="cell-mono">${esc(p.numero)}</td><td class="cell-mono">${esc(p.referencia)}</td><td class="cell-sub">${esc(ops)}</td>
+      <td>${qtd || '—'}</td><td>${statusTag(p)}</td><td>${qualTag(p.status_qualidade)}</td>
+      <td class="cell-sub">${p.atualizado_em ? esc(fmtDataHora(p.atualizado_em)) : '—'}</td>
+      <td class="cell-act"><button type="button" class="btn btn-ghost btn-sm" data-a="abrir">Abrir</button>${canDelete() ? `<button type="button" class="btn btn-danger btn-sm" data-a="del" aria-label="Excluir pedido ${esc(p.numero)}">${ic('trash')}</button>` : ''}</td>`;
+    $('[data-a="abrir"]', tr).addEventListener('click', () => carregarPedido(p.numero));
+    const del = $('[data-a="del"]', tr);
+    if (del) del.addEventListener('click', () => excluirPedido(p.id, p.numero));
+    body.appendChild(tr);
+  });
+}
+
+/* ═══════════════════════════════════════
+   BUSCA AVANÇADA
+═══════════════════════════════════════ */
+function abrirBusca(){ $('#m-busca').classList.add('open'); setTimeout(() => $('#sRef').focus(), 30); }
+function fecharBusca(){ $('#m-busca').classList.remove('open'); }
+function limparBusca(){
+  ['sRef', 'sPedido', 'sOp'].forEach(id => { $('#' + id).value = ''; });
+  $('#sResults').innerHTML = '<div class="empty">Preencha um ou mais filtros e clique em Buscar.</div>';
+}
+let searchSeq = 0;
+async function rodarBusca(){
+  const f = { ref: $('#sRef').value.trim(), pedido: $('#sPedido').value.trim(), op: $('#sOp').value.trim().toLowerCase() };
+  const box = $('#sResults');
+  if (!f.ref && !f.pedido && !f.op) { box.innerHTML = '<div class="empty">Preencha pelo menos um filtro para buscar.</div>'; return; }
+  const seq = ++searchSeq;
+  box.innerHTML = '<div class="empty">Buscando pedidos...</div>';
+  try {
+    let q = SB.from('pedidos').select('*, ordens_localizada(numero, quantidade, ordem)').order('atualizado_em', { ascending: false }).limit(LIMITE_LISTA);
+    if (f.ref) q = q.ilike('referencia', '%' + soLike(f.ref) + '%');
+    if (f.pedido) q = q.ilike('numero', '%' + soLike(f.pedido) + '%');
+    const { data, error } = await q;
+    if (seq !== searchSeq) return;
+    if (error) throw error;
+    const achados = (data || []).filter(p => !f.op || ordensDe(p).some(o => String(o.numero || '').toLowerCase().includes(f.op)));
+    if (!achados.length) { box.innerHTML = '<div class="empty">Nenhum pedido encontrado com esses filtros.</div>'; return; }
+    box.innerHTML = '';
+    achados.forEach(p => {
+      const it = document.createElement('div');
+      it.className = 'res-item';
+      it.innerHTML = `<div class="res-main"><div class="res-ref">${esc(p.numero)} ${qualTag(p.status_qualidade)}</div>
+          <div class="res-desc">Ref. ${esc(p.referencia || '—')} · ${statusTag(p)}</div>
+          <div class="res-tags">${ordensDe(p).map(o => `<span class="tag t-type">${esc(o.numero)}</span>`).join('')}</div></div>
+        <button type="button" class="btn btn-ghost btn-sm" data-a="abrir">Abrir</button>
+        ${canDelete() ? `<button type="button" class="btn btn-danger btn-sm" data-a="del" aria-label="Excluir pedido ${esc(p.numero)}">${ic('trash')}</button>` : ''}`;
+      $('[data-a="abrir"]', it).addEventListener('click', async () => { if (await carregarPedido(p.numero)) fecharBusca(); });
+      const del = $('[data-a="del"]', it);
+      if (del) del.addEventListener('click', () => excluirPedido(p.id, p.numero, rodarBusca));
+      box.appendChild(it);
+    });
+    if ((data || []).length >= LIMITE_LISTA) box.insertAdjacentHTML('beforeend', `<p class="muted" style="margin-top:8px">Mostrando os ${LIMITE_LISTA} pedidos mais recentes. Refine os filtros para ver os demais.</p>`);
+  } catch(e) {
+    if (seq !== searchSeq) return;
+    box.innerHTML = '<div class="empty">Não foi possível buscar agora. Verifique a conexão e tente de novo.</div>';
+  }
+}
+
+/* ═══════════════════════════════════════
+   IMPRESSÃO — Ficha de Produção da Estamparia
 ═══════════════════════════════════════ */
 function tabelaPantonesPrint(lista){
-  const uteis = (lista || []).filter(p => !pantoneVazio(p));
+  const uteis = (lista || []).filter(p => p && (p.code || p.ink || p.fabric));
   if (!uteis.length) return '<p class="pv-line" style="margin-top:6px">Nenhum pantone cadastrado.</p>';
   return `<table class="pv-tbl"><thead><tr><th style="width:28px">#</th><th style="width:44px">Cor</th><th>Pantone</th><th>Cód. tinta</th><th>Cód. tecido</th></tr></thead><tbody>${
     uteis.map((p, i) => `<tr><td>${i + 1}</td><td><span class="pv-sw" style="background:${esc(corValida(p.color))}"></span></td><td>${esc(p.code) || '—'}</td><td>${esc(p.ink) || '—'}</td><td>${esc(p.fabric) || '—'}</td></tr>`).join('')
   }</tbody></table>`;
 }
 function montarImpressao(){
-  const ref = $('#refInput').value.trim() || '—';
+  const d = coletar();
   const ultima = meta.atualizadoEm ? `<br>Última alteração: ${esc(fmtDataHora(meta.atualizadoEm))}${meta.atualizadoPor ? ' · ' + esc(meta.atualizadoPor) : ''}` : '';
-  let h = `<div class="pv"><div class="pv-hb"><div><div class="pv-kicker">FICHA TÉCNICA DE ARTES</div><div class="pv-ref">${esc(ref)}</div><div class="pv-sub">Estampa localizada e tagless</div></div>
+  const total = d.ordens.reduce((s, o) => s + o.quantidade, 0);
+  let h = `<div class="pv"><div class="pv-hb"><div><div class="pv-kicker">FICHA DE PRODUÇÃO — ESTAMPARIA</div><div class="pv-ref">${esc(d.numero || '—')}</div>
+    <div class="pv-sub">Referência ${esc(d.referencia || '—')} · ${esc(STATUS_PEDIDO[d.status])}</div></div>
     <div class="pv-meta">Impresso em ${esc(new Date().toLocaleString('pt-BR'))}${ultima}</div></div>`;
-  h += '<div class="pv-sl">Estampas localizadas</div>';
-  state.estampas.forEach((e, i) => {
-    h += `<div class="pv-blk">${e.image ? `<img src="${esc(e.image)}" alt="${esc(estampaTitulo(e, i))}">` : ''}
-      <div class="pv-name">${esc(estampaTitulo(e, i))}</div>
-      <div class="pv-line"><strong>Descrição:</strong> ${esc(e.description) || '—'}</div>
-      ${e.application ? `<div class="pv-line"><strong>Aplicação:</strong> ${esc(e.application)}${e.applicationDescription ? ' — ' + esc(e.applicationDescription) : ''}</div>` : ''}
-      ${tabelaPantonesPrint(e.pantones)}</div>`;
-  });
-  const t = state.tagless;
-  h += `<div class="pv-sl">Tagless gola</div><div class="pv-blk">${t.image ? `<img src="${esc(t.image)}" alt="Tagless gola" style="max-height:200px">` : ''}
-    <div class="pv-line"><strong>Descrição:</strong> ${esc(t.description) || '—'}</div>
-    <div class="pv-line"><strong>Técnica:</strong> ${esc(TECNICAS_TAGLESS[t.technique])}</div>
-    ${tabelaPantonesPrint(t.pantones)}</div>`;
-  const obs = $('#observacoes').value.trim();
-  if (obs) h += `<div class="pv-obs"><strong>Observações:</strong> ${esc(obs)}</div>`;
+  h += '<div class="pv-sl">Ordens de produção</div>';
+  h += d.ordens.length
+    ? `<table class="pv-tbl"><thead><tr><th style="width:28px">#</th><th>Número da OP</th><th>Quantidade</th></tr></thead><tbody>${d.ordens.map((o, i) => `<tr><td>${i + 1}</td><td>${esc(o.numero)}</td><td>${o.quantidade}</td></tr>`).join('')}<tr><td></td><td><strong>Total</strong></td><td><strong>${total}</strong></td></tr></tbody></table>`
+    : '<p class="pv-line">Nenhuma OP cadastrada.</p>';
+  h += '<div class="pv-sl">Estampas e tagless (ficha de Artes)</div>';
+  if (ficha) {
+    const est = Array.isArray(ficha.estampas) ? ficha.estampas : [];
+    est.forEach((e, i) => {
+      const nome = (e.name && String(e.name).trim()) || (est.length > 1 ? `Estampa Localizada ${i + 1}` : 'Estampa Localizada');
+      h += `<div class="pv-blk">${e.image ? `<img src="${esc(e.image)}" alt="${esc(nome)}">` : ''}<div class="pv-name">${esc(nome)}</div>
+        <div class="pv-line"><strong>Descrição:</strong> ${esc(e.description) || '—'}</div>
+        ${e.application ? `<div class="pv-line"><strong>Aplicação:</strong> ${esc(e.application)}${e.applicationDescription ? ' — ' + esc(e.applicationDescription) : ''}</div>` : ''}
+        ${tabelaPantonesPrint(e.pantones)}</div>`;
+    });
+    const t = ficha.tagless || {};
+    h += `<div class="pv-blk">${t.image ? `<img src="${esc(t.image)}" alt="Tagless gola" style="max-height:200px">` : ''}<div class="pv-name">Tagless gola</div>
+      <div class="pv-line"><strong>Técnica:</strong> ${esc(TECNICAS_TAGLESS[t.technique] || TECNICAS_TAGLESS.tampografia)}</div>
+      <div class="pv-line"><strong>Descrição:</strong> ${esc(t.description) || '—'}</div>${tabelaPantonesPrint(t.pantones)}</div>`;
+  } else h += '<p class="pv-line">Nenhuma ficha de Artes vinculada a esta referência.</p>';
+  if (d.observacoes) h += `<div class="pv-obs"><strong>Observações de produção:</strong> ${esc(d.observacoes)}</div>`;
   $('#printArea').innerHTML = h + '</div>';
 }
 function aguardarImagens(root, limiteMs){
@@ -1388,7 +1398,6 @@ function aguardarImagens(root, limiteMs){
   ]);
 }
 async function imprimir(){
-  state.observacoes = $('#observacoes').value;
   montarImpressao();
   ld('Preparando impressão...');
   await aguardarImagens($('#printArea'));   // sem isso, imagens do bucket podem sair em branco
@@ -1400,15 +1409,15 @@ async function imprimir(){
    INICIALIZAÇÃO
 ═══════════════════════════════════════ */
 function montarIconesEstaticos(){
-  $('#ph-icon').innerHTML = ic('pen', 17, 'style="stroke:var(--green)"');
+  $('#ph-icon').innerHTML = ic('printer', 17, 'style="stroke:var(--green)"');
   $('#nb-home').innerHTML = ic('home', 14) + '<span>Início</span>';
   $('#nb-artes').innerHTML = ic('pen', 14) + '<span>Artes</span>';
   $('#nb-est').innerHTML = ic('printer', 14) + '<span>Estamparia</span>';
   $('#btn-logout').innerHTML = ic('logout', 14) + '<span>Sair</span>';
   $('#btnOpenSearch').innerHTML = withIcon('search', 'Busca avançada');
-  $('#btnPrint').innerHTML = withIcon('printer', 'Imprimir ficha');
-  $('#btnSave').innerHTML = withIcon('save', 'Salvar ficha');
-  $('#btnAddEstampa').innerHTML = withIcon('plus', 'Adicionar estampa localizada');
+  $('#btnPrint').innerHTML = withIcon('printer', 'Imprimir');
+  $('#btnSave').innerHTML = withIcon('save', 'Salvar pedido');
+  $('#btnAddOp').innerHTML = withIcon('plus', 'Adicionar OP');
   $('#buscaClose').innerHTML = ic('x', 14);
   $('#sGo').innerHTML = withIcon('search', 'Buscar');
   $('#lbClose').innerHTML = ic('x', 16);
@@ -1416,7 +1425,6 @@ function montarIconesEstaticos(){
   $('#lbIn').innerHTML = ic('zoomIn', 16);
   $('#lbReset').innerHTML = ic('reset', 16);
   $('#lg-btn').innerHTML = withIcon('login', 'Entrar', 14);
-  $('#sApp').insertAdjacentHTML('beforeend', APLICACOES.map(a => `<option value="${esc(a)}">${esc(a)}</option>`).join(''));
 }
 
 function ligarEventos(){
@@ -1426,20 +1434,33 @@ function ligarEventos(){
   $('#btn-dark').addEventListener('click', toggleDarkMode);
   $('#btn-logout').addEventListener('click', doLogout);
 
-  $('#btnLoadRef').addEventListener('click', () => carregarFicha($('#refInput').value));
-  $('#refInput').addEventListener('keydown', e => { if (e.key === 'Enter') carregarFicha($('#refInput').value); });
-  $('#btnNewRef').addEventListener('click', () => novaFicha(false));
-  $('#btnAddEstampa').addEventListener('click', () => { state.estampas.push(makeEstampa()); renderEstampas(); });
-  $('#observacoes').addEventListener('input', e => { state.observacoes = e.target.value; });
+  const ref = $('#refInput');
+  $('#btnLoadRef').addEventListener('click', () => { if (!ref.value.trim()) { showToast('Informe uma referência para carregar.', 'err'); ref.focus(); return; } carregarFicha(ref.value); });
+  ref.addEventListener('keydown', e => { if (e.key === 'Enter') carregarFicha(ref.value); });
+  ref.addEventListener('change', () => { if (ref.value.trim() !== refCarregada) carregarFicha(ref.value); });
+  $('#btnNewPedido').addEventListener('click', () => novoPedidoTela(false));
+  $('#pedidoInput').addEventListener('input', e => { pedido.numero = e.target.value; });
+  $('#observacoesPedido').addEventListener('input', e => { pedido.observacoes = e.target.value; });
+  $('#btnAddOp').addEventListener('click', () => { pedido.ordens.push(makeOrdem()); renderOrdens(); atualizarSujo(); });
   $('#btnSave').addEventListener('click', salvar);
   $('#btnPrint').addEventListener('click', imprimir);
+  $('#filterTabs').addEventListener('click', e => {
+    const b = e.target.closest('.seg-btn'); if (!b) return;
+    filtro = b.dataset.f; renderFiltro(); renderTabela();
+  });
+  $('#fichaPreviewRow').addEventListener('click', e => {
+    const b = e.target.closest('.zoom-btn'); if (!b || !ficha) return;
+    const k = b.dataset.img;
+    const src = k === 'tagless' ? (ficha.tagless && ficha.tagless.image) : (ficha.estampas && ficha.estampas[Number(k)] && ficha.estampas[Number(k)].image);
+    if (src) abrirLightbox(src);
+  });
 
   $('#btnOpenSearch').addEventListener('click', abrirBusca);
   $('#buscaClose').addEventListener('click', fecharBusca);
   $('#sGo').addEventListener('click', rodarBusca);
   $('#sClear').addEventListener('click', limparBusca);
-  ['sRef', 'sDesc', 'sPant'].forEach(id => $('#' + id).addEventListener('keydown', e => { if (e.key === 'Enter') rodarBusca(); }));
-  // Fecha o modal só se o clique começou E terminou no fundo (não fecha ao selecionar texto e soltar fora)
+  ['sRef', 'sPedido', 'sOp'].forEach(id => $('#' + id).addEventListener('keydown', e => { if (e.key === 'Enter') rodarBusca(); }));
+  // Fecha o modal só se o clique começou E terminou no fundo
   const m = $('#m-busca'); let downNoFundo = false;
   m.addEventListener('mousedown', e => { downNoFundo = e.target === m; });
   m.addEventListener('mouseup', e => { if (downNoFundo && e.target === m) fecharBusca(); downNoFundo = false; });
@@ -1487,6 +1508,8 @@ document.addEventListener('DOMContentLoaded', () => {
   registerServiceWorker();
   tryRestoreSession();
 });
+
+
 })();
 </script>
 </body>
