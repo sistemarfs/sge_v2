@@ -354,6 +354,7 @@ body.dark .res-ref{color:var(--navy-text)}
     <button class="nb active" type="button" id="nb-artes"></button>
     <a class="nb" href="02_Estamparia.html" id="nb-est"></a>
     <a class="nb" href="03_Laboratorio.html" id="nb-lab"></a>
+    <a class="nb" href="04_Qualidade.html" id="nb-qual"></a>
     <div class="nav-spacer"></div>
     <div class="nav-user">
       <div class="nav-av" id="nav-av">A</div>
@@ -525,6 +526,7 @@ const ICONS = {
   sun:'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>',
   moon:'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
   flask:'<path d="M9 3h6"/><path d="M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2.2h12.4a1.5 1.5 0 0 0 1.3-2.2L14 9V3"/><path d="M7.5 15h9"/>',
+  clipboard:'<path d="M9 3h6a1 1 0 0 1 1 1v2H8V4a1 1 0 0 1 1-1z"/><path d="M8 5H6a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><path d="m9 14 2 2 4-4"/>',
   reset:'<path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 3 3 9 9 9"/>'
 };
 function ic(name, size, extra){
@@ -1421,6 +1423,7 @@ function montarIconesEstaticos(){
   $('#nb-artes').innerHTML = ic('pen', 14) + '<span>Artes</span>';
   $('#nb-est').innerHTML = ic('printer', 14) + '<span>Estamparia</span>';
   $('#nb-lab').innerHTML = ic('flask', 14) + '<span>Laboratório</span>';
+  $('#nb-qual').innerHTML = ic('clipboard', 14) + '<span>Qualidade</span>';
   $('#btn-logout').innerHTML = ic('logout', 14) + '<span>Sair</span>';
   $('#btnOpenSearch').innerHTML = withIcon('search', 'Busca avançada');
   $('#btnPrint').innerHTML = withIcon('printer', 'Imprimir ficha');

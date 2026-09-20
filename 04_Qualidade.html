@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qualidade — SGE</title>
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B3A5C">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SGE">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Source+Serif+4:wght@600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  --navy:#1B3A5C;--navy2:#254D78;--navy-pale:#E8EFF6;
+  --green:#2D7A3A;--green2:#358544;--green-pale:#D8EEDC;
+  --bg:#F2F5F0;--surface:#FFFFFF;--surface2:#EBF0E8;
+  --ink:#1A2B1A;--ink2:#3D5A3E;--ink3:#7A9A7C;
+  --red:#C0392B;--red-pale:#FAEAE8;--yellow:#C07A00;--yellow-pale:#FDF3DC;
+  --border:#C8D8C8;--shadow:0 2px 14px rgba(27,58,92,0.09);--shadow-lg:0 8px 40px rgba(27,58,92,0.15);
+  --radius:12px;--radius-sm:8px;
+}
+/* ── MODO ESCURO (mesma chave do app: stampos_dark) ── */
+body.dark{
+  --bg:#0F1720;--surface:#1A2530;--surface2:#212E3D;
+  --ink:#E8EDF2;--ink2:#AEC0CF;--ink3:#7A8FA0;
+  --navy-pale:#1E3350;--green-pale:#17362A;--red-pale:#3D2420;--yellow-pale:#3D3018;
+  --border:#2C3B4D;
+  --shadow:0 2px 14px rgba(0,0,0,0.45);--shadow-lg:0 8px 40px rgba(0,0,0,0.55);
+}
+body,body.dark{transition:background 0.2s ease}
+body.dark img{filter:brightness(0.96)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px}
+.mono{font-family:'IBM Plex Mono',monospace}
+:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ── LOGIN ── */
+#login-screen{display:none;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(140deg,var(--navy) 0%,var(--navy2) 55%,#1A4A2A 100%);padding:20px}
+.login-card{background:var(--surface);border-radius:20px;padding:44px 40px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(27,58,92,0.25)}
+.lg-logo{text-align:center;margin-bottom:24px}
+.lg-logo-mark{width:76px;height:76px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.lg-logo-mark img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(27,58,92,0.25))}
+.lg-logo h1{font-family:'Source Serif 4',serif;font-size:26px;font-weight:700;color:var(--navy);margin-bottom:2px}
+.lg-logo p{font-size:12px;color:var(--ink3);margin-top:3px}
+.msg-err{display:none;background:var(--red-pale);color:var(--red);border-radius:var(--radius-sm);padding:9px 12px;font-size:12.5px;font-weight:600;margin-bottom:12px}
+.lg-fields{display:flex;flex-direction:column;gap:16px;margin-top:4px}
+.lg-field{display:flex;flex-direction:column;gap:6px}
+.lg-label{font-size:11px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:0.5px}
+.lg-input{padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Source Sans 3',sans-serif;font-size:14px;color:var(--ink);background:var(--bg);outline:none;width:100%;transition:all 0.14s}
+.lg-input:focus{border-color:var(--green);background:#fff;box-shadow:0 0 0 3px var(--green-pale)}
+.lg-input::placeholder{color:var(--ink3)}
+body.dark .lg-input:focus{background:var(--surface)}
+.login-btn{width:100%;padding:13px;background:var(--navy);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Source Sans 3',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:7px}
+.login-btn:hover{background:var(--navy2)}.login-btn:disabled{opacity:0.6;cursor:not-allowed}
+.lg-footer{text-align:center;margin-top:14px;font-size:11px;color:var(--ink3)}
+
+/* ── LOADING ── */
+.ld-overlay{display:none;position:fixed;inset:0;background:rgba(27,58,92,0.45);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.ld-overlay.show{display:flex}
+.ld-box{background:var(--surface);border-radius:14px;padding:26px 34px;text-align:center;box-shadow:var(--shadow-lg)}
+.spinner{width:36px;height:36px;border:3px solid var(--green-pale);border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 11px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ld-box p{font-size:13px;color:var(--ink2);font-weight:600}
+
+/* ── NAV ── */
+#app{display:none}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--navy);height:56px;display:flex;align-items:center;padding:0 22px;gap:2px;box-shadow:0 2px 18px rgba(27,58,92,0.35)}
+.nav-logo{font-family:'Source Serif 4',serif;font-size:20px;font-weight:700;color:#fff;margin-right:16px;display:flex;align-items:center;gap:7px;text-decoration:none}
+.nav-logo-mark{width:42px;height:42px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nb{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;border:none;background:transparent;color:rgba(255,255,255,0.62);font-family:'Source Sans 3',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.14s;text-decoration:none;white-space:nowrap}
+.nb:hover{background:rgba(255,255,255,0.11);color:#fff}
+.nb.active{background:var(--green);color:#fff}
+.nb svg{width:14px;height:14px;flex-shrink:0}
+.nav-spacer{flex:1}
+.nav-user{display:flex;align-items:center;gap:7px;padding:4px 10px;border-radius:6px;background:rgba(255,255,255,0.08)}
+.nav-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.nav-un{font-size:12px;font-weight:600;color:#fff;line-height:1.2}
+.nav-ur{font-size:10px;color:rgba(255,255,255,0.5);line-height:1.2}
+.ni-btn{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.22);background:transparent;color:rgba(255,255,255,0.65);font-family:'Source Sans 3',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.14s;margin-left:5px}
+.ni-btn:hover{border-color:var(--green);color:#7CCC8A}
+.ni-btn svg{width:14px;height:14px}
+#conn-dot{width:8px;height:8px;border-radius:50%;background:#2D7A3A;display:inline-block;margin:0 6px;flex-shrink:0}
+
+/* ── PÁGINA ── */
+.page{padding-top:56px;min-height:100vh}
+.ph{padding:20px 28px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;background:var(--surface)}
+.ph-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ic-n{background:var(--navy-pale)}.ic-g{background:var(--green-pale)}
+body.dark .ic-n svg{stroke:#7BAAD9!important}
+body.dark .ic-g svg{stroke:#5BC97A!important}
+.ph-title{flex:1;min-width:0}
+.ph h2{font-family:'Source Serif 4',serif;font-size:19px;font-weight:700;color:var(--navy)}
+.ph-sub{font-size:12px;color:var(--ink3);margin-top:1px}
+.ph-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.pb{padding:20px 28px;max-width:1560px;margin:0 auto}
+.ro-banner{display:none;background:var(--yellow-pale);color:var(--yellow);border:1.5px solid var(--yellow);border-radius:var(--radius-sm);padding:9px 14px;font-size:12.5px;font-weight:600;margin-bottom:14px}
+
+/* ── BOTÕES ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 15px;border-radius:var(--radius-sm);border:none;font-family:'Source Sans 3',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.14s}
+.btn svg{width:13px;height:13px;flex-shrink:0}
+.btn-primary{background:var(--green);color:#fff}.btn-primary:hover{background:var(--green2)}
+.btn-navy{background:var(--navy);color:#fff}.btn-navy:hover{background:var(--navy2)}
+.btn-ghost{background:transparent;color:var(--ink2);border:1.5px solid var(--border)}.btn-ghost:hover{background:var(--surface2)}
+.btn-sm{padding:5px 9px;font-size:12px}
+.btn-danger{background:var(--red-pale);color:var(--red);border:none}
+.btn:disabled{opacity:0.55;cursor:not-allowed}
+
+/* ── FORMULÁRIO ── */
+.fl{display:flex;flex-direction:column;gap:4px;margin-top:12px}
+.fl>label,.fl-label{font-size:11px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:0.4px}
+.form-input{padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Source Sans 3',sans-serif;font-size:13px;color:var(--ink);background:var(--bg);outline:none;transition:all 0.14s;width:100%}
+.form-input:focus{border-color:var(--green);background:#fff;box-shadow:0 0 0 3px var(--green-pale)}
+body.dark .form-input:focus{background:var(--surface)}
+.form-input:disabled{opacity:0.75;cursor:default}
+textarea.form-input{resize:vertical;min-height:80px}
+
+/* ── BARRA DE REFERÊNCIA (padrão .sw do app) ── */
+.sw{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.sc{display:flex;flex-direction:column;gap:3px}
+.sc label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink3)}
+.ref-input{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:16px;letter-spacing:0.02em;width:210px;padding:7px 10px}
+.ref-status{margin-left:auto;align-self:center}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700}
+.tag svg{width:11px;height:11px}
+.t-type{background:var(--navy-pale);color:var(--navy)}
+.t-ok{background:var(--green-pale);color:var(--green)}
+.t-pend{background:var(--yellow-pale);color:var(--yellow)}
+.t-alert{background:var(--red-pale);color:var(--red)}
+
+/* ── TOOLBAR DE SEÇÃO ── */
+.at-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.at-toolbar h3{font-family:'Source Serif 4',serif;font-size:15px;font-weight:700;color:var(--navy)}
+.at-toolbar p{font-size:12px;color:var(--ink3);margin-top:1px}
+
+/* ── CARDS DE ARTE ── */
+.cards-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:14px;align-items:start}
+#estampasContainer{display:contents}
+.ac{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;min-width:0}
+.ac-head{display:flex;align-items:flex-start;gap:8px;margin-bottom:12px}
+.ac-head-main{flex:1;min-width:0}
+.ac-title{width:100%;font-family:'Source Serif 4',serif;font-size:15px;font-weight:600;color:var(--navy);border:1.5px solid transparent;background:transparent;border-radius:6px;padding:2px 6px;margin-left:-7px;outline:none;transition:all 0.14s}
+.ac-title:hover:not(:disabled){background:var(--navy-pale)}
+.ac-title:focus{background:var(--bg);border-color:var(--green);box-shadow:0 0 0 3px var(--green-pale)}
+.ac-title:disabled{opacity:1;cursor:default}
+.ac-title::placeholder{color:var(--navy);opacity:1}
+.ac-sub{font-size:11.5px;color:var(--ink3);margin-top:1px}
+
+/* upload de imagem (padrão .iu do app) */
+.iu{border:2px dashed var(--border);border-radius:var(--radius);padding:22px 14px;text-align:center;cursor:pointer;transition:all 0.14s;background:var(--bg)}
+.iu:hover,.iu.drag{border-color:var(--green);background:var(--green-pale)}
+.iu svg{width:30px;height:30px;color:var(--ink3)}
+.iu p{color:var(--ink3);font-size:12px;margin-top:5px;line-height:1.5}
+.iu-prog{color:var(--green);font-weight:600}
+.img-empty{border:2px dashed var(--border);border-radius:var(--radius);padding:22px 14px;text-align:center;color:var(--ink3);font-size:12px;background:var(--bg)}
+.img-box{position:relative;border:1.5px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;background:#fff}
+.img-box img{width:100%;display:block;max-height:280px;object-fit:contain;background:#fff}
+.zoom-btn{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:7px;border:none;background:rgba(27,58,92,0.78);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.zoom-btn:hover{background:var(--navy)}
+.zoom-btn svg{width:15px;height:15px}
+.img-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.img-actions .tag{margin-left:auto}
+
+/* controle segmentado (padrão .rel-mode-btn) */
+.seg{display:flex;gap:4px}
+.seg-btn{flex:1;display:flex;align-items:center;justify-content:center;padding:7px 13px;border-radius:6px;border:1.5px solid var(--border);background:var(--surface);color:var(--ink2);font-family:'Source Sans 3',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.14s}
+.seg-btn:hover:not(:disabled){border-color:var(--navy);color:var(--navy)}
+.seg-btn.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.seg-btn:disabled{cursor:default}
+
+/* pantones */
+.pt-head,.pt-row{display:grid;grid-template-columns:22px 36px minmax(0,1fr) 58px 58px 28px;gap:6px;align-items:center}
+.pt-head{margin:12px 0 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink3)}
+.pt-row{margin-bottom:6px}
+.pt-seq{width:22px;height:22px;border-radius:6px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.pt-swatch{width:36px;height:34px;border-radius:var(--radius-sm);border:1.5px solid var(--border);padding:2px;background:var(--bg);cursor:pointer}
+.pt-swatch:disabled{cursor:default}
+.pt-row .form-input{padding:7px 6px;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:12px;min-width:0}
+.pt-rm{width:28px;height:28px;border-radius:7px;border:none;background:transparent;color:var(--ink3);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.pt-rm:hover{background:var(--red-pale);color:var(--red)}
+.pt-rm svg{width:14px;height:14px}
+.pt-add{margin-top:4px}
+
+/* histórico e recentes */
+.st-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:var(--ink3);margin-bottom:10px}
+.ac-block{margin-top:14px}
+.hist-item{border-left:2.5px solid var(--green);padding:6px 0 6px 12px;margin-bottom:8px}
+.hist-campo{font-size:12px;font-weight:700;color:var(--navy)}
+.hist-vals{font-size:12px;color:var(--ink2);margin:2px 0;overflow-wrap:anywhere}
+.hist-old{text-decoration:line-through;color:var(--ink3)}
+.hist-meta{font-size:10.5px;color:var(--ink3)}
+.muted{font-size:12px;color:var(--ink3)}
+.recent-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr));gap:10px}
+.recent-item{display:flex;align-items:center;gap:8px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:9px 11px}
+.recent-main{flex:1;min-width:0}
+.recent-ref{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:14px;color:var(--navy)}
+.recent-meta{font-size:11px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.below-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:14px;align-items:start;margin-top:14px}
+
+/* ── ABAS ── */
+.tabs{display:flex;gap:4px;border-bottom:1.5px solid var(--border);margin-bottom:16px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab{padding:9px 16px;border:none;background:transparent;font-family:'Source Sans 3',sans-serif;font-size:13px;font-weight:600;color:var(--ink3);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1.5px;white-space:nowrap;transition:all 0.14s}
+.tab:hover{color:var(--navy)}
+.tab.active{color:var(--navy);border-bottom-color:var(--green)}
+.aba[hidden]{display:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ── CARDS E FORMULÁRIOS ── */
+.ac{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;min-width:0}
+.ac.flush{padding:0;overflow:hidden}
+.ac.flush .tw{border:none;border-radius:0}
+.ac-head{display:flex;align-items:flex-start;gap:8px;margin-bottom:12px}
+.ac-head-main{flex:1;min-width:0}
+.ac-name{font-family:'Source Serif 4',serif;font-size:15px;font-weight:600;color:var(--navy)}
+.ac-sub{font-size:11.5px;color:var(--ink3);margin-top:1px}
+.ac-block{margin-top:14px}
+.st-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:var(--ink3);margin-bottom:10px}
+.muted{font-size:12px;color:var(--ink3);font-weight:400}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:12px}
+.fgrid .fl{margin-top:0}
+.form-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.cor-row{display:flex;gap:8px;align-items:center}
+.cor-row input[type=color]{width:42px;height:36px;padding:2px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);cursor:pointer;flex-shrink:0}
+.cor-row .form-input{min-width:0}
+.form-input[readonly]{background:var(--surface2);cursor:default}
+
+/* ── TABELAS ── */
+.tw{overflow-x:auto;border-radius:var(--radius);border:1.5px solid var(--border)}
+table.tbl{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--ink3);background:var(--surface2);border-bottom:1.5px solid var(--border);white-space:nowrap}
+.tbl td{padding:9px 12px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl tbody tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover td{background:var(--bg)}
+.tbl .cell-mono{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--navy);white-space:nowrap}
+.tbl .cell-sub{font-size:12px;color:var(--ink3)}
+.tbl .cell-act{white-space:nowrap;text-align:right}
+.tbl .cell-act .btn+.btn{margin-left:5px}
+.tbl .cell-num{font-family:'IBM Plex Mono',monospace;font-weight:600;text-align:right;white-space:nowrap}
+.tbl-empty{text-align:center;padding:26px 12px!important;color:var(--ink3);font-size:13px}
+.tbl-mini th,.tbl-mini td{padding:6px 10px;font-size:12.5px}
+.tbl tr.inativo td{opacity:0.55}
+.sw-dot{display:inline-block;width:18px;height:18px;border-radius:5px;border:1px solid var(--border);vertical-align:middle;flex-shrink:0}
+
+/* ── MODAL (padrão do app) ── */
+.mo{display:none;position:fixed;inset:0;background:rgba(27,58,92,0.52);backdrop-filter:blur(3px);z-index:200;align-items:center;justify-content:center;padding:20px}
+.mo.open{display:flex}
+.modal{background:var(--surface);border-radius:16px;width:100%;max-width:730px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.mh{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--navy);border-radius:16px 16px 0 0}
+.mh h3{font-family:'Source Serif 4',serif;font-size:16px;font-weight:700;flex:1;color:#fff}
+.mc{width:27px;height:27px;border-radius:7px;border:none;background:rgba(255,255,255,0.15);cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.8);transition:background 0.14s}
+.mc:hover{background:rgba(255,255,255,0.28)}
+.mc svg{width:14px;height:14px}
+.mb{padding:18px 22px}
+.mf{padding:12px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;align-items:center}
+.sf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:11px}
+.sf-grid .fl{margin-top:0}
+.res-wrap{margin-top:16px;border-top:1px solid var(--border);padding-top:12px}
+.res-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.res-item:last-child{border-bottom:none}
+.res-main{flex:1;min-width:0}
+.res-ref{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:14px;color:var(--navy)}
+.res-desc{font-size:12px;color:var(--ink2);margin-top:2px;overflow-wrap:anywhere}
+.res-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.empty{text-align:center;padding:28px 16px;color:var(--ink3);font-size:13px;line-height:1.6}
+
+/* ── TOAST (padrão do app) ── */
+.toast-stack{position:fixed;bottom:20px;right:20px;z-index:500;display:flex;flex-direction:column-reverse;gap:10px;max-width:340px}
+.toast{background:var(--navy);color:#fff;border-radius:11px;padding:13px 15px;box-shadow:0 8px 28px rgba(27,58,92,0.35);display:flex;gap:11px;align-items:flex-start;cursor:pointer;animation:toast-in 0.3s ease-out;border-left:4px solid var(--green)}
+.toast.err{border-left-color:var(--red)}
+.toast.toast-out{animation:toast-out 0.25s ease-in forwards}
+@keyframes toast-in{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toast-out{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(30px)}}
+.toast-icon{width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.toast-icon svg{width:15px;height:15px}
+.toast-body{flex:1;min-width:0}
+.toast-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:#7CCC8A;margin-bottom:3px}
+.toast.err .toast-title{color:#F1A69D}
+.toast-msg{font-size:12.5px;line-height:1.5;color:rgba(255,255,255,0.92)}
+
+/* ── LIGHTBOX ── */
+.lightbox{position:fixed;inset:0;background:rgba(9,18,30,0.93);display:none;align-items:center;justify-content:center;z-index:400;flex-direction:column}
+.lightbox.open{display:flex}
+.lb-stage{overflow:hidden;flex:1;width:100%;display:flex;align-items:center;justify-content:center;cursor:grab}
+.lb-stage.grabbing{cursor:grabbing}
+.lb-stage img{max-width:92vw;max-height:80vh;user-select:none;transition:transform 0.05s linear;background:#fff}
+.lb-bar{display:flex;align-items:center;gap:12px;padding:14px;color:#fff;flex-wrap:wrap;justify-content:center}
+.lb-bar button,.lb-close{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:#fff;width:36px;height:36px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.lb-bar button:hover,.lb-close:hover{background:rgba(255,255,255,0.24)}
+.lb-bar svg,.lb-close svg{width:16px;height:16px}
+.lb-close{position:absolute;top:16px;right:18px}
+.lb-hint{color:rgba(255,255,255,0.6);font-size:12px}
+
+/* ── IMPRESSÃO (ficha técnica no padrão do relatório do SGE) ── */
+#printArea{display:none}
+.pv{font-family:'Source Sans 3',sans-serif;color:#1A2B1A}
+.pv-hb{background:#1B3A5C;color:#fff;border-radius:8px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.pv-kicker{font-size:10px;font-weight:700;letter-spacing:0.5px;color:#7CCC8A;margin-bottom:3px}
+.pv-ref{font-family:'Source Serif 4',serif;font-size:26px;font-weight:700;line-height:1.1}
+.pv-sub{font-size:12px;color:rgba(255,255,255,0.7);margin-top:3px}
+.pv-meta{font-size:10.5px;color:rgba(255,255,255,0.7);text-align:right;line-height:1.5}
+.pv-sl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#2D7A3A;margin:14px 0 8px;border-left:3px solid #2D7A3A;padding-left:7px;break-after:avoid;page-break-after:avoid}
+.pv-blk{border:1.5px solid #C8D8C8;border-radius:8px;padding:12px;margin-bottom:10px;break-inside:avoid;page-break-inside:avoid}
+.pv-blk img{width:100%;max-height:300px;object-fit:contain;display:block;margin:0 auto 8px;background:#fff}
+.pv-name{font-family:'Source Serif 4',serif;font-size:14px;font-weight:600;color:#1B3A5C;margin-bottom:4px}
+.pv-line{font-size:12px;color:#3D5A3E;margin-bottom:3px}
+.pv-line strong{color:#1A2B1A}
+.pv-tbl{width:100%;border-collapse:collapse;margin-top:8px;font-size:11.5px}
+.pv-tbl th{text-align:left;padding:5px 8px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:#7A9A7C;background:#EBF0E8;border-bottom:1.5px solid #C8D8C8}
+.pv-tbl td{padding:5px 8px;border-bottom:1px solid #C8D8C8;vertical-align:middle}
+.pv-tbl tr{break-inside:avoid;page-break-inside:avoid}
+.pv-sw{display:inline-block;width:16px;height:16px;border-radius:3px;border:1px solid #C8D8C8;vertical-align:middle;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.pv-obs{margin-top:12px;font-size:12px;color:#3D5A3E;border-top:1px dashed #C8D8C8;padding-top:8px;white-space:pre-wrap}
+@media print{
+  html,body{background:#fff!important;margin:0;padding:0}
+  #app,#login-screen,.ld-overlay,.toast-stack,.mo,.lightbox{display:none!important}
+  #printArea{display:block}
+  @page{size:A4;margin:12mm}
+}
+
+/* ── QUALIDADE: cadastro ── */
+[hidden]{display:none!important}   /* .btn/.ac definem display e fariam o atributo hidden perder */
+.seg-btn{gap:6px}
+.fgrid .span2{grid-column:1/-1}
+.cad-grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:14px;align-items:start}
+.hint{margin-top:8px;line-height:1.5}
+.hint.err{color:var(--red);font-weight:600}
+.hint.ok{color:var(--green);font-weight:600}
+.ped-ex{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}
+.ped-ex .muted{margin-right:4px}
+.op-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;border:1.5px solid var(--border);background:var(--bg);border-radius:var(--radius-sm);padding:8px 10px;margin-top:8px}
+.op-num{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--navy);overflow-wrap:anywhere}
+.op-num small{display:block;font-family:'Source Sans 3',sans-serif;font-weight:400;font-size:11px;color:var(--ink3)}
+.op-empty{font-size:12.5px;color:var(--ink3);border:1.5px dashed var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center;margin-top:8px}
+.op-rm{width:28px;height:28px;border-radius:7px;border:none;background:transparent;color:var(--ink3);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.op-rm:hover{background:var(--red-pale);color:var(--red)}
+.seg-sm .seg-btn{flex:none;padding:5px 11px;font-size:12px}
+.seg-btn.on-ok{background:var(--green);border-color:var(--green);color:#fff}
+.seg-btn.on-bad{background:var(--red);border-color:var(--red);color:#fff}
+.seg-btn.on-ok:hover:not(:disabled),.seg-btn.on-bad:hover:not(:disabled){color:#fff}
+.rt-box{display:flex;align-items:center;gap:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:12px}
+.rt-av{width:34px;height:34px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
+.rt-nome{font-weight:700;color:var(--ink)}
+.rt-sub{font-size:11.5px;color:var(--ink3)}
+.img-pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:12px}
+.img-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink3);margin-bottom:6px}
+.tg3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(110px,100%),1fr));gap:10px}
+.tg3 .fl{margin-top:10px}
+.badge-row{margin-top:10px;min-height:22px}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px}
+.pill.ok{background:var(--green-pale);color:var(--green)}
+.pill.bad{background:var(--red-pale);color:var(--red)}
+.pill.warn{background:var(--yellow-pale);color:#8A5A06}
+.pill svg{width:12px;height:12px}
+.ap-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:8px;margin-top:8px}
+.ap-empty{font-size:12.5px;color:var(--ink3);border:1.5px dashed var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center;margin-top:8px}
+.actionbar{position:sticky;bottom:0;z-index:20;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-top:16px;box-shadow:var(--shadow)}
+.ab-btns{display:flex;gap:8px;flex-wrap:wrap}
+.hist-item{border-left:2.5px solid var(--green);padding:6px 0 6px 12px;margin-bottom:8px}
+
+/* ── relatório e detalhes ── */
+.modal.wide{max-width:820px;display:flex;flex-direction:column;overflow:hidden}
+.modal.wide .mb{flex:1;min-height:0;overflow-y:auto}
+.modal.wide .mh,.modal.wide .mf{flex-shrink:0}
+.rep-item{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:10px}
+.rep-l1{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-weight:700;color:var(--navy)}
+.rep-l2{font-size:12.5px;color:var(--ink2);margin-top:3px;overflow-wrap:anywhere}
+.rep-l2 b{color:var(--ink)}
+.det-imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(170px,100%),1fr));gap:10px;margin-top:6px}
+.det-img{border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:6px;background:var(--bg);min-width:0}
+.det-img img{width:100%;height:120px;object-fit:contain;background:#fff;display:block;cursor:zoom-in;border-radius:4px}
+.det-img .img-lbl{margin:0 0 4px}
+.det-img .vazio{height:120px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink3)}
+.det-h{font-family:'Source Serif 4',serif;font-size:14px;font-weight:700;color:var(--navy);margin:16px 0 8px}
+.det-kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr));gap:10px}
+.det-kv>div{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;min-width:0}
+.det-kv .k{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink3)}
+.det-kv .v{font-size:13px;font-weight:600;overflow-wrap:anywhere}
+.tag{white-space:nowrap}
+
+/* ── documento impresso (mesmo padrão .pv da ficha técnica) ── */
+.pv-doc{page-break-after:always}
+.pv-doc:last-child{page-break-after:auto}
+.pv-status{border-radius:8px;padding:9px 14px;font-weight:800;font-size:13px;letter-spacing:0.4px;margin-bottom:12px;text-align:center;border:1.5px solid;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.pv-status.aprovado{background:#E4F3E7;color:#1F6B2D;border-color:#9FD0A9}
+.pv-status.reprovado{background:#FBE7E4;color:#A02A20;border-color:#EAB0A9}
+.pv-status.pendente{background:#FBF3E0;color:#8A5A06;border-color:#EBD9A6}
+.pv-kv{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px}
+.pv-kv div{border:1.5px solid #C8D8C8;border-radius:6px;padding:6px 9px}
+.pv-kv b{display:block;font-size:9px;text-transform:uppercase;letter-spacing:0.6px;color:#7A9A7C;margin-bottom:2px}
+.pv-imgs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pv-imgbox{border:1.5px solid #C8D8C8;border-radius:8px;padding:8px;break-inside:avoid;page-break-inside:avoid}
+.pv-imgbox .lb{font-size:10px;font-weight:700;text-transform:uppercase;color:#7A9A7C;margin-bottom:5px}
+.pv-imgbox img{width:100%;height:190px;object-fit:contain;background:#fff;display:block}
+.pv-imgbox .vazio{height:190px;display:flex;align-items:center;justify-content:center;color:#9AAF9B;font-size:11px}
+.pv-foot{margin-top:14px;font-size:10px;color:#7A9A7C;text-align:center;border-top:1px solid #C8D8C8;padding-top:6px}
+/* ── MOBILE ── */
+@media(max-width:640px){
+  nav{padding:0 8px}.nb span,.ni-btn span{display:none}
+  .nav-un,.nav-ur{display:none}
+  .ph{flex-wrap:wrap;padding:12px 14px 10px;gap:8px}
+  .ph h2{font-size:16px}
+  .ph-actions{width:100%;justify-content:flex-start}
+  .ph .btn{font-size:12px;padding:7px 10px}
+  .pb{padding:12px}
+  .login-card{padding:30px 22px}
+  .sw .sc{flex:1 1 100%}.ref-input{width:100%}.ref-status{margin-left:0}
+  .mo{padding:0;align-items:flex-end}
+  .modal{max-width:100%;width:100%;border-radius:16px 16px 0 0;max-height:94vh}
+  .mh{padding:14px 16px;border-radius:16px 16px 0 0}
+  .mh h3{font-size:14px}
+  .mb{padding:14px 16px}
+  .mf{padding:10px 16px;flex-wrap:wrap}
+  .mf .btn{flex:1;min-width:100px;justify-content:center}
+  .toast-stack{left:12px;right:12px;max-width:none}
+}
+
+
+@media(max-width:900px){ .cad-grid{grid-template-columns:minmax(0,1fr)} }
+@media(max-width:640px){
+  .tab{padding:9px 12px}
+  .op-row{grid-template-columns:minmax(0,1fr) auto}
+  .op-row .seg{grid-column:1/-1;order:3}
+  .ap-row{grid-template-columns:minmax(0,1fr) auto}
+  .ap-row select:nth-of-type(2){grid-column:1/2}
+  .ab-btns{width:100%}.ab-btns .btn{flex:1 1 auto;justify-content:center}
+  .modal.wide .mf{flex-wrap:wrap}.modal.wide .mf .btn{flex:1 1 auto}
+}
+
+/* ── DARK: TEXTO NAVY ── */
+body{--navy-text:var(--navy)}
+body.dark{--navy-text:#8DB8EA}
+body.dark .lg-logo h1,
+body.dark .ph h2,
+body.dark .t-type,
+body.dark .at-toolbar h3,
+body.dark .ac-title,
+body.dark .ac-title::placeholder,
+body.dark .seg-btn:hover:not(:disabled),
+body.dark .hist-campo,
+body.dark .recent-ref,
+body.dark .tab:hover,
+body.dark .tab.active,
+body.dark .ac-name,
+body.dark .tbl .cell-mono,
+body.dark .res-ref,
+body.dark .op-num,
+body.dark .rep-l1,
+body.dark .det-h{color:var(--navy-text)}
+
+</style>
+</head>
+<body>
+
+<div class="ld-overlay" id="ld"><div class="ld-box"><div class="spinner"></div><p id="ld-msg">Carregando...</p></div></div>
+<div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+
+<!-- LOGIN (mesmo login do SGE: tabela usuarios, sessão em localStorage) -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="lg-logo">
+      <div class="lg-logo-mark"><img src="icon-192.png" alt="SGE"></div>
+      <h1>SGE</h1><p>Sistema de Gestão de Estampa</p>
+    </div>
+    <div id="lg-err" class="msg-err" role="alert"></div>
+    <div class="lg-fields">
+      <div class="lg-field">
+        <label class="lg-label" for="lg-user">Usuário</label>
+        <input type="text" class="lg-input" id="lg-user" placeholder="Digite seu usuário" autocomplete="username">
+      </div>
+      <div class="lg-field">
+        <label class="lg-label" for="lg-pass">Senha</label>
+        <input type="password" class="lg-input" id="lg-pass" placeholder="Digite sua senha" autocomplete="current-password">
+      </div>
+      <button class="login-btn" id="lg-btn" type="button"></button>
+    </div>
+    <div class="lg-footer">by Reginaldo F - SGE v3.0</div>
+  </div>
+</div>
+
+<div id="app">
+  <nav>
+    <a class="nav-logo" href="index.html" aria-label="Voltar ao início do SGE">
+      <div class="nav-logo-mark"><img src="icon-192.png" alt="SGE" style="width:100%;height:100%;object-fit:contain"></div>
+    </a>
+    <a class="nb" href="index.html" id="nb-home"></a>
+    <a class="nb" href="01_Artes.html" id="nb-artes"></a>
+    <a class="nb" href="02_Estamparia.html" id="nb-est"></a>
+    <a class="nb" href="03_Laboratorio.html" id="nb-lab"></a>
+    <button class="nb active" type="button" id="nb-qual"></button>
+    <div class="nav-spacer"></div>
+    <div class="nav-user">
+      <div class="nav-av" id="nav-av">A</div>
+      <div><div class="nav-un" id="nav-un">—</div><div class="nav-ur" id="nav-ur">—</div></div>
+    </div>
+    <span id="conn-dot" title="Conectado"></span>
+    <button class="ni-btn" id="btn-dark" type="button" title="Alternar modo escuro" aria-label="Alternar modo escuro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dark-icon"></svg></button>
+    <button class="ni-btn" id="btn-logout" type="button" title="Sair"></button>
+  </nav>
+
+  <main class="page">
+    <div class="ph">
+      <div class="ph-icon ic-g" id="ph-icon"></div>
+      <div class="ph-title">
+        <h2>Qualidade</h2>
+        <div class="ph-sub">Registro de testes por pedido: OPs, fotos da peça produzida, fricção, lavagem e aplicações</div>
+      </div>
+    </div>
+
+    <div class="pb">
+      <div class="ro-banner" id="roBanner" role="status">Modo somente leitura — você pode buscar, ver e imprimir cadastros. Para registrar testes, peça ao Administrador a permissão de Qualidade.</div>
+
+      <div class="tabs" role="tablist" aria-label="Seções da Qualidade" id="tabs"></div>
+
+      <!-- CADASTRO -->
+      <section id="aba-cadastro" class="aba" role="tabpanel" hidden>
+        <div class="cad-grid">
+          <div class="ac">
+            <div class="ac-head">
+              <div class="ac-head-main">
+                <div class="ac-name">Pedido e ordens de produção</div>
+                <div class="ac-sub">Escolha o pedido da Estamparia: a referência, as OPs e as imagens de amostra vêm sozinhas.</div>
+              </div>
+            </div>
+            <div class="fgrid">
+              <div class="fl"><label for="fPedido">Pedido</label><input class="form-input mono" type="text" id="fPedido" list="dlPedidos" placeholder="Ex: PD-1234" autocomplete="off"></div>
+              <div class="fl"><label for="fRef">Referência</label><input class="form-input mono" type="text" id="fRef" readonly placeholder="Vem do pedido"></div>
+              <div class="fl span2"><label for="fSolicitante">Solicitante e setor</label><input class="form-input" type="text" id="fSolicitante" placeholder="Ex: Maria Silva — Qualidade"></div>
+            </div>
+            <datalist id="dlPedidos"></datalist>
+            <div class="muted hint" id="pedHint">Digite ou escolha o número do pedido.</div>
+            <div id="pedExistentes"></div>
+            <div class="st-title" style="margin-top:16px">Ordens de produção</div>
+            <div id="opList"></div>
+          </div>
+
+          <div class="ac">
+            <div class="st-title">Responsável técnico</div>
+            <div class="rt-box" id="rtBox"></div>
+            <div class="fl">
+              <label for="fDataHora">Data e hora do cadastro</label>
+              <input class="form-input" type="datetime-local" id="fDataHora">
+            </div>
+            <div class="st-title" style="margin-top:16px">Aprovação geral</div>
+            <div class="seg" id="segGeral" role="group" aria-label="Aprovação geral do cadastro">
+              <button type="button" class="seg-btn" id="btnGeralOk"></button>
+              <button type="button" class="seg-btn" id="btnGeralBad"></button>
+            </div>
+            <div class="muted" id="geralHint" style="margin-top:8px"></div>
+            <div id="statusFinal" style="margin-top:10px"></div>
+          </div>
+        </div>
+
+        <div class="at-toolbar" style="margin-top:20px"><div><h3>Fotos da peça produzida</h3><p>A amostra de referência vem da ficha de Artes. Anexe a foto da peça que saiu da produção.</p></div></div>
+        <div class="cards-row" id="cardsImagens"></div>
+
+        <div class="at-toolbar" style="margin-top:20px"><div><h3>Testes</h3></div></div>
+        <div class="cards-row">
+          <div class="ac">
+            <div class="ac-name">Teste de fricção</div>
+            <div class="ac-sub">Escala de cinza: 1 (ruim) a 5 (bom)</div>
+            <div class="tg3">
+              <div class="fl"><label for="tFricSeco">Grau seco</label><select class="form-input" id="tFricSeco"><option value="">—</option><option value="1">1 — Ruim</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5 — Bom</option></select></div>
+              <div class="fl"><label for="tFricMolhado">Grau molhado</label><select class="form-input" id="tFricMolhado"><option value="">—</option><option value="1">1 — Ruim</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5 — Bom</option></select></div>
+              <div class="fl"><label for="tFricAval">Avaliação</label><select class="form-input" id="tFricAval"><option value="">—</option><option value="Bom">Bom</option><option value="Regular">Regular</option><option value="Ruim">Ruim</option></select></div>
+            </div>
+            <div id="tFricBadge" class="badge-row"></div>
+          </div>
+          <div class="ac">
+            <div class="ac-name">Teste de lavagem</div>
+            <div class="ac-sub">Até 25 lavagens</div>
+            <div class="tg3">
+              <div class="fl"><label for="tLavDefeito">Defeito em</label><input class="form-input mono" id="tLavDefeito" placeholder="3x"></div>
+              <div class="fl"><label for="tLavAprovado">Aprovado até</label><input class="form-input mono" id="tLavAprovado" placeholder="10x"></div>
+              <div class="fl"><label for="tLavAval">Avaliação</label><select class="form-input" id="tLavAval"><option value="">—</option><option value="Aprovado">Aprovado</option><option value="Reprovado">Reprovado</option></select></div>
+            </div>
+            <div id="tLavBadge" class="badge-row"></div>
+          </div>
+          <div class="ac">
+            <div class="ac-head">
+              <div class="ac-head-main"><div class="ac-name">Aplicações de estampa</div><div class="ac-sub">Avaliação por técnica</div></div>
+              <button type="button" class="btn btn-ghost btn-sm" id="btnApFicha" hidden></button>
+            </div>
+            <div id="apRows"></div>
+            <button type="button" class="btn btn-ghost btn-sm" id="btnApAdd" style="margin-top:8px"></button>
+          </div>
+        </div>
+
+        <div class="ac" style="margin-top:14px">
+          <div class="fl" style="margin-top:0"><label for="fObs">Observações</label>
+            <textarea class="form-input" id="fObs" rows="3" placeholder="Defeitos pontuais, condições de teste, recomendações etc."></textarea></div>
+        </div>
+
+        <div class="ac ac-block" id="histCard" hidden>
+          <div class="st-title">Histórico de alterações</div>
+          <div id="histBody"></div>
+        </div>
+
+        <div class="actionbar" id="actionBar">
+          <span class="ab-chip" id="abChip"></span>
+          <div class="ab-btns">
+            <button type="button" class="btn btn-ghost" id="btnLimpar"></button>
+            <button type="button" class="btn btn-ghost" id="btnImprimir"></button>
+            <button type="button" class="btn btn-primary" id="btnSalvar"></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- BUSCA -->
+      <section id="aba-busca" class="aba" role="tabpanel" hidden>
+        <div class="ac">
+          <div class="st-title">Filtros</div>
+          <form id="formBusca">
+            <div class="fgrid">
+              <div class="fl"><label for="sRef">Referência</label><input class="form-input mono" id="sRef"></div>
+              <div class="fl"><label for="sPedido">Pedido</label><input class="form-input mono" id="sPedido"></div>
+              <div class="fl"><label for="sOp">OP</label><input class="form-input mono" id="sOp"></div>
+              <div class="fl"><label for="sStatus">Status</label><select class="form-input" id="sStatus"><option value="">Todos</option><option value="aprovado">Aprovado</option><option value="reprovado">Reprovado</option><option value="pendente">Pendente</option></select></div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-navy" id="btnBuscar"></button>
+              <button type="button" class="btn btn-ghost" id="btnLimparBusca">Limpar filtros</button>
+            </div>
+          </form>
+        </div>
+        <div class="at-toolbar" style="margin-top:20px"><div><h3>Cadastros <span class="muted" id="buscaContagem"></span></h3></div></div>
+        <div class="ac flush"><div class="tw"><table class="tbl">
+          <thead><tr><th>Referência</th><th>Pedido</th><th>OPs</th><th>Responsável</th><th>Status</th><th>Data</th><th></th></tr></thead>
+          <tbody id="tbBusca"></tbody>
+        </table></div></div>
+      </section>
+
+      <!-- RELATÓRIOS -->
+      <section id="aba-relatorios" class="aba" role="tabpanel" hidden>
+        <div class="ac">
+          <div class="st-title">Gerar relatório</div>
+          <form id="formRel">
+            <div class="fgrid">
+              <div class="fl"><label for="repTipo">Tipo</label><select class="form-input" id="repTipo"><option value="aprovados-periodo">Aprovados por período</option><option value="reprovados-op">Reprovados por OP</option><option value="todos-periodo">Todos os cadastros por período</option></select></div>
+              <div class="fl"><label for="repDe">De</label><input class="form-input" type="date" id="repDe"></div>
+              <div class="fl"><label for="repAte">Até</label><input class="form-input" type="date" id="repAte"></div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-navy" id="btnGerarRel"></button>
+              <button type="button" class="btn btn-ghost" id="btnImprimirRel"></button>
+            </div>
+          </form>
+        </div>
+        <div class="at-toolbar" style="margin-top:20px"><div><h3 id="repTitulo">Relatório</h3><p id="repSub">Escolha o tipo e o período e clique em Gerar.</p></div></div>
+        <div id="repBody"></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL DE DETALHES DO CADASTRO -->
+<div class="mo" id="m-detalhe">
+  <div class="modal wide" role="dialog" aria-modal="true" aria-labelledby="det-title">
+    <div class="mh">
+      <h3 id="det-title">Cadastro de qualidade</h3>
+      <button class="mc" type="button" id="detClose" aria-label="Fechar"></button>
+    </div>
+    <div class="mb" id="detBody"></div>
+    <div class="mf">
+      <button class="btn btn-ghost" id="detImprimir" type="button"></button>
+      <button class="btn btn-ghost" id="detEditar" type="button"></button>
+      <button class="btn btn-primary" id="detFechar" type="button">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Imagem ampliada">
+  <button class="lb-close" id="lbClose" type="button" aria-label="Fechar"></button>
+  <div class="lb-stage" id="lbStage"><img id="lbImg" src="" alt="Imagem ampliada"></div>
+  <div class="lb-bar">
+    <button id="lbOut" type="button" aria-label="Diminuir zoom"></button>
+    <button id="lbReset" type="button" aria-label="Restaurar zoom"></button>
+    <button id="lbIn" type="button" aria-label="Aumentar zoom"></button>
+    <span class="lb-hint">Roda do mouse para ampliar · arraste para mover</span>
+  </div>
+</div>
+
+<!-- IMPRESSÃO -->
+<div id="printArea"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ═══════════════════════════════════════
+   CONFIGURAÇÃO (mesmo projeto Supabase do SGE)
+═══════════════════════════════════════ */
+const SB_URL = 'https://pihxaodqwtrndsyskxte.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpaHhhb2Rxd3RybmRzeXNreHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2OTMyODAsImV4cCI6MjA5NjI2OTI4MH0.C-q6EsQzBv9FR_ueIp4_lRkJlcHEdSRt71MwDXmoJwI';
+const BUCKET = 'estampas-imagens';
+const COR_PADRAO = '#CCCCCC';
+
+let SB = null;
+let CU = null;
+
+/* ═══════════════════════════════════════
+   UTILITÁRIOS
+═══════════════════════════════════════ */
+const $ = (s, root) => (root || document).querySelector(s);
+const uid = () => 'id' + Math.random().toString(36).slice(2, 10);
+const nowIso = () => new Date().toISOString();
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function fmtDataHora(iso){
+  if (!iso) return '';
+  const d = new Date(iso); if (isNaN(d)) return '';
+  return d.toLocaleString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'});
+}
+function errMsg(e){
+  const m = (e && (e.message || e.error_description)) || String(e || '');
+  if (/failed to fetch|networkerror|load failed/i.test(m)) return 'sem conexão com o servidor.';
+  return m;
+}
+function hp(p){ let h=0; for(let i=0;i<p.length;i++){h=((h<<5)-h)+p.charCodeAt(i);h|=0} return h.toString(36); }
+
+const ICONS = {
+  plus:'<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+  trash:'<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>',
+  zoomIn:'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>',
+  zoomOut:'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/>',
+  search:'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+  printer:'<polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
+  save:'<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>',
+  home:'<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+  upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
+  clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  x:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+  refresh:'<polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>',
+  pen:'<path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/>',
+  check:'<polyline points="20 6 9 17 4 12"/>',
+  alert:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',
+  login:'<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>',
+  logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
+  sun:'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>',
+  moon:'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+  flask:'<path d="M9 3h6"/><path d="M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2.2h12.4a1.5 1.5 0 0 0 1.3-2.2L14 9V3"/><path d="M7.5 15h9"/>',
+  clipboard:'<path d="M9 3h6a1 1 0 0 1 1 1v2H8V4a1 1 0 0 1 1-1z"/><path d="M8 5H6a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><path d="m9 14 2 2 4-4"/>',
+  reset:'<path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 3 3 9 9 9"/>'
+};
+function ic(name, size, extra){
+  return `<svg viewBox="0 0 24 24" width="${size||13}" height="${size||13}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra||''}>${ICONS[name]||''}</svg>`;
+}
+function withIcon(name, label, size){ return ic(name, size) + (label ? ' ' + esc(label) : ''); }
+
+function ld(msg){ $('#ld-msg').textContent = msg || 'Carregando...'; $('#ld').classList.add('show'); }
+function uld(){ $('#ld').classList.remove('show'); }
+
+function showToast(msg, tipo){
+  const err = tipo === 'err';
+  const el = document.createElement('div');
+  el.className = 'toast' + (err ? ' err' : '');
+  el.setAttribute('role', err ? 'alert' : 'status');
+  el.innerHTML = `<div class="toast-icon">${ic(err ? 'alert' : 'check', 15)}</div><div class="toast-body"><div class="toast-title">${err ? 'Atenção' : 'Artes'}</div><div class="toast-msg">${esc(msg)}</div></div>`;
+  const fechar = () => { el.classList.add('toast-out'); setTimeout(() => el.remove(), 260); };
+  el.addEventListener('click', fechar);
+  $('#toast-stack').appendChild(el);
+  setTimeout(fechar, err ? 6000 : 3200);
+}
+
+/* ═══════════════════════════════════════
+   MODO ESCURO / PWA / CONEXÃO (mesmas chaves do app)
+═══════════════════════════════════════ */
+function aplicarIconeTema(){
+  $('#dark-icon').innerHTML = document.body.classList.contains('dark') ? ICONS.moon : ICONS.sun;
+}
+function toggleDarkMode(){
+  const dark = document.body.classList.toggle('dark');
+  localStorage.setItem('stampos_dark', dark ? '1' : '0');
+  aplicarIconeTema();
+}
+function applyStoredDarkMode(){
+  document.body.classList.toggle('dark', localStorage.getItem('stampos_dark') === '1');
+  aplicarIconeTema();
+}
+function registerServiceWorker(){
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(err => console.warn('Service Worker não registrado:', err));
+}
+function offlineCacheSet(key, data){
+  try { localStorage.setItem('sge_cache_' + key, JSON.stringify({ data, savedAt: Date.now() })); }
+  catch(e) { console.warn('Não foi possível salvar cache offline:', e); }
+}
+function offlineCacheGet(key){
+  try { const raw = localStorage.getItem('sge_cache_' + key); return raw ? JSON.parse(raw) : null; }
+  catch(e) { return null; }
+}
+function showOfflineBanner(savedAt){
+  let b = $('#offline-banner');
+  if (!b) {
+    b = document.createElement('div');
+    b.id = 'offline-banner';
+    b.style.cssText = 'position:sticky;top:56px;z-index:50;background:#C07A00;color:#fff;text-align:center;padding:7px 14px;font-size:12px;font-weight:700';
+    $('#app').insertBefore(b, $('main.page'));
+  }
+  b.textContent = 'Sem conexão — mostrando dados salvos em ' + (savedAt ? new Date(savedAt).toLocaleString('pt-BR') : '—') + '. Salvar fica indisponível até a conexão voltar.';
+}
+function hideOfflineBanner(){ const b = $('#offline-banner'); if (b) b.remove(); }
+function updateConnectionIndicator(){
+  const dot = $('#conn-dot'); if (!dot) return;
+  dot.style.background = navigator.onLine ? '#2D7A3A' : '#C0392B';
+  dot.title = navigator.onLine ? 'Conectado' : 'Sem conexão';
+  if (navigator.onLine) hideOfflineBanner();
+}
+
+/* ═══════════════════════════════════════
+   LOGIN, SESSÃO E PERMISSÕES (padrão do SGE)
+═══════════════════════════════════════ */
+const isAdm = () => !!CU && CU.role === 'admin';
+
+function showLogin(){
+  $('#login-screen').style.display = 'flex';
+  $('#app').style.display = 'none';
+}
+
+let currentSessionToken = null;
+let sessaoHeartbeat = null;
+
+function getDeviceInfo(){
+  const ua = navigator.userAgent;
+  let dispositivo = 'Computador';
+  if (/iPad|Tablet/i.test(ua)) dispositivo = 'Tablet';
+  else if (/Mobi|Android|iPhone/i.test(ua)) dispositivo = 'Celular';
+  let navegador = 'Navegador';
+  if (ua.includes('Edg/')) navegador = 'Edge';
+  else if (ua.includes('Firefox/')) navegador = 'Firefox';
+  else if (ua.includes('Chrome/')) navegador = 'Chrome';
+  else if (ua.includes('Safari/')) navegador = 'Safari';
+  return { dispositivo, navegador };
+}
+async function criarSessaoAcesso(){
+  if (!CU) return;
+  const { dispositivo, navegador } = getDeviceInfo();
+  try {
+    const { data } = await SB.from('sessoes_acesso').insert({ usuario_id: CU.id, usuario_nome: CU.nome, dispositivo, navegador }).select().single();
+    if (data) {
+      currentSessionToken = data.id;
+      localStorage.setItem('stampos_session_token', currentSessionToken);
+      iniciarHeartbeatSessao();
+    }
+  } catch(e) { console.warn('Falha ao registrar sessão de acesso:', e); }
+}
+function iniciarHeartbeatSessao(){
+  if (sessaoHeartbeat) clearInterval(sessaoHeartbeat);
+  sessaoHeartbeat = setInterval(async () => {
+    if (!currentSessionToken) return;
+    try {
+      const { data } = await SB.from('sessoes_acesso').select('ativa').eq('id', currentSessionToken).maybeSingle();
+      if (data && data.ativa === false) {
+        clearInterval(sessaoHeartbeat);
+        alert('Sua sessão foi encerrada remotamente por um Administrador. Você precisa entrar novamente.');
+        localStorage.removeItem('stampos_session');
+        localStorage.removeItem('stampos_session_token');
+        location.reload();
+        return;
+      }
+      await SB.from('sessoes_acesso').update({ ultima_atividade: nowIso() }).eq('id', currentSessionToken);
+    } catch(e) { /* falha momentânea de rede — tenta no próximo ciclo */ }
+  }, 60000);
+}
+// Retorna false se a sessão foi encerrada remotamente por um Admin
+async function verificarOuCriarSessaoNaRestauracao(){
+  const token = localStorage.getItem('stampos_session_token');
+  if (!token) { await criarSessaoAcesso(); return true; }
+  try {
+    const { data } = await SB.from('sessoes_acesso').select('ativa').eq('id', token).maybeSingle();
+    if (!data) { await criarSessaoAcesso(); return true; }
+    if (data.ativa === false) return false;
+    currentSessionToken = token;
+    iniciarHeartbeatSessao();
+    SB.from('sessoes_acesso').update({ ultima_atividade: nowIso() }).eq('id', token).then(() => {}, () => {});
+    return true;
+  } catch(e) { currentSessionToken = token; return true; }
+}
+
+
+async function doLogin(){
+  const u = $('#lg-user').value.trim().toLowerCase();
+  const p = $('#lg-pass').value;
+  const err = $('#lg-err'), btn = $('#lg-btn');
+  err.style.display = 'none';
+  if (!u || !p) { err.textContent = 'Preencha usuário e senha.'; err.style.display = 'block'; return; }
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="width:15px;height:15px;margin:0;border-width:2px"></div>';
+  try {
+    const { data, error } = await SB.from('usuarios').select('*').eq('username', u).eq('pass_hash', hp(p)).single();
+    if (error || !data) throw new Error('Usuário ou senha incorretos.');
+    CU = data;
+    localStorage.setItem('stampos_session', CU.id);
+    offlineCacheSet('cu', CU);
+    $('#lg-pass').value = '';
+    entrarNoApp();
+    criarSessaoAcesso();
+  } catch(e) {
+    err.textContent = e.message; err.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = withIcon('login', 'Entrar', 14);
+  }
+}
+function doLogout(){
+  if (sessaoHeartbeat) { clearInterval(sessaoHeartbeat); sessaoHeartbeat = null; }
+  if (currentSessionToken) {
+    SB.from('sessoes_acesso').update({ ativa: false, encerrada_em: nowIso() }).eq('id', currentSessionToken).then(() => {}, () => {});
+  }
+  localStorage.removeItem('stampos_session_token');
+  localStorage.removeItem('stampos_session');
+  currentSessionToken = null;
+  CU = null;
+  showLogin();
+}
+
+function entrarComPerfilEmCache(savedId){
+  const cached = offlineCacheGet('cu');
+  if (cached && cached.data && cached.data.id === savedId) {
+    CU = cached.data;
+    entrarNoApp();
+    showOfflineBanner(cached.savedAt);
+    return true;
+  }
+  return false;
+}
+async function tryRestoreSession(){
+  const savedId = localStorage.getItem('stampos_session');
+  if (!savedId) { showLogin(); return; }
+  ld('Restaurando sessão...');
+  try {
+    const { data, error } = await SB.from('usuarios').select('*').eq('id', savedId).single();
+    uld();
+    if (error) {
+      if (!navigator.onLine && entrarComPerfilEmCache(savedId)) return;
+      localStorage.removeItem('stampos_session'); showLogin(); return;
+    }
+    if (!data) { localStorage.removeItem('stampos_session'); showLogin(); return; }
+    CU = data;
+    offlineCacheSet('cu', CU);
+    const sessaoOk = await verificarOuCriarSessaoNaRestauracao();
+    if (!sessaoOk) {
+      alert('Sua sessão foi encerrada remotamente por um Administrador. Faça login novamente.');
+      localStorage.removeItem('stampos_session');
+      localStorage.removeItem('stampos_session_token');
+      CU = null; showLogin(); return;
+    }
+    entrarNoApp();
+  } catch(e) {
+    uld();
+    if (!navigator.onLine && entrarComPerfilEmCache(savedId)) return;
+    localStorage.removeItem('stampos_session');
+    showLogin();
+  }
+}
+
+
+
+/* ═══════════════════════════════════════
+   PERMISSÕES, CONSTANTES E UTILITÁRIOS
+═══════════════════════════════════════ */
+// Admin, ou Visualizador com a permissão "Qualidade" (coluna usuarios.perm_qualidade).
+const canEdit = () => !!CU && (CU.role === 'admin' || CU.perm_qualidade === true);
+const canDelete = () => isAdm();          // excluir cadastro: só Admin
+
+const $$ = (s, root) => [...(root || document).querySelectorAll(s)];
+const APLICACOES_QC = ['Foil', 'Floco', 'Relevo', 'Puff', 'Glitter', 'Termo', 'Aplicação', 'Bordado', 'DTF', 'Outros'];
+const STATUS = { aprovado: ['Aprovado', 't-ok'], reprovado: ['Reprovado', 't-alert'], pendente: ['Pendente', 't-pend'] };
+const statusTag = s => { const [t, c] = STATUS[s] || STATUS.pendente; return `<span class="tag ${c}">${t}</span>`; };
+const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+const normTxt = s => String(s == null ? '' : s).trim().toLowerCase();
+const pad = n => String(n).padStart(2, '0');
+const paraInputLocal = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const dataLocal = v => { const d = new Date(v); return isNaN(d) ? '' : `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };   // dia LOCAL (não UTC)
+const urlOnly = x => (typeof x === 'string' && /^https?:\/\//.test(x)) ? x : null;
+const ehLegado = x => typeof x === 'string' && x.startsWith('data:');
+const slug = s => String(s || 'sem-ref').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'sem-ref';
+function exigirOnline(){
+  if (!navigator.onLine) { showToast('Sem conexão: esta ação precisa de internet.', 'err'); return false; }
+  return true;
+}
+function msgErro(e){ return (e && e.code === '23505') ? 'já existe um registro com esses dados.' : errMsg(e); }
+
+/* ═══════════════════════════════════════
+   DADOS
+═══════════════════════════════════════ */
+// A lista NÃO traz as imagens (ficavam pesadas e vinham de todos os cadastros de uma vez)
+const COLS_LISTA = 'id, referencia, pedido_numero, solicitante, responsavel_nome, status, aprovacao_geral, ops, testes, observacoes, criado_em, atualizado_em, atualizado_por';
+function normTestes(t){
+  t = t || {};
+  return { friccao: Object.assign({ seco: '', molhado: '', avaliacao: '' }, t.friccao),
+           lavagem: Object.assign({ defeito: '', aprovado: '', avaliacao: '' }, t.lavagem),
+           aplicacoes: Array.isArray(t.aplicacoes) ? t.aplicacoes : [] };
+}
+function fromDb(r){
+  return { id: Number(r.id), referencia: r.referencia || '', pedido: r.pedido_numero || '', solicitante: r.solicitante || '', responsavel: r.responsavel_nome || '',
+           status: r.status || 'pendente', aprovacaoGeral: r.aprovacao_geral || null,
+           ops: (Array.isArray(r.ops) ? r.ops : []).map(o => ({ numero: String(o.numero == null ? '' : o.numero), quantidade: o.quantidade || 0, status: o.status || 'pendente' })),
+           testes: normTestes(r.testes), imagens: r.imagens || null, observacoes: r.observacoes || '',
+           criadoEm: r.criado_em, atualizadoEm: r.atualizado_em || null, atualizadoPor: r.atualizado_por || '' };
+}
+async function listarRegistros(){
+  const out = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await SB.from('registros_qualidade').select(COLS_LISTA).order('criado_em', { ascending: false }).range(from, from + 999);
+    if (error) throw error;
+    out.push(...(data || []));
+    if (!data || data.length < 1000) break;
+  }
+  return out.map(fromDb);
+}
+async function buscarRegistroCompleto(id){
+  const { data, error } = await SB.from('registros_qualidade').select('*').eq('id', id).maybeSingle();
+  if (error) throw error;
+  return data ? fromDb(data) : null;
+}
+let registros = [], pedidos = [];
+async function carregarRegistros(){ registros = await listarRegistros(); }
+async function carregarPedidos(){
+  const { data, error } = await SB.from('pedidos').select('numero, referencia, status_qualidade, ordens_localizada(numero, quantidade, ordem)').order('atualizado_em', { ascending: false }).limit(1000);
+  if (error) throw error;
+  pedidos = (data || []).map(r => ({ numero: r.numero, referencia: r.referencia, statusQualidade: r.status_qualidade || 'pendente', ordens: (r.ordens_localizada || []).slice().sort((a, b) => (a.ordem || 0) - (b.ordem || 0)) }));
+  $('#dlPedidos').innerHTML = pedidos.map(p => `<option value="${esc(p.numero)}">Ref. ${esc(p.referencia)}</option>`).join('');
+}
+
+// Histórico de Alterações (mesma tabela do restante do SGE)
+async function registrarHistorico(tabela, id, linhas){
+  if (!id || !linhas || !linhas.length) return;
+  try {
+    const { error } = await SB.from('historico_alteracoes').insert(linhas.map(l => ({ tabela, registro_id: id, usuario_nome: (CU && CU.nome) || 'Desconhecido', campo: l.campo, valor_anterior: l.anterior || '—', valor_novo: l.novo || '—' })));
+    if (error) console.warn('Falha ao registrar histórico:', error);
+  } catch(e) { console.warn('Falha ao registrar histórico:', e); }
+}
+function diffMapas(antes, depois){
+  return Object.keys(depois).filter(k => String(antes[k] == null ? '' : antes[k]) !== String(depois[k] == null ? '' : depois[k]))
+    .map(k => ({ campo: k, anterior: String(antes[k] == null ? '' : antes[k]), novo: String(depois[k] == null ? '' : depois[k]) }));
+}
+// Versão "plana" do cadastro, só para comparar antes/depois no histórico
+function planificar(r){
+  return {
+    'Pedido': r.pedido, 'Referência': r.referencia, 'Solicitante e setor': r.solicitante, 'Responsável técnico': r.responsavel,
+    'Status': cap(r.status), 'Aprovação geral': r.aprovacaoGeral ? cap(r.aprovacaoGeral) : 'Automática (pelas OPs)',
+    'OPs': r.ops.map(o => `${o.numero}: ${cap(o.status)}`).join('; '),
+    'Fricção — seco': r.testes.friccao.seco, 'Fricção — molhado': r.testes.friccao.molhado, 'Fricção — avaliação': r.testes.friccao.avaliacao,
+    'Lavagem — defeito em': r.testes.lavagem.defeito, 'Lavagem — aprovado até': r.testes.lavagem.aprovado, 'Lavagem — avaliação': r.testes.lavagem.avaliacao,
+    'Aplicações': r.testes.aplicacoes.map(a => `${a.tecnica || '—'}: ${a.avaliacao || '—'}`).join('; '),
+    'Observações': r.observacoes, 'Data do cadastro': fmtDataHora(r.criadoEm)
+  };
+}
+
+/* ═══════════════════════════════════════
+   ESTADO DO CADASTRO EM EDIÇÃO
+═══════════════════════════════════════ */
+function novoEstado(){
+  return { id: null, pedido: '', referencia: '', ops: [], aprovGeral: null, aplicacoes: [], apSeq: 1, cards: [], ficha: { existe: false, dados: null }, atualizadoEm: null, original: null, origFotos: {} };
+}
+let S = novoEstado();
+let baseline = '', ultimoSujo = false;
+const uploadsPendentes = () => S.cards.some(c => c._up);
+
+function statusCalculado(){
+  if (S.aprovGeral) return S.aprovGeral;
+  if (!S.ops.length) return 'pendente';
+  if (S.ops.every(o => o.status === 'aprovado')) return 'aprovado';
+  if (S.ops.some(o => o.status === 'reprovado')) return 'reprovado';
+  return 'pendente';
+}
+function testesNegativos(t){
+  const out = [];
+  if (t.friccao.avaliacao === 'Ruim') out.push('Fricção: Ruim');
+  if (t.lavagem.avaliacao === 'Reprovado') out.push('Lavagem: Reprovado');
+  t.aplicacoes.forEach(a => { if (a.avaliacao === 'Reprovado') out.push(`${a.tecnica || 'Aplicação'}: Reprovado`); });
+  return out;
+}
+function coletar(){
+  const v = id => $('#' + id).value;
+  const estampas = S.cards.filter(c => c.tipo === 'estampa').map(c => ({ estampaId: c.estampaId || null, nome: c.titulo, amostra: urlOnly(c.amostra), produzida: c.produzida || null }));
+  const tg = S.cards.find(c => c.tipo === 'tagless');
+  return {
+    id: S.id, referencia: S.referencia, pedido: S.pedido, solicitante: v('fSolicitante').trim(),
+    ops: S.ops.map(o => ({ numero: o.numero, quantidade: o.quantidade, status: o.status })),
+    responsavel: CU ? CU.nome : '', status: statusCalculado(), aprovacaoGeral: S.aprovGeral,
+    testes: { friccao: { seco: v('tFricSeco'), molhado: v('tFricMolhado'), avaliacao: v('tFricAval') },
+              lavagem: { defeito: v('tLavDefeito').trim(), aprovado: v('tLavAprovado').trim(), avaliacao: v('tLavAval') },
+              aplicacoes: S.aplicacoes.filter(a => a.tecnica || a.avaliacao).map(a => ({ tecnica: a.tecnica, avaliacao: a.avaliacao })) },
+    imagens: { estampas, taglessAmostra: tg ? urlOnly(tg.amostra) : null, taglessProd: tg ? (tg.produzida || null) : null },
+    observacoes: v('fObs').trim(), dataHora: v('fDataHora')
+  };
+}
+function assinatura(){
+  const r = coletar();
+  r.imagens.estampas.forEach(e => { if (ehLegado(e.produzida)) e.produzida = 'data:legado'; });
+  if (ehLegado(r.imagens.taglessProd)) r.imagens.taglessProd = 'data:legado';
+  delete r.responsavel;
+  return JSON.stringify(r);
+}
+const sujo = () => assinatura() !== baseline;
+function marcarLimpo(){ baseline = assinatura(); ultimoSujo = false; renderChip(); }
+function atualizarSujo(){
+  if (!CU || !canEdit()) return;
+  const s = sujo();
+  if (s !== ultimoSujo) { ultimoSujo = s; renderChip(); }
+}
+function renderChip(){
+  let h;
+  if (ultimoSujo && canEdit()) h = `<span class="tag t-pend">${ic('alert')} Alterações não salvas</span>`;
+  else if (S.id) h = `<span class="tag t-ok">${ic('check')} Cadastro #${S.id}${S.atualizadoEm ? ' · salvo em ' + esc(fmtDataHora(S.atualizadoEm)) : ''}</span>`;
+  else h = `<span class="tag t-pend">Novo cadastro · ainda não salvo</span>`;
+  $('#abChip').innerHTML = h;
+}
+
+/* ═══════════════════════════════════════
+   ABAS
+═══════════════════════════════════════ */
+let abaAtual = 'cadastro';
+function montarAbas(){
+  const abas = (canEdit() ? [['cadastro', 'Cadastro']] : []).concat([['busca', 'Busca'], ['relatorios', 'Relatórios']]);
+  $('#tabs').innerHTML = abas.map(([id, rot]) => `<button type="button" class="tab" role="tab" id="tab-${id}" aria-controls="aba-${id}" data-aba="${id}">${esc(rot)}</button>`).join('');
+}
+function mostrarAba(id){
+  if (id === 'cadastro' && !canEdit()) id = 'busca';
+  abaAtual = id;
+  $$('#tabs .tab').forEach(t => { const on = t.dataset.aba === id; t.classList.toggle('active', on); t.setAttribute('aria-selected', on); t.tabIndex = on ? 0 : -1; });
+  $$('.aba').forEach(s => { s.hidden = s.id !== 'aba-' + id; });
+  if (id === 'busca') carregarRegistros().then(runSearch).catch(e => console.warn('Não foi possível atualizar a lista:', e));
+}
+
+/* ═══════════════════════════════════════
+   PEDIDO → OPs (Estamparia) e referência → ficha (Artes)
+═══════════════════════════════════════ */
+let pedSeq = 0, pedTimer = null;
+const temTrabalho = () => S.ops.some(o => o.status !== 'pendente') || S.cards.some(c => c.produzida);
+function setHint(txt, tipo){ const h = $('#pedHint'); h.textContent = txt; h.className = 'muted hint' + (tipo ? ' ' + tipo : ''); }
+function onPedidoInput(){ clearTimeout(pedTimer); pedTimer = setTimeout(resolverPedido, 300); }
+function resolverPedido(){
+  if (S.id) return;                                            // cadastro salvo: o pedido não muda
+  const val = $('#fPedido').value.trim();
+  if (!val) { setHint('Digite ou escolha o número do pedido.'); return; }
+  const p = pedidos.find(x => normTxt(x.numero) === normTxt(val));
+  if (!p) { setHint(`Pedido "${val}" não encontrado na Estamparia. Escolha um número da lista.`, 'err'); return; }
+  if (normTxt(S.pedido) === normTxt(p.numero)) return;
+  if (S.pedido && temTrabalho() && !confirm('Trocar o pedido descarta as OPs e as fotos deste cadastro. Continuar?')) { $('#fPedido').value = S.pedido; return; }
+  aplicarPedido(p);
+}
+function cardsGenericos(){
+  return [{ key: 'e:0', tipo: 'estampa', estampaId: null, titulo: 'Estampa Localizada', amostra: null, produzida: null },
+          { key: 'tagless', tipo: 'tagless', estampaId: null, titulo: 'Tagless Gola', amostra: null, produzida: null }];
+}
+function cardsDaFicha(d){
+  const est = (d && d.estampas) || [], cards = [];
+  est.forEach((e, i) => cards.push({ key: 'e:' + (e.id || i), tipo: 'estampa', estampaId: e.id || null, titulo: (e.name && String(e.name).trim()) || (est.length > 1 ? `Estampa Localizada ${i + 1}` : 'Estampa Localizada'), amostra: e.image || null, produzida: null }));
+  if (!cards.length) cards.push(cardsGenericos()[0]);
+  const t = d && d.tagless;
+  if (t && (t.image || (t.description && String(t.description).trim()) || (t.pantones || []).some(p => p && p.code))) cards.push({ key: 'tagless', tipo: 'tagless', estampaId: null, titulo: 'Tagless Gola', amostra: t.image || null, produzida: null });
+  return cards;
+}
+async function buscarFicha(ref){
+  const { data, error } = await SB.from('fichas').select('dados').eq('referencia', ref).maybeSingle();
+  if (error) throw error;
+  return data ? data.dados : null;
+}
+async function aplicarPedido(p){
+  const seq = ++pedSeq;
+  S.pedido = p.numero; S.referencia = p.referencia; $('#fRef').value = p.referencia;
+  S.ops = p.ordens.filter(o => o.numero).map(o => ({ numero: String(o.numero), quantidade: Number(o.quantidade) || 0, status: 'pendente' }));
+  S.cards = cardsGenericos(); S.ficha = { existe: false, dados: null };
+  setHint('Carregando a ficha de Artes...');
+  renderOps(); renderCards(); renderExistentes(); renderAplicFicha(); renderStatus();
+  let msg = '', tipo = '';
+  try {
+    const dados = await buscarFicha(p.referencia);
+    if (seq !== pedSeq) return;
+    if (dados) { S.ficha = { existe: true, dados }; S.cards = cardsDaFicha(dados); }
+    const nOps = S.ops.length;
+    msg = `Referência ${p.referencia} · ${nOps ? nOps + ' OP(s) do pedido' : 'o pedido não tem OPs cadastradas na Estamparia'}` + (dados ? ` · ${S.cards.filter(c => c.tipo === 'estampa').length} estampa(s) na ficha de Artes.` : '. Não existe ficha de Artes para esta referência: você ainda pode anexar a foto da peça produzida.');
+    tipo = nOps && dados ? 'ok' : '';
+  } catch(e) {
+    if (seq !== pedSeq) return;
+    msg = 'Pedido carregado, mas não foi possível consultar a ficha de Artes agora.'; tipo = 'err';
+  }
+  setHint(msg, tipo);
+  renderCards(); renderAplicFicha(); renderOps(); atualizarSujo();
+}
+function renderExistentes(){
+  const box = $('#pedExistentes');
+  const lista = S.pedido && !S.id ? registros.filter(r => normTxt(r.pedido) === normTxt(S.pedido)) : [];
+  if (!lista.length) { box.innerHTML = ''; return; }
+  box.innerHTML = `<div class="ped-ex"><span class="muted">Este pedido já tem ${lista.length} cadastro(s):</span>${lista.slice(0, 4).map(r => `<button type="button" class="btn btn-ghost btn-sm" data-abrir="${r.id}">#${r.id} · ${STATUS[r.status] ? STATUS[r.status][0] : 'Pendente'} · ${esc(dataLocal(r.criadoEm).split('-').reverse().join('/'))}</button>`).join('')}</div>`;
+}
+
+/* ═══════════════════════════════════════
+   OPs, APROVAÇÃO GERAL, STATUS
+═══════════════════════════════════════ */
+function opsFaltantes(){
+  const p = pedidos.find(x => normTxt(x.numero) === normTxt(S.pedido));
+  if (!p) return [];
+  return p.ordens.filter(o => o.numero && !S.ops.some(x => x.numero === String(o.numero)));
+}
+function renderOps(){
+  const box = $('#opList');
+  if (!S.ops.length) box.innerHTML = `<div class="op-empty">${S.pedido ? 'Nenhuma OP neste cadastro.' : 'Nenhuma OP ainda. Escolha o pedido acima.'}</div>`;
+  else box.innerHTML = S.ops.map((o, i) => `<div class="op-row">
+      <span class="op-num">${esc(o.numero)}${o.quantidade ? `<small>Qtd: ${esc(o.quantidade)}</small>` : ''}</span>
+      <div class="seg seg-sm" role="group" aria-label="Resultado da OP ${esc(o.numero)}">
+        <button type="button" class="seg-btn ${o.status === 'aprovado' ? 'on-ok' : ''}" data-op="${i}" data-st="aprovado" aria-pressed="${o.status === 'aprovado'}">Aprovado</button>
+        <button type="button" class="seg-btn ${o.status === 'reprovado' ? 'on-bad' : ''}" data-op="${i}" data-st="reprovado" aria-pressed="${o.status === 'reprovado'}">Reprovado</button>
+      </div>
+      <button type="button" class="op-rm" data-oprm="${i}" aria-label="Remover OP ${esc(o.numero)}">${ic('x', 14)}</button></div>`).join('');
+  const falt = opsFaltantes();
+  if (falt.length && canEdit()) box.insertAdjacentHTML('beforeend', `<div style="margin-top:8px"><button type="button" class="btn btn-ghost btn-sm" id="btnOpsFalt">${withIcon('plus', `Adicionar ${falt.length} OP(s) do pedido que não estão aqui`)}</button></div>`);
+  renderStatus();
+}
+function cliqueOps(e){
+  const b = e.target.closest('[data-op],[data-oprm],#btnOpsFalt'); if (!b) return;
+  if (b.id === 'btnOpsFalt') { opsFaltantes().forEach(o => S.ops.push({ numero: String(o.numero), quantidade: Number(o.quantidade) || 0, status: 'pendente' })); renderOps(); atualizarSujo(); return; }
+  if (b.dataset.oprm != null && b.dataset.oprm !== '') { S.ops.splice(Number(b.dataset.oprm), 1); renderOps(); atualizarSujo(); return; }
+  const o = S.ops[Number(b.dataset.op)]; if (!o) return;
+  o.status = o.status === b.dataset.st ? 'pendente' : b.dataset.st;      // clicar de novo volta a Pendente
+  renderOps(); atualizarSujo();
+}
+function setGeral(st){ S.aprovGeral = S.aprovGeral === st ? null : st; renderStatus(); atualizarSujo(); }
+function renderStatus(){
+  $('#btnGeralOk').className = 'seg-btn' + (S.aprovGeral === 'aprovado' ? ' on-ok' : '');
+  $('#btnGeralBad').className = 'seg-btn' + (S.aprovGeral === 'reprovado' ? ' on-bad' : '');
+  $('#btnGeralOk').setAttribute('aria-pressed', S.aprovGeral === 'aprovado'); $('#btnGeralBad').setAttribute('aria-pressed', S.aprovGeral === 'reprovado');
+  $('#geralHint').textContent = S.aprovGeral ? 'Definida manualmente. Clique de novo no botão para voltar ao automático.' : 'Automática: todas as OPs aprovadas = Aprovado; alguma reprovada = Reprovado.';
+  $('#statusFinal').innerHTML = `<span class="rec-k" style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink3)">Status do cadastro</span><div style="margin-top:4px">${statusTag(statusCalculado())}</div>`;
+}
+function renderResp(){
+  const nome = CU ? CU.nome : '—';
+  $('#rtBox').innerHTML = `<span class="rt-av">${esc(nome.charAt(0).toUpperCase())}</span><div><div class="rt-nome">${esc(nome)}</div><div class="rt-sub">${S.id && S.original && S.original['Responsável técnico'] && S.original['Responsável técnico'] !== nome ? 'Registrado antes por ' + esc(S.original['Responsável técnico']) + '; ao salvar, você passa a ser o responsável.' : 'Responsável técnico deste cadastro (quem salva)'}</div></div>`;
+}
+
+/* ═══════════════════════════════════════
+   TESTES
+═══════════════════════════════════════ */
+function badgeTeste(idBadge, valor, ok, warn){
+  const box = $('#' + idBadge);
+  if (!valor) { box.innerHTML = ''; return; }
+  const cls = ok.includes(valor) ? 'ok' : (warn && warn.includes(valor) ? 'warn' : 'bad');
+  box.innerHTML = `<span class="pill ${cls}">${ic(cls === 'ok' ? 'check' : (cls === 'warn' ? 'alert' : 'x'), 12)} Avaliação: ${esc(valor)}</span>`;
+}
+function renderTestes(){
+  badgeTeste('tFricBadge', $('#tFricAval').value, ['Bom'], ['Regular']);
+  badgeTeste('tLavBadge', $('#tLavAval').value, ['Aprovado']);
+}
+function renderAp(){
+  const box = $('#apRows');
+  if (!S.aplicacoes.length) { box.innerHTML = '<div class="ap-empty">Nenhuma aplicação. Clique em "Adicionar aplicação".</div>'; return; }
+  box.innerHTML = S.aplicacoes.map(r => {
+    const tecs = r.tecnica && !APLICACOES_QC.includes(r.tecnica) ? APLICACOES_QC.concat(r.tecnica) : APLICACOES_QC;
+    return `<div class="ap-row">
+      <select class="form-input" data-ap="${r.id}" data-f="tecnica" aria-label="Técnica"><option value="">Técnica</option>${tecs.map(a => `<option value="${esc(a)}" ${r.tecnica === a ? 'selected' : ''}>${esc(a)}</option>`).join('')}</select>
+      <select class="form-input" data-ap="${r.id}" data-f="avaliacao" aria-label="Avaliação"><option value="">Avaliação</option>${['Aprovado', 'Reprovado', 'Não aplicável'].map(a => `<option value="${esc(a)}" ${r.avaliacao === a ? 'selected' : ''}>${esc(a)}</option>`).join('')}</select>
+      <button type="button" class="op-rm" data-aprm="${r.id}" aria-label="Remover aplicação">${ic('trash', 14)}</button></div>`;
+  }).join('');
+}
+function addAp(tecnica, avaliacao){ S.aplicacoes.push({ id: S.apSeq++, tecnica: tecnica || '', avaliacao: avaliacao || '' }); renderAp(); renderAplicFicha(); atualizarSujo(); }
+function aplicacoesDaFicha(){
+  const vistos = [];
+  ((S.ficha.dados && S.ficha.dados.estampas) || []).forEach(e => { const a = e && e.application; if (a && !vistos.includes(a)) vistos.push(a); });
+  return vistos.filter(a => !S.aplicacoes.some(r => r.tecnica === a));
+}
+function renderAplicFicha(){
+  const b = $('#btnApFicha'), falt = S.ficha.existe && canEdit() ? aplicacoesDaFicha() : [];
+  b.hidden = !falt.length;
+  if (falt.length) b.innerHTML = withIcon('refresh', `Trazer da ficha (${falt.join(', ')})`);
+}
+function cliqueAp(e){
+  const rm = e.target.closest('[data-aprm]');
+  if (rm) { S.aplicacoes = S.aplicacoes.filter(r => r.id !== Number(rm.dataset.aprm)); renderAp(); renderAplicFicha(); atualizarSujo(); }
+}
+function mudouAp(e){
+  const s = e.target.closest('[data-ap]'); if (!s) return;
+  const r = S.aplicacoes.find(x => x.id === Number(s.dataset.ap)); if (r) r[s.dataset.f] = s.value;
+  renderAplicFicha(); atualizarSujo();
+}
+
+/* ═══════════════════════════════════════
+   FOTOS (bucket estampas-imagens, mesma compressão do módulo Artes)
+═══════════════════════════════════════ */
+function comprimirImagem(file, maxDim, quality){
+  maxDim = maxDim || 1600; quality = quality || 0.82;
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const s = Math.min(1, maxDim / Math.max(img.naturalWidth, img.naturalHeight));
+      const w = Math.round(img.naturalWidth * s), h = Math.round(img.naturalHeight * s);
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const x = c.getContext('2d');
+      x.fillStyle = '#fff'; x.fillRect(0, 0, w, h);
+      x.drawImage(img, 0, 0, w, h);
+      c.toBlob(b => {
+        if (!b) { resolve(file); return; }
+        resolve(new File([b], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' }));
+      }, 'image/jpeg', quality);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('não foi possível ler essa imagem. Use JPG, PNG ou WebP.')); };
+    img.src = url;
+  });
+}
+async function subirFoto(file, chave){
+  const fn = `qualidade_${slug(chave)}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}.jpg`;
+  const { error } = await SB.storage.from(BUCKET).upload(fn, file, { upsert: true, contentType: file.type || 'image/jpeg' });
+  if (error) throw error;
+  return SB.storage.from(BUCKET).getPublicUrl(fn).data.publicUrl;
+}
+async function enviarFoto(card, file){
+  if (!file) return;
+  if (!/^image\//.test(file.type)) { showToast('Selecione um arquivo de imagem (JPG, PNG ou WebP).', 'err'); return; }
+  if (!exigirOnline()) return;
+  card._up = true; renderCards();
+  try { card.produzida = await subirFoto(await comprimirImagem(file), S.pedido || S.referencia); }
+  catch(e) { showToast('Não foi possível enviar a foto: ' + errMsg(e), 'err'); }
+  finally { card._up = false; renderCards(); atualizarSujo(); }
+}
+// Cadastros antigos guardavam a foto dentro do JSON (base64). Ao salvar, vai para o bucket.
+async function migrarLegado(card){
+  if (!ehLegado(card.produzida)) return;
+  try {
+    const blob = await (await fetch(card.produzida)).blob();
+    card.produzida = await subirFoto(new File([blob], 'legado.jpg', { type: blob.type || 'image/jpeg' }), S.pedido || S.referencia);
+  } catch(e) { console.warn('Foto antiga mantida no formato original:', e); }
+}
+function blocoFoto(c){
+  const wrap = document.createElement('div');
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = 'image/*'; input.hidden = true;
+  input.addEventListener('change', () => { const f = input.files[0]; input.value = ''; enviarFoto(c, f); });
+  wrap.appendChild(input);
+  if (c._up) wrap.insertAdjacentHTML('beforeend', `<div class="iu" style="cursor:default"><p class="iu-prog" role="status">⏳ Otimizando e enviando foto...</p></div>`);
+  else if (c.produzida) {
+    wrap.insertAdjacentHTML('beforeend', `<div class="img-box"><img src="${esc(c.produzida)}" alt="Peça produzida — ${esc(c.titulo)}"><button type="button" class="zoom-btn" aria-label="Ampliar foto">${ic('zoomIn', 15)}</button></div>
+      <div class="img-actions"><button type="button" class="btn btn-ghost btn-sm" data-a="trocar">${withIcon('refresh', 'Trocar')}</button><button type="button" class="btn btn-danger btn-sm" data-a="remover">${withIcon('trash', 'Remover')}</button></div>`);
+    $('.zoom-btn', wrap).addEventListener('click', () => abrirLightbox(c.produzida));
+    $('[data-a="trocar"]', wrap).addEventListener('click', () => input.click());
+    $('[data-a="remover"]', wrap).addEventListener('click', () => { c.produzida = null; renderCards(); atualizarSujo(); });
+  } else {
+    const dz = document.createElement('div');
+    dz.className = 'iu'; dz.tabIndex = 0; dz.setAttribute('role', 'button'); dz.setAttribute('aria-label', 'Selecionar foto da peça produzida: ' + c.titulo);
+    dz.innerHTML = `${ic('upload', 30)}<p>Arraste uma imagem ou clique para selecionar</p>`;
+    dz.addEventListener('click', () => input.click());
+    dz.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); } });
+    ['dragover', 'dragleave', 'drop'].forEach(evt => dz.addEventListener(evt, e => { e.preventDefault(); dz.classList.toggle('drag', evt === 'dragover'); if (evt === 'drop') enviarFoto(c, e.dataTransfer.files[0]); }));
+    wrap.appendChild(dz);
+  }
+  return wrap;
+}
+function renderCards(){
+  const box = $('#cardsImagens');
+  if (!S.cards.length) { box.innerHTML = '<div class="muted">Escolha um pedido para carregar as estampas da ficha de Artes.</div>'; return; }
+  box.innerHTML = '';
+  S.cards.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'ac';
+    el.innerHTML = `<div class="ac-head"><div class="ac-head-main"><div class="ac-name">${esc(c.titulo)}</div><div class="ac-sub">${c.tipo === 'tagless' ? 'Tagless gola' : 'Estampa localizada'}${c.orfa ? ' · não está mais na ficha de Artes' : ''}</div></div></div>
+      <div class="img-pair"><div><div class="img-lbl">Amostra de referência</div><div data-r="am"></div></div><div><div class="img-lbl">Peça produzida</div><div data-r="pr"></div></div></div>`;
+    const am = $('[data-r="am"]', el);
+    if (c.amostra) {
+      am.innerHTML = `<div class="img-box"><img src="${esc(c.amostra)}" alt="Amostra — ${esc(c.titulo)}"><button type="button" class="zoom-btn" aria-label="Ampliar amostra">${ic('zoomIn', 15)}</button></div>`;
+      $('.zoom-btn', am).addEventListener('click', () => abrirLightbox(c.amostra));
+    } else am.innerHTML = '<div class="img-empty">Sem imagem de amostra na ficha de Artes</div>';
+    $('[data-r="pr"]', el).appendChild(blocoFoto(c));
+    box.appendChild(el);
+  });
+}
+
+/* ═══════════════════════════════════════
+   LIGHTBOX
+═══════════════════════════════════════ */
+let lbScale = 1, lbX = 0, lbY = 0, lbDrag = false, lbSX = 0, lbSY = 0, lbFoco = null;
+function lbAplicar(){ $('#lbImg').style.transform = `translate(${lbX}px, ${lbY}px) scale(${lbScale})`; }
+function abrirLightbox(src){
+  lbFoco = document.activeElement;
+  $('#lbImg').src = src; lbScale = 1; lbX = 0; lbY = 0; lbAplicar();
+  $('#lightbox').classList.add('open'); $('#lbClose').focus();
+}
+function fecharLightbox(){ $('#lightbox').classList.remove('open'); if (lbFoco && lbFoco.focus) lbFoco.focus(); }
+
+/* ═══════════════════════════════════════
+   NOVO / EDITAR / SALVAR
+═══════════════════════════════════════ */
+function preencherFormulario(r){
+  $('#fPedido').value = r ? r.pedido : ''; $('#fRef').value = r ? r.referencia : '';
+  $('#fSolicitante').value = r ? r.solicitante : '';
+  const t = r ? r.testes : normTestes(null);
+  $('#tFricSeco').value = t.friccao.seco; $('#tFricMolhado').value = t.friccao.molhado; $('#tFricAval').value = t.friccao.avaliacao;
+  $('#tLavDefeito').value = t.lavagem.defeito; $('#tLavAprovado').value = t.lavagem.aprovado; $('#tLavAval').value = t.lavagem.avaliacao;
+  $('#fObs').value = r ? r.observacoes : '';
+  $('#fDataHora').value = paraInputLocal(r && r.criadoEm && !isNaN(new Date(r.criadoEm)) ? new Date(r.criadoEm) : new Date());
+  $('#fPedido').readOnly = !!(r && r.id);
+}
+function renderTudo(){
+  renderOps(); renderCards(); renderAp(); renderAplicFicha(); renderStatus(); renderTestes(); renderResp(); renderExistentes(); renderChip();
+  $('#histCard').hidden = !S.id;
+}
+function novoCadastro(silencioso){
+  if (!silencioso && canEdit() && sujo() && !confirm('Há alterações não salvas. Descartar e começar um cadastro em branco?')) return;
+  pedSeq++;
+  S = novoEstado();
+  preencherFormulario(null);
+  setHint('Digite ou escolha o número do pedido.');
+  S.cards = [];
+  renderTudo(); marcarLimpo();
+  if (!silencioso) showToast('Formulário em branco.');
+}
+// Devolve as fotos salvas para os cards (por id da estampa; cadastros antigos, pela ordem das estampas com imagem)
+function aplicarImagensSalvas(imagens, fichaDados){
+  if (!imagens) return;
+  const cards = S.cards;
+  const tg = cards.find(c => c.tipo === 'tagless');
+  if (tg && imagens.taglessProd) tg.produzida = imagens.taglessProd;
+  else if (!tg && imagens.taglessProd) cards.push({ key: 'x:tagless', tipo: 'tagless', estampaId: null, titulo: 'Tagless Gola', amostra: urlOnly(imagens.taglessAmostra) || imagens.taglessAmostra || null, produzida: imagens.taglessProd, orfa: true });
+  let itens = Array.isArray(imagens.estampas) ? imagens.estampas : ((imagens.estampaAmostra || imagens.estampaProd) ? [{ amostra: imagens.estampaAmostra, produzida: imagens.estampaProd }] : []);
+  const estCards = cards.filter(c => c.tipo === 'estampa');
+  const legadoSub = ((fichaDados && fichaDados.estampas) || []).filter(e => e.image);
+  itens.forEach((it, i) => {
+    if (!it || !it.produzida) return;
+    let alvo = null;
+    if (it.estampaId) alvo = estCards.find(c => c.estampaId === it.estampaId);
+    else {
+      const ref = legadoSub[i];
+      alvo = (ref && estCards.find(c => c.estampaId === ref.id)) || estCards[i];
+    }
+    if (alvo && !alvo.produzida) alvo.produzida = it.produzida;
+    else if (!alvo) cards.push({ key: 'x:' + i, tipo: 'estampa', estampaId: null, titulo: it.nome || 'Estampa', amostra: it.amostra || null, produzida: it.produzida, orfa: true });
+  });
+}
+async function editarRegistro(id){
+  if (!canEdit()) return;
+  if (sujo() && !confirm('Há alterações não salvas no cadastro atual. Descartá-las e abrir outro?')) return;
+  if (!exigirOnline()) return;
+  ld('Abrindo cadastro...');
+  try {
+    const r = await buscarRegistroCompleto(id);
+    if (!r) { showToast('Cadastro não encontrado (talvez tenha sido excluído).', 'err'); return; }
+    pedSeq++;
+    S = novoEstado();
+    S.id = r.id; S.pedido = r.pedido; S.referencia = r.referencia; S.aprovGeral = r.aprovacaoGeral; S.atualizadoEm = r.atualizadoEm;
+    S.ops = r.ops.map(o => ({ ...o }));
+    S.aplicacoes = r.testes.aplicacoes.map(a => ({ id: S.apSeq++, tecnica: a.tecnica || '', avaliacao: a.avaliacao || '' }));
+    preencherFormulario(r);
+    S.original = planificar(r);
+    let dados = null;
+    try { dados = r.referencia ? await buscarFicha(r.referencia) : null; } catch(e) { dados = null; }
+    S.ficha = { existe: !!dados, dados };
+    S.cards = dados ? cardsDaFicha(dados) : cardsGenericos();
+    aplicarImagensSalvas(r.imagens, dados);
+    S.cards.forEach(c => { S.origFotos[c.key] = c.produzida || null; });
+    setHint(dados ? `Cadastro carregado. Referência ${r.referencia}.` : `Cadastro carregado. Não existe ficha de Artes para a referência ${r.referencia}.`);
+    renderTudo(); marcarLimpo();
+    mostrarAba('cadastro');
+    carregarHistorico(r.id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch(e) { console.error(e); showToast('Não foi possível abrir o cadastro: ' + msgErro(e), 'err'); }
+  finally { uld(); }
+}
+async function salvar(){
+  if (!canEdit() || !exigirOnline()) return;
+  if (uploadsPendentes()) { showToast('Aguarde o envio das fotos terminar.', 'err'); return; }
+  if (!S.pedido || !S.referencia) { showToast('Escolha um pedido da Estamparia antes de salvar.', 'err'); return; }
+  if (!S.id && normTxt($('#fPedido').value) !== normTxt(S.pedido)) { showToast('O pedido digitado não é o carregado. Escolha um pedido da lista.', 'err'); return; }
+  const antesNeg = testesNegativos(coletar().testes);
+  if (statusCalculado() === 'aprovado' && antesNeg.length && !confirm(`Há teste(s) reprovado(s) neste cadastro (${antesNeg.join('; ')}), mas o status ficará APROVADO. Salvar mesmo assim?`)) return;
+  if (S.id && !confirm('Deseja salvar as alterações neste cadastro de qualidade?')) return;
+  ld('Salvando cadastro...');
+  try {
+    for (const c of S.cards) await migrarLegado(c);
+    const r = coletar();
+    const dh = new Date(r.dataHora); const criado = isNaN(dh) ? new Date() : dh;
+    const agora = nowIso();
+    const payload = { referencia: r.referencia, pedido_numero: r.pedido, solicitante: r.solicitante || null, responsavel_nome: CU.nome, status: r.status, aprovacao_geral: r.aprovacaoGeral, ops: r.ops, testes: r.testes, imagens: r.imagens, observacoes: r.observacoes || null, criado_em: criado.toISOString(), atualizado_em: agora, atualizado_por: CU.nome };
+    const eraNovo = !S.id;
+    let linha;
+    if (S.id) {
+      let q = SB.from('registros_qualidade').update(payload).eq('id', S.id);
+      q = S.atualizadoEm ? q.eq('atualizado_em', S.atualizadoEm) : q.is('atualizado_em', null);
+      const { data, error } = await q.select('id, atualizado_em');
+      if (error) throw error;
+      if (!data || !data.length) throw new Error('Este cadastro foi alterado por outra pessoa enquanto você editava (ou foi excluído). Nada foi gravado: reabra-o pela Busca para ver a versão mais recente.');
+      linha = data[0];
+    } else {
+      const { data, error } = await SB.from('registros_qualidade').insert(payload).select('id, atualizado_em').single();
+      if (error) throw error;
+      linha = data; S.id = Number(data.id);
+    }
+    S.atualizadoEm = linha.atualizado_em || agora;
+    // histórico
+    const depois = { ...r, id: S.id, responsavel: CU.nome, criadoEm: criado, testes: r.testes };
+    if (eraNovo) await registrarHistorico('registros_qualidade', S.id, [{ campo: 'Cadastro', anterior: '—', novo: `Criado (${cap(r.status)}) para o pedido ${r.pedido}` }]);
+    else {
+      const linhas = diffMapas(S.original || {}, planificar(depois));
+      S.cards.forEach(c => {
+        const antes = S.origFotos[c.key] || null, novo = c.produzida || null;
+        if (antes === novo || (ehLegado(antes) && urlOnly(novo))) return;
+        linhas.push({ campo: `Foto produzida — ${c.titulo}`, anterior: antes ? 'Anexada' : '—', novo: novo ? (antes ? 'Substituída por outra foto' : 'Anexada') : 'Removida' });
+      });
+      await registrarHistorico('registros_qualidade', S.id, linhas);
+    }
+    S.original = planificar(depois);
+    S.cards.forEach(c => { S.origFotos[c.key] = c.produzida || null; });
+    await sincronizarPedido(r.pedido);
+    await carregarRegistros();
+    renderTudo(); marcarLimpo();
+    $('#fPedido').readOnly = true;
+    carregarHistorico(S.id);
+    showToast(eraNovo ? 'Cadastro de qualidade salvo.' : 'Cadastro atualizado.');
+  } catch(e) { console.error(e); showToast('Não foi possível salvar: ' + msgErro(e), 'err'); }
+  finally { uld(); }
+}
+
+// O pedido mostra (Estamparia e Laboratório) o resultado do cadastro MAIS RECENTE dele
+async function sincronizarPedido(numero){
+  if (!numero) return;
+  try {
+    const { data: ped } = await SB.from('pedidos').select('id, status_qualidade').eq('numero', numero).maybeSingle();
+    if (!ped) return;
+    const { data: ult, error: e2 } = await SB.from('registros_qualidade').select('status').eq('pedido_numero', numero).order('criado_em', { ascending: false }).limit(1);
+    if (e2) throw e2;
+    const novo = (ult && ult[0] && ult[0].status) || 'pendente', antigo = ped.status_qualidade || 'pendente';
+    if (antigo === novo) return;
+    const { error } = await SB.from('pedidos').update({ status_qualidade: novo }).eq('id', ped.id);
+    if (error) throw error;
+    await registrarHistorico('pedidos', ped.id, [{ campo: 'Qualidade', anterior: cap(antigo), novo: cap(novo) }]);
+    const p = pedidos.find(x => x.numero === numero); if (p) p.statusQualidade = novo;
+  } catch(e) {
+    console.warn('Não foi possível atualizar a Qualidade do pedido:', e);
+    showToast('O cadastro foi salvo, mas não foi possível atualizar a Qualidade do pedido na Estamparia.', 'err');
+  }
+}
+
+let histSeq = 0;
+async function carregarHistorico(id){
+  const seq = ++histSeq, box = $('#histBody');
+  box.innerHTML = '<p class="muted">Carregando histórico...</p>';
+  try {
+    const { data, error } = await SB.from('historico_alteracoes').select('*').eq('tabela', 'registros_qualidade').eq('registro_id', id).order('criado_em', { ascending: false }).limit(80);
+    if (seq !== histSeq) return;
+    if (error) throw error;
+    box.innerHTML = (data && data.length) ? data.map(h => `<div class="hist-item"><div class="hist-campo">${esc(h.campo)}</div><div class="hist-vals"><span class="hist-old">${esc(h.valor_anterior)}</span> → <strong>${esc(h.valor_novo)}</strong></div><div class="hist-meta">${esc(h.usuario_nome)} · ${esc(fmtDataHora(h.criado_em))}</div></div>`).join('') : '<p class="muted">Nenhuma alteração registrada ainda.</p>';
+  } catch(e) { if (seq === histSeq) box.innerHTML = '<p class="muted">Não foi possível carregar o histórico agora.</p>'; }
+}
+
+/* ═══════════════════════════════════════
+   BUSCA
+═══════════════════════════════════════ */
+const resumoOps = r => r.ops.map(o => esc(o.numero)).join(', ') || '—';
+function runSearch(){
+  const f = { ref: normTxt($('#sRef').value), ped: normTxt($('#sPedido').value), op: normTxt($('#sOp').value), st: $('#sStatus').value };
+  const lista = registros.filter(r => (!f.ref || normTxt(r.referencia).includes(f.ref)) && (!f.ped || normTxt(r.pedido).includes(f.ped)) && (!f.op || r.ops.some(o => normTxt(o.numero).includes(f.op))) && (!f.st || r.status === f.st));
+  $('#buscaContagem').textContent = lista.length ? `· ${lista.length} encontrado(s)` : '';
+  const tb = $('#tbBusca');
+  if (!lista.length) { tb.innerHTML = `<tr><td colspan="7" class="tbl-empty">${registros.length ? 'Nenhum cadastro encontrado para este filtro.' : 'Nenhum cadastro salvo ainda.'}</td></tr>`; return; }
+  tb.innerHTML = lista.map(r => `<tr>
+    <td class="cell-mono">${esc(r.referencia)}</td><td class="cell-mono">${esc(r.pedido) || '—'}</td><td class="cell-sub">${resumoOps(r)}</td><td>${esc(r.responsavel) || '—'}</td>
+    <td>${statusTag(r.status)}</td><td class="cell-sub">${esc(fmtDataHora(r.criadoEm))}</td>
+    <td class="cell-act"><button type="button" class="btn btn-ghost btn-sm" data-a="ver" data-id="${r.id}">Ver</button>${canEdit() ? `<button type="button" class="btn btn-ghost btn-sm" data-a="edit" data-id="${r.id}">Editar</button>` : ''}${canDelete() ? `<button type="button" class="btn btn-danger btn-sm" data-a="del" data-id="${r.id}" aria-label="Excluir cadastro ${r.id}">${ic('trash')}</button>` : ''}</td></tr>`).join('');
+}
+function limparBusca(){ ['sRef', 'sPedido', 'sOp', 'sStatus'].forEach(id => { $('#' + id).value = ''; }); runSearch(); }
+async function excluirRegistro(id){
+  if (!canDelete() || !exigirOnline()) return;
+  const r = registros.find(x => x.id === id); if (!r) return;
+  if (!confirm(`Excluir o cadastro #${r.id} da referência ${r.referencia} (pedido ${r.pedido || '—'})? Essa ação não pode ser desfeita.`)) return;
+  ld('Excluindo...');
+  try {
+    const { data, error } = await SB.from('registros_qualidade').delete().eq('id', id).select('id');
+    if (error) throw error;
+    if (!data || !data.length) throw new Error('o cadastro não foi encontrado (talvez já tenha sido excluído).');
+    await registrarHistorico('registros_qualidade', id, [{ campo: 'Cadastro', anterior: `Ref. ${r.referencia}, pedido ${r.pedido || '—'} (${cap(r.status)})`, novo: 'Excluído' }]);
+    if (S.id === id) { S = novoEstado(); preencherFormulario(null); renderTudo(); marcarLimpo(); }
+    await sincronizarPedido(r.pedido);
+    await carregarRegistros(); runSearch(); renderExistentes();
+    showToast('Cadastro excluído.');
+  } catch(e) { showToast('Não foi possível excluir: ' + msgErro(e), 'err'); }
+  finally { uld(); }
+}
+
+/* ═══════════════════════════════════════
+   DETALHES / RELATÓRIO (texto)
+═══════════════════════════════════════ */
+const okTxt = v => esc(v) || '—';
+function testesLinhas(r){
+  const t = r.testes;
+  return { friccao: `seco: ${okTxt(t.friccao.seco)} · molhado: ${okTxt(t.friccao.molhado)} · avaliação: ${okTxt(t.friccao.avaliacao)}`,
+           lavagem: `defeito em: ${okTxt(t.lavagem.defeito)} · aprovado até: ${okTxt(t.lavagem.aprovado)} · avaliação: ${okTxt(t.lavagem.avaliacao)}`,
+           aplicacoes: t.aplicacoes.length ? t.aplicacoes.map(a => `${esc(a.tecnica) || '—'}: ${esc(a.avaliacao) || '—'}`).join(' · ') : 'nenhuma' };
+}
+function itemRelatorio(r, tipo){
+  const L = testesLinhas(r);
+  const rep = tipo === 'reprovados-op' ? (() => { const x = r.ops.filter(o => o.status === 'reprovado').map(o => esc(o.numero)); return `<div class="rep-l2"><b>OPs reprovadas:</b> ${x.length ? x.join(', ') : 'nenhuma marcada individualmente (reprovação geral do cadastro)'}</div>`; })() : '';
+  return `<div class="rep-item"><div class="rep-l1"><span>Ref. ${esc(r.referencia) || '—'} · Pedido ${esc(r.pedido) || '—'}</span>${statusTag(r.status)}</div>
+    <div class="rep-l2">Cadastro #${r.id} · ${esc(fmtDataHora(r.criadoEm))} · responsável técnico: ${esc(r.responsavel) || '—'}</div>
+    <div class="rep-l2"><b>OPs:</b> ${r.ops.length ? r.ops.map(o => `${esc(o.numero)} (${esc(o.status)})`).join(', ') : '—'}</div>${rep}
+    <div class="rep-l2"><b>Fricção</b> — ${L.friccao}</div><div class="rep-l2"><b>Lavagem</b> — ${L.lavagem}</div><div class="rep-l2"><b>Aplicações</b> — ${L.aplicacoes}</div>
+    ${r.observacoes ? `<div class="rep-l2"><b>Observações:</b> ${esc(r.observacoes)}</div>` : ''}</div>`;
+}
+let ultimoRel = [];
+async function gerarRelatorio(){
+  try { await carregarRegistros(); } catch(e) { showToast('Não foi possível carregar os cadastros: ' + msgErro(e), 'err'); return; }
+  const tipo = $('#repTipo').value, de = $('#repDe').value, ate = $('#repAte').value;
+  let lista = registros.slice();
+  if (de) lista = lista.filter(r => dataLocal(r.criadoEm) >= de);
+  if (ate) lista = lista.filter(r => dataLocal(r.criadoEm) <= ate);
+  let titulo = 'Todos os cadastros por período';
+  if (tipo === 'aprovados-periodo') { titulo = 'Aprovados por período'; lista = lista.filter(r => r.status === 'aprovado'); }
+  if (tipo === 'reprovados-op') { titulo = 'Reprovados por OP'; lista = lista.filter(r => r.status === 'reprovado'); }
+  ultimoRel = lista;
+  $('#repTitulo').textContent = titulo;
+  const fd = s => s.split('-').reverse().join('/');
+  $('#repSub').textContent = `${lista.length} cadastro(s)` + (de || ate ? ` · período: ${de ? fd(de) : 'início'} a ${ate ? fd(ate) : 'hoje'}` : '');
+  $('#repBody').innerHTML = lista.length ? lista.map(r => itemRelatorio(r, tipo)).join('') : '<div class="ficha-aviso">Nenhum cadastro corresponde a este filtro.</div>';
+}
+function imprimirRelatorio(){
+  if (!ultimoRel.length) { showToast('Gere o relatório antes de imprimir.', 'err'); return; }
+  if (ultimoRel.length > 25 && !confirm(`Serão impressos ${ultimoRel.length} cadastros completos, com fotos. Continuar?`)) return;
+  imprimirLista(ultimoRel);
+}
+
+let detId = null;
+async function abrirDetalhe(id){
+  ld('Abrindo cadastro...');
+  try {
+    const r = await buscarRegistroCompleto(id);
+    if (!r) { showToast('Cadastro não encontrado.', 'err'); return; }
+    const fm = await fichasPorReferencia([r.referencia]);
+    const imgs = imagensDoRegistro(r, fm);
+    const L = testesLinhas(r);
+    const caixa = (t, im) => `<div class="det-img"><div class="img-lbl">${esc(t)}</div>${im ? `<img src="${esc(im)}" alt="${esc(t)}" data-zoom="${esc(im)}">` : '<div class="vazio">Sem imagem</div>'}</div>`;
+    const kv = (k, v) => `<div><div class="k">${esc(k)}</div><div class="v">${v}</div></div>`;
+    $('#det-title').textContent = `Cadastro #${r.id} · Ref. ${r.referencia}`;
+    $('#detBody').innerHTML = `<div class="det-kv">${kv('Pedido', esc(r.pedido) || '—')}${kv('Referência', esc(r.referencia) || '—')}${kv('Status', statusTag(r.status))}${kv('Data do cadastro', esc(fmtDataHora(r.criadoEm)))}${kv('Responsável técnico', esc(r.responsavel) || '—')}${kv('Solicitante e setor', esc(r.solicitante) || '—')}</div>
+      <div class="det-h">Ordens de produção</div>${r.ops.length ? `<div class="tw"><table class="tbl tbl-mini"><thead><tr><th>OP</th><th>Qtd.</th><th>Resultado</th></tr></thead><tbody>${r.ops.map(o => `<tr><td class="cell-mono">${esc(o.numero)}</td><td>${esc(o.quantidade) || '—'}</td><td>${statusTag(o.status)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Nenhuma OP neste cadastro.</p>'}
+      <div class="det-h">Fotos</div><div class="det-imgs">${imgs.map(i => caixa(i.titulo + ' · amostra', i.amostra) + caixa(i.titulo + ' · produzida', i.produzida)).join('') || '<p class="muted">Sem fotos.</p>'}</div>
+      <div class="det-h">Testes</div><div class="rep-l2"><b>Fricção</b> — ${L.friccao}</div><div class="rep-l2"><b>Lavagem</b> — ${L.lavagem}</div><div class="rep-l2"><b>Aplicações</b> — ${L.aplicacoes}</div>
+      ${r.observacoes ? `<div class="det-h">Observações</div><div class="rep-l2">${esc(r.observacoes)}</div>` : ''}`;
+    detId = id;
+    $('#detEditar').style.display = canEdit() ? '' : 'none';
+    $('#m-detalhe').classList.add('open');
+  } catch(e) { showToast('Não foi possível abrir o cadastro: ' + msgErro(e), 'err'); }
+  finally { uld(); }
+}
+
+/* ═══════════════════════════════════════
+   IMPRESSÃO (padrão .pv da ficha técnica)
+═══════════════════════════════════════ */
+function aguardarImagens(root, limiteMs){
+  const imgs = [...root.querySelectorAll('img')].filter(i => !i.complete);
+  if (!imgs.length) return Promise.resolve();
+  return Promise.race([
+    Promise.all(imgs.map(i => new Promise(r => { i.addEventListener('load', r, { once: true }); i.addEventListener('error', r, { once: true }); }))),
+    new Promise(r => setTimeout(r, limiteMs || 8000))
+  ]);
+}
+async function fichasPorReferencia(refs){
+  const mapa = {};
+  refs = [...new Set(refs.filter(Boolean))];
+  if (!refs.length) return mapa;
+  try {
+    const { data } = await SB.from('fichas').select('referencia, dados').in('referencia', refs);
+    (data || []).forEach(f => { mapa[f.referencia] = f.dados; });
+  } catch(e) { /* sem ficha: imprime só o que estiver salvo */ }
+  return mapa;
+}
+// Lista de {titulo, amostra, produzida} de um cadastro salvo (amostra faltando → vem da ficha atual)
+function imagensDoRegistro(r, fichaMap){
+  const im = r.imagens || {}, ficha = fichaMap && fichaMap[r.referencia];
+  const fe = (ficha && ficha.estampas) || [], sub = fe.filter(e => e.image);
+  const itens = Array.isArray(im.estampas) ? im.estampas : ((im.estampaAmostra || im.estampaProd) ? [{ amostra: im.estampaAmostra, produzida: im.estampaProd }] : []);
+  const out = itens.map((it, i) => {
+    let am = it.amostra || null;
+    if (!am) { const f = it.estampaId ? fe.find(e => e.id === it.estampaId) : (sub[i] || null); am = f ? f.image || null : null; }
+    return { titulo: it.nome || (itens.length > 1 ? `Estampa ${i + 1}` : 'Estampa'), amostra: am, produzida: it.produzida || null };
+  });
+  const tAm = im.taglessAmostra || (ficha && ficha.tagless && ficha.tagless.image) || null;
+  if (tAm || im.taglessProd) out.push({ titulo: 'Tagless', amostra: tAm, produzida: im.taglessProd || null });
+  return out;
+}
+function montarPrint(r, imgs){
+  const dh = new Date(r.criadoEm);
+  const emitido = new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+  const st = r.status || 'pendente';
+  const rotulo = st === 'aprovado' ? '✓ CADASTRO APROVADO' : (st === 'reprovado' ? '✕ CADASTRO REPROVADO' : '⏳ CADASTRO PENDENTE');
+  const box = (t, src) => `<div class="pv-imgbox"><div class="lb">${esc(t)}</div>${src ? `<img src="${esc(src)}" alt="">` : '<div class="vazio">Sem imagem anexada</div>'}</div>`;
+  const t = r.testes;
+  const kv = (k, v) => `<div><b>${esc(k)}</b>${v}</div>`;
+  return `<div class="pv pv-doc">
+    <div class="pv-hb"><div><div class="pv-kicker">SGE · QUALIDADE · REGISTRO DE TESTES</div><div class="pv-ref">${esc(r.referencia) || '—'}</div><div class="pv-sub">Pedido ${esc(r.pedido) || '—'}</div></div>
+      <div class="pv-meta">Cadastro em ${esc(isNaN(dh) ? '—' : dh.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }))}<br>Emitido em ${esc(emitido)}</div></div>
+    <div class="pv-status ${esc(st)}">${rotulo}</div>
+    <div class="pv-kv">${kv('Responsável técnico', esc(r.responsavel) || '—')}${kv('Solicitante e setor', esc(r.solicitante) || '—')}${kv('Aprovação geral', r.aprovacaoGeral ? esc(cap(r.aprovacaoGeral)) + ' (manual)' : 'Automática pelas OPs')}</div>
+    <div class="pv-sl">Ordens de produção</div>
+    ${r.ops.length ? `<table class="pv-tbl"><thead><tr><th>OP</th><th>Qtd.</th><th>Resultado</th></tr></thead><tbody>${r.ops.map(o => `<tr><td>${esc(o.numero)}</td><td>${esc(o.quantidade) || '—'}</td><td>${esc(cap(o.status))}</td></tr>`).join('')}</tbody></table>` : '<div class="pv-line">Nenhuma OP neste cadastro.</div>'}
+    <div class="pv-sl">Imagens</div><div class="pv-imgs">${imgs.map(i => box(i.titulo + ' · amostra', i.amostra) + box(i.titulo + ' · produzida', i.produzida)).join('') || '<div class="pv-line">Sem imagens.</div>'}</div>
+    <div class="pv-sl">Teste de fricção</div><table class="pv-tbl"><tbody><tr><td><b>Seco</b> ${esc(t.friccao.seco) || '—'}</td><td><b>Molhado</b> ${esc(t.friccao.molhado) || '—'}</td><td><b>Avaliação</b> ${esc(t.friccao.avaliacao) || '—'}</td></tr></tbody></table>
+    <div class="pv-sl">Teste de lavagem (até 25x)</div><table class="pv-tbl"><tbody><tr><td><b>Defeito em</b> ${esc(t.lavagem.defeito) || '—'}</td><td><b>Aprovado até</b> ${esc(t.lavagem.aprovado) || '—'}</td><td><b>Avaliação</b> ${esc(t.lavagem.avaliacao) || '—'}</td></tr></tbody></table>
+    <div class="pv-sl">Aplicações de estampa</div>${t.aplicacoes.length ? `<table class="pv-tbl"><thead><tr><th>Técnica</th><th>Avaliação</th></tr></thead><tbody>${t.aplicacoes.map(a => `<tr><td>${esc(a.tecnica) || '—'}</td><td>${esc(a.avaliacao) || '—'}</td></tr>`).join('')}</tbody></table>` : '<div class="pv-line">Nenhuma aplicação registrada.</div>'}
+    ${r.observacoes ? `<div class="pv-sl">Observações</div><div class="pv-obs">${esc(r.observacoes)}</div>` : ''}
+    <div class="pv-foot">SGE — Gestão de Qualidade · Documento gerado eletronicamente</div></div>`;
+}
+async function imprimirHtml(html){
+  const area = $('#printArea');
+  area.innerHTML = html;
+  await aguardarImagens(area);            // sem isso, imagens do bucket podem sair em branco
+  uld();
+  window.print();
+}
+async function imprimirAtual(){
+  const r = coletar();
+  r.criadoEm = r.dataHora || new Date().toISOString();
+  const imgs = S.cards.map(c => ({ titulo: c.titulo, amostra: c.amostra, produzida: c.produzida }));
+  ld('Preparando impressão...');
+  await imprimirHtml(montarPrint(r, imgs));
+}
+async function imprimirLista(lista){
+  ld('Preparando impressão...');
+  try {
+    const ids = lista.map(r => r.id);
+    const completos = {};
+    for (let i = 0; i < ids.length; i += 20) {
+      const { data, error } = await SB.from('registros_qualidade').select('*').in('id', ids.slice(i, i + 20));
+      if (error) throw error;
+      (data || []).forEach(row => { completos[row.id] = fromDb(row); });
+    }
+    const regs = ids.map(id => completos[id]).filter(Boolean);
+    const fm = await fichasPorReferencia(regs.map(r => r.referencia));
+    await imprimirHtml(regs.map(r => montarPrint(r, imagensDoRegistro(r, fm))).join(''));
+  } catch(e) { uld(); showToast('Não foi possível preparar a impressão: ' + msgErro(e), 'err'); }
+}
+
+/* ═══════════════════════════════════════
+   PERMISSÕES NA TELA / ENTRADA
+═══════════════════════════════════════ */
+function applyPerms(){
+  $('#nav-un').textContent = CU.nome;
+  $('#nav-ur').textContent = isAdm() ? 'Administrador' : 'Visualizador';
+  const colors = ['#1B3A5C', '#2D7A3A', '#7A4A2A', '#4A2A7A', '#2A6A7A'];
+  $('#nav-av').style.background = colors[CU.nome.charCodeAt(0) % colors.length];
+  $('#nav-av').textContent = CU.nome.charAt(0).toUpperCase();
+  $('#roBanner').style.display = canEdit() ? 'none' : 'block';
+}
+async function entrarNoApp(){
+  $('#login-screen').style.display = 'none';
+  $('#app').style.display = 'block';
+  applyPerms(); montarAbas();
+  ld('Carregando dados da qualidade...');
+  try { await Promise.all([carregarPedidos(), carregarRegistros()]); }
+  catch(e) { console.error(e); showToast('Não foi possível carregar os dados: ' + msgErro(e), 'err'); }
+  finally { uld(); }
+  novoCadastro(true); runSearch();
+  mostrarAba(canEdit() ? 'cadastro' : 'busca');
+}
+
+/* ═══════════════════════════════════════
+   INICIALIZAÇÃO
+═══════════════════════════════════════ */
+function montarIconesEstaticos(){
+  $('#ph-icon').innerHTML = ic('clipboard', 17, 'style="stroke:var(--green)"');
+  $('#nb-home').innerHTML = ic('home', 14) + '<span>Início</span>';
+  $('#nb-artes').innerHTML = ic('pen', 14) + '<span>Artes</span>';
+  $('#nb-est').innerHTML = ic('printer', 14) + '<span>Estamparia</span>';
+  $('#nb-lab').innerHTML = ic('flask', 14) + '<span>Laboratório</span>';
+  $('#nb-qual').innerHTML = ic('clipboard', 14) + '<span>Qualidade</span>';
+  $('#btn-logout').innerHTML = ic('logout', 14) + '<span>Sair</span>';
+  $('#lg-btn').innerHTML = withIcon('login', 'Entrar', 14);
+  $('#detClose').innerHTML = ic('x', 14);
+  $('#lbClose').innerHTML = ic('x', 16); $('#lbOut').innerHTML = ic('zoomOut', 16); $('#lbIn').innerHTML = ic('zoomIn', 16); $('#lbReset').innerHTML = ic('reset', 16);
+  $('#btnGeralOk').innerHTML = withIcon('check', 'Aprovado'); $('#btnGeralBad').innerHTML = withIcon('x', 'Reprovado');
+  $('#btnApAdd').innerHTML = withIcon('plus', 'Adicionar aplicação');
+  $('#btnLimpar').innerHTML = withIcon('reset', 'Limpar'); $('#btnImprimir').innerHTML = withIcon('printer', 'Imprimir'); $('#btnSalvar').innerHTML = withIcon('save', 'Salvar cadastro');
+  $('#btnBuscar').innerHTML = withIcon('search', 'Buscar');
+  $('#btnGerarRel').innerHTML = withIcon('search', 'Gerar relatório'); $('#btnImprimirRel').innerHTML = withIcon('printer', 'Imprimir relatório');
+  $('#detImprimir').innerHTML = withIcon('printer', 'Imprimir'); $('#detEditar').innerHTML = withIcon('pen', 'Editar');
+}
+function ligarEventos(){
+  $('#lg-btn').addEventListener('click', doLogin);
+  $('#lg-user').addEventListener('keydown', e => { if (e.key === 'Enter') $('#lg-pass').focus(); });
+  $('#lg-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  $('#btn-dark').addEventListener('click', toggleDarkMode);
+  $('#btn-logout').addEventListener('click', doLogout);
+  $('#tabs').addEventListener('click', e => { const b = e.target.closest('.tab'); if (b) mostrarAba(b.dataset.aba); });
+
+  $('#fPedido').addEventListener('input', onPedidoInput);
+  $('#fPedido').addEventListener('change', () => { clearTimeout(pedTimer); resolverPedido(); });
+  $('#pedExistentes').addEventListener('click', e => { const b = e.target.closest('[data-abrir]'); if (b) editarRegistro(Number(b.dataset.abrir)); });
+  $('#opList').addEventListener('click', cliqueOps);
+  $('#btnGeralOk').addEventListener('click', () => setGeral('aprovado'));
+  $('#btnGeralBad').addEventListener('click', () => setGeral('reprovado'));
+  $('#tFricAval').addEventListener('change', renderTestes); $('#tLavAval').addEventListener('change', renderTestes);
+  $('#apRows').addEventListener('click', cliqueAp); $('#apRows').addEventListener('change', mudouAp);
+  $('#btnApAdd').addEventListener('click', () => addAp());
+  $('#btnApFicha').addEventListener('click', () => { aplicacoesDaFicha().forEach(a => addAp(a)); });
+  $('#btnLimpar').addEventListener('click', () => novoCadastro(false));
+  $('#btnImprimir').addEventListener('click', imprimirAtual);
+  $('#btnSalvar').addEventListener('click', salvar);
+
+  $('#formBusca').addEventListener('submit', e => { e.preventDefault(); runSearch(); });
+  $('#btnLimparBusca').addEventListener('click', limparBusca);
+  $('#tbBusca').addEventListener('click', e => {
+    const b = e.target.closest('[data-a]'); if (!b) return;
+    const id = Number(b.dataset.id);
+    ({ ver: abrirDetalhe, edit: editarRegistro, del: excluirRegistro })[b.dataset.a](id);
+  });
+  $('#formRel').addEventListener('submit', e => { e.preventDefault(); gerarRelatorio(); });
+  $('#btnImprimirRel').addEventListener('click', imprimirRelatorio);
+
+  const fechaDet = () => $('#m-detalhe').classList.remove('open');
+  $('#detClose').addEventListener('click', fechaDet); $('#detFechar').addEventListener('click', fechaDet);
+  $('#detImprimir').addEventListener('click', () => { if (detId != null) { fechaDet(); imprimirLista([{ id: detId }]); } });
+  $('#detEditar').addEventListener('click', () => { fechaDet(); editarRegistro(detId); });
+  $('#detBody').addEventListener('click', e => { const z = e.target.closest('[data-zoom]'); if (z) abrirLightbox(z.dataset.zoom); });
+  const md = $('#m-detalhe'); let downDet = false;
+  md.addEventListener('mousedown', e => { downDet = e.target === md; });
+  md.addEventListener('mouseup', e => { if (downDet && e.target === md) fechaDet(); downDet = false; });
+
+  $('#lbClose').addEventListener('click', fecharLightbox);
+  $('#lightbox').addEventListener('click', e => { if (e.target === $('#lightbox') || e.target === $('#lbStage')) fecharLightbox(); });
+  $('#lbIn').addEventListener('click', () => { lbScale = Math.min(5, lbScale + 0.4); lbAplicar(); });
+  $('#lbOut').addEventListener('click', () => { lbScale = Math.max(1, lbScale - 0.4); if (lbScale === 1) { lbX = 0; lbY = 0; } lbAplicar(); });
+  $('#lbReset').addEventListener('click', () => { lbScale = 1; lbX = 0; lbY = 0; lbAplicar(); });
+  const stage = $('#lbStage');
+  stage.addEventListener('wheel', e => { e.preventDefault(); lbScale = Math.min(5, Math.max(1, lbScale + (e.deltaY < 0 ? 0.25 : -0.25))); if (lbScale === 1) { lbX = 0; lbY = 0; } lbAplicar(); }, { passive: false });
+  stage.addEventListener('mousedown', e => { if (lbScale === 1) return; lbDrag = true; lbSX = e.clientX - lbX; lbSY = e.clientY - lbY; stage.classList.add('grabbing'); });
+  window.addEventListener('mousemove', e => { if (!lbDrag) return; lbX = e.clientX - lbSX; lbY = e.clientY - lbSY; lbAplicar(); });
+  window.addEventListener('mouseup', () => { lbDrag = false; stage.classList.remove('grabbing'); });
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    if ($('#lightbox').classList.contains('open')) fecharLightbox(); else fechaDet();
+  });
+
+  window.addEventListener('online', updateConnectionIndicator);
+  window.addEventListener('offline', updateConnectionIndicator);
+  window.addEventListener('afterprint', () => { $('#printArea').innerHTML = ''; });
+  document.addEventListener('input', atualizarSujo);
+  document.addEventListener('change', atualizarSujo);
+  window.addEventListener('beforeunload', e => { if (CU && canEdit() && sujo()) { e.preventDefault(); e.returnValue = ''; } });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  montarIconesEstaticos();
+  ligarEventos();
+  applyStoredDarkMode();
+  updateConnectionIndicator();
+  if (!window.supabase) {
+    showLogin();
+    const err = $('#lg-err');
+    err.textContent = 'Não foi possível carregar o sistema. Verifique a conexão e recarregue a página.';
+    err.style.display = 'block';
+    return;
+  }
+  SB = window.supabase.createClient(SB_URL, SB_KEY);
+  registerServiceWorker();
+  tryRestoreSession();
+});
+
+
+})();
+</script>
+</body>
+</html>

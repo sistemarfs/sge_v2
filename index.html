@@ -1299,8 +1299,12 @@ tr:hover td{background:var(--bg)}
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
               <input type="checkbox" id="perm-laboratorio" style="width:15px;height:15px;cursor:pointer"><span style="font-size:13px;font-weight:600;color:var(--ink)">Laboratório de Tinta</span>
             </label>
+            <div style="height:1px;background:var(--border);margin:2px 0"></div>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
+              <input type="checkbox" id="perm-qualidade" style="width:15px;height:15px;cursor:pointer"><span style="font-size:13px;font-weight:600;color:var(--ink)">Qualidade</span>
+            </label>
           </div>
-          <span style="font-size:11px;color:var(--ink3);margin-top:5px;display:block">"Nova estampa" e "Amostra" liberam a criação de cada cadastro. Os itens do Kanban liberam mover um card <strong>para</strong> aquela etapa específica. Os itens Digital-Produção controlam o fluxo de produção separado, na aba Kanban. "Laboratório de Tinta" libera cadastrar e editar fornecedores, produtos, pantones e receitas no módulo Laboratório (excluir continua só com o Admin).</span>
+          <span style="font-size:11px;color:var(--ink3);margin-top:5px;display:block">"Nova estampa" e "Amostra" liberam a criação de cada cadastro. Os itens do Kanban liberam mover um card <strong>para</strong> aquela etapa específica. Os itens Digital-Produção controlam o fluxo de produção separado, na aba Kanban. "Laboratório de Tinta" libera cadastrar e editar fornecedores, produtos, pantones e receitas no módulo Laboratório (excluir continua só com o Admin). "Qualidade" libera registrar e editar os testes de qualidade por pedido no módulo Qualidade (excluir cadastro continua só com o Admin).</span>
         </div>
       </div>
       <div style="background:var(--navy-pale);border-radius:8px;padding:10px 13px;margin-top:12px;font-size:12px;color:var(--ink2);line-height:1.6">
@@ -5165,7 +5169,7 @@ async function renderUsuarios() {
         <div class="usr-n">${u.nome}${isSelf?' <span style="font-size:10px;color:var(--ink3)">(você)</span>':''}</div>
         <div class="usr-u">@${u.username||'—'}</div>
         <span class="usr-r ${u.role==='admin'?'r-adm':'r-view'}">${u.role==='admin'?ic('shield',11)+' Administrador':ic('eye',11)+' Visualizador'}</span>
-        ${u.role==='viewer'?(()=>{const perms=['perm_nova_estampa','perm_nova_amostra','perm_kanban_add','perm_kanban_preparacao','perm_kanban_impressao','perm_kanban_aguardando','perm_kanban_aprovado','perm_kanban_reprovado','perm_laboratorio'];const n=perms.filter(p=>u[p]).length;return n>0?`<span class="usr-r" style="background:var(--navy-pale);color:var(--navy);margin-left:4px">${ic('checkCircle',11)} ${n} permissão(ões)</span>`:'';})():''}
+        ${u.role==='viewer'?(()=>{const perms=['perm_nova_estampa','perm_nova_amostra','perm_kanban_add','perm_kanban_preparacao','perm_kanban_impressao','perm_kanban_aguardando','perm_kanban_aprovado','perm_kanban_reprovado','perm_laboratorio','perm_qualidade'];const n=perms.filter(p=>u[p]).length;return n>0?`<span class="usr-r" style="background:var(--navy-pale);color:var(--navy);margin-left:4px">${ic('checkCircle',11)} ${n} permissão(ões)</span>`:'';})():''}
       </div>
       <div class="actions">
         <button class="btn btn-ghost btn-sm" onclick="editUsr('${u.id}')">${ic('edit',12)}</button>
@@ -5175,7 +5179,7 @@ async function renderUsuarios() {
   }).join('');
 }
 
-const PERM_FIELDS = ['perm-nova-estampa','perm-editar-estampa','perm-nova-amostra','perm-kanban-add','perm-kanban-preparacao','perm-kanban-impressao','perm-kanban-aguardando','perm-kanban-aprovado','perm-kanban-reprovado','perm-op-add','perm-op-impressao','perm-op-pausada','perm-op-concluida','perm-laboratorio'];
+const PERM_FIELDS = ['perm-nova-estampa','perm-editar-estampa','perm-nova-amostra','perm-kanban-add','perm-kanban-preparacao','perm-kanban-impressao','perm-kanban-aguardando','perm-kanban-aprovado','perm-kanban-reprovado','perm-op-add','perm-op-impressao','perm-op-pausada','perm-op-concluida','perm-laboratorio','perm-qualidade'];
 // Converte id do checkbox (kebab-case) para nome de coluna no banco (snake_case)
 function permIdToCol(id) { return id.replace(/-/g,'_'); }
 
