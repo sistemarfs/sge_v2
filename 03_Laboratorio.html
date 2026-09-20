@@ -1,0 +1,2042 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laboratório — SGE</title>
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B3A5C">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SGE">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Source+Serif+4:wght@600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  --navy:#1B3A5C;--navy2:#254D78;--navy-pale:#E8EFF6;
+  --green:#2D7A3A;--green2:#358544;--green-pale:#D8EEDC;
+  --bg:#F2F5F0;--surface:#FFFFFF;--surface2:#EBF0E8;
+  --ink:#1A2B1A;--ink2:#3D5A3E;--ink3:#7A9A7C;
+  --red:#C0392B;--red-pale:#FAEAE8;--yellow:#C07A00;--yellow-pale:#FDF3DC;
+  --border:#C8D8C8;--shadow:0 2px 14px rgba(27,58,92,0.09);--shadow-lg:0 8px 40px rgba(27,58,92,0.15);
+  --radius:12px;--radius-sm:8px;
+}
+/* ── MODO ESCURO (mesma chave do app: stampos_dark) ── */
+body.dark{
+  --bg:#0F1720;--surface:#1A2530;--surface2:#212E3D;
+  --ink:#E8EDF2;--ink2:#AEC0CF;--ink3:#7A8FA0;
+  --navy-pale:#1E3350;--green-pale:#17362A;--red-pale:#3D2420;--yellow-pale:#3D3018;
+  --border:#2C3B4D;
+  --shadow:0 2px 14px rgba(0,0,0,0.45);--shadow-lg:0 8px 40px rgba(0,0,0,0.55);
+}
+body,body.dark{transition:background 0.2s ease}
+body.dark img{filter:brightness(0.96)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px}
+.mono{font-family:'IBM Plex Mono',monospace}
+:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ── LOGIN ── */
+#login-screen{display:none;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(140deg,var(--navy) 0%,var(--navy2) 55%,#1A4A2A 100%);padding:20px}
+.login-card{background:var(--surface);border-radius:20px;padding:44px 40px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(27,58,92,0.25)}
+.lg-logo{text-align:center;margin-bottom:24px}
+.lg-logo-mark{width:76px;height:76px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.lg-logo-mark img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(27,58,92,0.25))}
+.lg-logo h1{font-family:'Source Serif 4',serif;font-size:26px;font-weight:700;color:var(--navy);margin-bottom:2px}
+.lg-logo p{font-size:12px;color:var(--ink3);margin-top:3px}
+.msg-err{display:none;background:var(--red-pale);color:var(--red);border-radius:var(--radius-sm);padding:9px 12px;font-size:12.5px;font-weight:600;margin-bottom:12px}
+.lg-fields{display:flex;flex-direction:column;gap:16px;margin-top:4px}
+.lg-field{display:flex;flex-direction:column;gap:6px}
+.lg-label{font-size:11px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:0.5px}
+.lg-input{padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Source Sans 3',sans-serif;font-size:14px;color:var(--ink);background:var(--bg);outline:none;width:100%;transition:all 0.14s}
+.lg-input:focus{border-color:var(--green);background:#fff;box-shadow:0 0 0 3px var(--green-pale)}
+.lg-input::placeholder{color:var(--ink3)}
+body.dark .lg-input:focus{background:var(--surface)}
+.login-btn{width:100%;padding:13px;background:var(--navy);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Source Sans 3',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:7px}
+.login-btn:hover{background:var(--navy2)}.login-btn:disabled{opacity:0.6;cursor:not-allowed}
+.lg-footer{text-align:center;margin-top:14px;font-size:11px;color:var(--ink3)}
+
+/* ── LOADING ── */
+.ld-overlay{display:none;position:fixed;inset:0;background:rgba(27,58,92,0.45);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.ld-overlay.show{display:flex}
+.ld-box{background:var(--surface);border-radius:14px;padding:26px 34px;text-align:center;box-shadow:var(--shadow-lg)}
+.spinner{width:36px;height:36px;border:3px solid var(--green-pale);border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 11px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ld-box p{font-size:13px;color:var(--ink2);font-weight:600}
+
+/* ── NAV ── */
+#app{display:none}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--navy);height:56px;display:flex;align-items:center;padding:0 22px;gap:2px;box-shadow:0 2px 18px rgba(27,58,92,0.35)}
+.nav-logo{font-family:'Source Serif 4',serif;font-size:20px;font-weight:700;color:#fff;margin-right:16px;display:flex;align-items:center;gap:7px;text-decoration:none}
+.nav-logo-mark{width:42px;height:42px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nb{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;border:none;background:transparent;color:rgba(255,255,255,0.62);font-family:'Source Sans 3',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.14s;text-decoration:none;white-space:nowrap}
+.nb:hover{background:rgba(255,255,255,0.11);color:#fff}
+.nb.active{background:var(--green);color:#fff}
+.nb svg{width:14px;height:14px;flex-shrink:0}
+.nav-spacer{flex:1}
+.nav-user{display:flex;align-items:center;gap:7px;padding:4px 10px;border-radius:6px;background:rgba(255,255,255,0.08)}
+.nav-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.nav-un{font-size:12px;font-weight:600;color:#fff;line-height:1.2}
+.nav-ur{font-size:10px;color:rgba(255,255,255,0.5);line-height:1.2}
+.ni-btn{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.22);background:transparent;color:rgba(255,255,255,0.65);font-family:'Source Sans 3',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.14s;margin-left:5px}
+.ni-btn:hover{border-color:var(--green);color:#7CCC8A}
+.ni-btn svg{width:14px;height:14px}
+#conn-dot{width:8px;height:8px;border-radius:50%;background:#2D7A3A;display:inline-block;margin:0 6px;flex-shrink:0}
+
+/* ── PÁGINA ── */
+.page{padding-top:56px;min-height:100vh}
+.ph{padding:20px 28px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;background:var(--surface)}
+.ph-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ic-n{background:var(--navy-pale)}.ic-g{background:var(--green-pale)}
+body.dark .ic-n svg{stroke:#7BAAD9!important}
+body.dark .ic-g svg{stroke:#5BC97A!important}
+.ph-title{flex:1;min-width:0}
+.ph h2{font-family:'Source Serif 4',serif;font-size:19px;font-weight:700;color:var(--navy)}
+.ph-sub{font-size:12px;color:var(--ink3);margin-top:1px}
+.ph-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.pb{padding:20px 28px;max-width:1560px;margin:0 auto}
+.ro-banner{display:none;background:var(--yellow-pale);color:var(--yellow);border:1.5px solid var(--yellow);border-radius:var(--radius-sm);padding:9px 14px;font-size:12.5px;font-weight:600;margin-bottom:14px}
+
+/* ── BOTÕES ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 15px;border-radius:var(--radius-sm);border:none;font-family:'Source Sans 3',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.14s}
+.btn svg{width:13px;height:13px;flex-shrink:0}
+.btn-primary{background:var(--green);color:#fff}.btn-primary:hover{background:var(--green2)}
+.btn-navy{background:var(--navy);color:#fff}.btn-navy:hover{background:var(--navy2)}
+.btn-ghost{background:transparent;color:var(--ink2);border:1.5px solid var(--border)}.btn-ghost:hover{background:var(--surface2)}
+.btn-sm{padding:5px 9px;font-size:12px}
+.btn-danger{background:var(--red-pale);color:var(--red);border:none}
+.btn:disabled{opacity:0.55;cursor:not-allowed}
+
+/* ── FORMULÁRIO ── */
+.fl{display:flex;flex-direction:column;gap:4px;margin-top:12px}
+.fl>label,.fl-label{font-size:11px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:0.4px}
+.form-input{padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Source Sans 3',sans-serif;font-size:13px;color:var(--ink);background:var(--bg);outline:none;transition:all 0.14s;width:100%}
+.form-input:focus{border-color:var(--green);background:#fff;box-shadow:0 0 0 3px var(--green-pale)}
+body.dark .form-input:focus{background:var(--surface)}
+.form-input:disabled{opacity:0.75;cursor:default}
+textarea.form-input{resize:vertical;min-height:80px}
+
+/* ── BARRA DE REFERÊNCIA (padrão .sw do app) ── */
+.sw{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.sc{display:flex;flex-direction:column;gap:3px}
+.sc label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink3)}
+.ref-input{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:16px;letter-spacing:0.02em;width:210px;padding:7px 10px}
+.ref-status{margin-left:auto;align-self:center}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700}
+.tag svg{width:11px;height:11px}
+.t-type{background:var(--navy-pale);color:var(--navy)}
+.t-ok{background:var(--green-pale);color:var(--green)}
+.t-pend{background:var(--yellow-pale);color:var(--yellow)}
+.t-alert{background:var(--red-pale);color:var(--red)}
+
+/* ── TOOLBAR DE SEÇÃO ── */
+.at-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.at-toolbar h3{font-family:'Source Serif 4',serif;font-size:15px;font-weight:700;color:var(--navy)}
+.at-toolbar p{font-size:12px;color:var(--ink3);margin-top:1px}
+
+/* ── ABAS ── */
+.tabs{display:flex;gap:4px;border-bottom:1.5px solid var(--border);margin-bottom:16px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab{padding:9px 16px;border:none;background:transparent;font-family:'Source Sans 3',sans-serif;font-size:13px;font-weight:600;color:var(--ink3);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1.5px;white-space:nowrap;transition:all 0.14s}
+.tab:hover{color:var(--navy)}
+.tab.active{color:var(--navy);border-bottom-color:var(--green)}
+.aba[hidden]{display:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ── CARDS E FORMULÁRIOS ── */
+.ac{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;min-width:0}
+.ac.flush{padding:0;overflow:hidden}
+.ac.flush .tw{border:none;border-radius:0}
+.ac-head{display:flex;align-items:flex-start;gap:8px;margin-bottom:12px}
+.ac-head-main{flex:1;min-width:0}
+.ac-name{font-family:'Source Serif 4',serif;font-size:15px;font-weight:600;color:var(--navy)}
+.ac-sub{font-size:11.5px;color:var(--ink3);margin-top:1px}
+.ac-block{margin-top:14px}
+.st-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:var(--ink3);margin-bottom:10px}
+.muted{font-size:12px;color:var(--ink3);font-weight:400}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:12px}
+.fgrid .fl{margin-top:0}
+.form-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.cor-row{display:flex;gap:8px;align-items:center}
+.cor-row input[type=color]{width:42px;height:36px;padding:2px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);cursor:pointer;flex-shrink:0}
+.cor-row .form-input{min-width:0}
+.form-input[readonly]{background:var(--surface2);cursor:default}
+
+/* ── TABELAS ── */
+.tw{overflow-x:auto;border-radius:var(--radius);border:1.5px solid var(--border)}
+table.tbl{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--ink3);background:var(--surface2);border-bottom:1.5px solid var(--border);white-space:nowrap}
+.tbl td{padding:9px 12px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl tbody tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover td{background:var(--bg)}
+.tbl .cell-mono{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--navy);white-space:nowrap}
+.tbl .cell-sub{font-size:12px;color:var(--ink3)}
+.tbl .cell-act{white-space:nowrap;text-align:right}
+.tbl .cell-act .btn+.btn{margin-left:5px}
+.tbl .cell-num{font-family:'IBM Plex Mono',monospace;font-weight:600;text-align:right;white-space:nowrap}
+.tbl-empty{text-align:center;padding:26px 12px!important;color:var(--ink3);font-size:13px}
+.tbl-mini th,.tbl-mini td{padding:6px 10px;font-size:12.5px}
+.tbl tr.inativo td{opacity:0.55}
+.sw-dot{display:inline-block;width:18px;height:18px;border-radius:5px;border:1px solid var(--border);vertical-align:middle;flex-shrink:0}
+
+/* ── PANTONES DO PEDIDO ── */
+.prog{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.prog-bar{flex:1;min-width:120px;height:8px;border-radius:99px;background:var(--surface2);overflow:hidden}
+.prog-bar>span{display:block;height:100%;background:var(--green);border-radius:99px;transition:width 0.2s}
+.pg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr));gap:12px}
+.pg{border:1.5px solid var(--border);border-radius:var(--radius);padding:12px;background:var(--bg);min-width:0}
+.pg-title{font-family:'Source Serif 4',serif;font-weight:600;font-size:14px;color:var(--navy);display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:8px}
+.pg-title span{font-family:'Source Sans 3',sans-serif;font-size:11px;font-weight:600;color:var(--ink3)}
+.pl{display:grid;grid-template-columns:24px 22px minmax(0,1fr) auto;gap:9px;align-items:center;width:100%;text-align:left;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:6px;cursor:pointer;font-family:'Source Sans 3',sans-serif;color:var(--ink);transition:all 0.14s}
+.pl:last-child{margin-bottom:0}
+.pl:hover{border-color:var(--green);box-shadow:0 0 0 3px var(--green-pale)}
+.pl.done{border-color:var(--green)}
+.pl-seq{font-size:11px;font-weight:700;color:var(--ink3);font-family:'IBM Plex Mono',monospace}
+.pl-cod{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13px;color:var(--navy);overflow-wrap:anywhere}
+.pl-det{display:block;font-family:'Source Sans 3',sans-serif;font-weight:400;font-size:11px;color:var(--ink3);margin-top:1px}
+
+/* ── MODAL DA RECEITA ── */
+.modal.wide{max-width:920px;display:flex;flex-direction:column;overflow:hidden}
+.modal.wide .mb{flex:1;min-height:0;overflow-y:auto}
+.modal.wide .mh,.modal.wide .mf{flex-shrink:0}
+.rec-sum{display:flex;flex-wrap:wrap;align-items:center;gap:12px 28px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px}
+.rec-sw{width:44px;height:44px;border-radius:10px;border:1.5px solid var(--border)}
+.rec-k{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink3)}
+.rec-v{font-size:13px;font-weight:600;color:var(--ink);overflow-wrap:anywhere}
+.rec-v.mono{font-family:'IBM Plex Mono',monospace}
+.rec-code{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:16px;color:var(--navy)}
+.rec-avulsa{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:12px;margin-bottom:14px}
+.rec-avulsa .fl{margin-top:0}
+.rec-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:12px;margin-bottom:14px}
+.rec-meta .fl{margin-top:0}
+.rec-groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:14px;align-items:start}
+.gr-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.gr-row .fl{margin-top:10px}
+.gr-add{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;margin-top:8px}
+.gr-add .fl{margin-top:0}
+.gr-disp{font-size:11.5px;color:var(--ink3);margin-top:4px}
+.gr-disp.low{color:var(--red);font-weight:600}
+.entry{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:9px;align-items:center;border:1.5px solid var(--border);background:var(--bg);border-radius:var(--radius-sm);padding:8px 10px;margin-top:8px}
+.entry-seq{width:22px;height:22px;border-radius:6px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.entry-desc{font-size:13px;min-width:0;overflow-wrap:anywhere}
+.entry-desc small{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink3);margin-top:2px}
+.entry-rm{width:28px;height:28px;border-radius:7px;border:none;background:transparent;color:var(--ink3);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.entry-rm:hover{background:var(--red-pale);color:var(--red)}
+.entry-empty{font-size:12.5px;color:var(--ink3);border:1.5px dashed var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center;margin-top:8px}
+.rec-total{font-size:12.5px;color:var(--ink3);font-weight:600;flex:1;min-width:220px}
+.rec-total b{font-family:'IBM Plex Mono',monospace;color:var(--navy)}
+.rec-hist{margin-top:16px}
+.hist-item{border-left:2.5px solid var(--green);padding:6px 0 6px 12px;margin-bottom:8px}
+.hist-campo{font-size:12px;font-weight:700;color:var(--navy)}
+.hist-vals{font-size:12px;color:var(--ink2);margin:2px 0;overflow-wrap:anywhere}
+.hist-old{text-decoration:line-through;color:var(--ink3)}
+.hist-meta{font-size:10.5px;color:var(--ink3)}
+.ficha-aviso{border:2px dashed var(--border);border-radius:var(--radius);padding:22px 14px;text-align:center;color:var(--ink3);font-size:13px;line-height:1.6;background:var(--bg)}
+.ficha-aviso a{color:var(--green);font-weight:700}
+
+/* ── DETALHES ── */
+.det-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:12px;margin-bottom:6px}
+.det-grid .fl{margin-top:0}
+.ro-val{font-size:13px;color:var(--ink);background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;min-height:36px;display:flex;align-items:center;overflow-wrap:anywhere}
+.det-h{font-family:'Source Serif 4',serif;font-size:14px;font-weight:700;color:var(--navy);margin:18px 0 8px}
+/* ── MODAL (padrão do app) ── */
+.mo{display:none;position:fixed;inset:0;background:rgba(27,58,92,0.52);backdrop-filter:blur(3px);z-index:200;align-items:center;justify-content:center;padding:20px}
+.mo.open{display:flex}
+.modal{background:var(--surface);border-radius:16px;width:100%;max-width:730px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.mh{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--navy);border-radius:16px 16px 0 0}
+.mh h3{font-family:'Source Serif 4',serif;font-size:16px;font-weight:700;flex:1;color:#fff}
+.mc{width:27px;height:27px;border-radius:7px;border:none;background:rgba(255,255,255,0.15);cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.8);transition:background 0.14s}
+.mc:hover{background:rgba(255,255,255,0.28)}
+.mc svg{width:14px;height:14px}
+.mb{padding:18px 22px}
+.mf{padding:12px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;align-items:center}
+.sf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:11px}
+.sf-grid .fl{margin-top:0}
+.res-wrap{margin-top:16px;border-top:1px solid var(--border);padding-top:12px}
+.res-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.res-item:last-child{border-bottom:none}
+.res-main{flex:1;min-width:0}
+.res-ref{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:14px;color:var(--navy)}
+.res-desc{font-size:12px;color:var(--ink2);margin-top:2px;overflow-wrap:anywhere}
+.res-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.empty{text-align:center;padding:28px 16px;color:var(--ink3);font-size:13px;line-height:1.6}
+
+/* ── TOAST (padrão do app) ── */
+.toast-stack{position:fixed;bottom:20px;right:20px;z-index:500;display:flex;flex-direction:column-reverse;gap:10px;max-width:340px}
+.toast{background:var(--navy);color:#fff;border-radius:11px;padding:13px 15px;box-shadow:0 8px 28px rgba(27,58,92,0.35);display:flex;gap:11px;align-items:flex-start;cursor:pointer;animation:toast-in 0.3s ease-out;border-left:4px solid var(--green)}
+.toast.err{border-left-color:var(--red)}
+.toast.toast-out{animation:toast-out 0.25s ease-in forwards}
+@keyframes toast-in{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toast-out{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(30px)}}
+.toast-icon{width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.toast-icon svg{width:15px;height:15px}
+.toast-body{flex:1;min-width:0}
+.toast-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:#7CCC8A;margin-bottom:3px}
+.toast.err .toast-title{color:#F1A69D}
+.toast-msg{font-size:12.5px;line-height:1.5;color:rgba(255,255,255,0.92)}
+
+/* ── MOBILE ── */
+@media(max-width:640px){
+  nav{padding:0 8px}.nb span,.ni-btn span{display:none}
+  .nav-un,.nav-ur{display:none}
+  .ph{flex-wrap:wrap;padding:12px 14px 10px;gap:8px}
+  .ph h2{font-size:16px}
+  .ph-actions{width:100%;justify-content:flex-start}
+  .ph .btn{font-size:12px;padding:7px 10px}
+  .pb{padding:12px}
+  .login-card{padding:30px 22px}
+  .sw .sc{flex:1 1 100%}.ref-input{width:100%}.ref-status{margin-left:0}
+  .mo{padding:0;align-items:flex-end}
+  .modal{max-width:100%;width:100%;border-radius:16px 16px 0 0;max-height:94vh}
+  .mh{padding:14px 16px;border-radius:16px 16px 0 0}
+  .mh h3{font-size:14px}
+  .mb{padding:14px 16px}
+  .mf{padding:10px 16px;flex-wrap:wrap}
+  .mf .btn{flex:1;min-width:100px;justify-content:center}
+  .toast-stack{left:12px;right:12px;max-width:none}
+}
+
+
+@media(max-width:640px){
+  .gr-row{grid-template-columns:minmax(0,1fr)}
+  .rec-sum{gap:10px 20px}
+  .modal.wide .mf{flex-direction:column;align-items:stretch}
+  .modal.wide .mf>div:last-child{width:100%}
+  .modal.wide .mf .btn{flex:1 1 auto}
+  .tab{padding:9px 12px}
+  .prog{flex-direction:column;align-items:stretch}
+}
+
+/* ── DARK: TEXTO NAVY ── */
+body{--navy-text:var(--navy)}
+body.dark{--navy-text:#8DB8EA}
+body.dark .lg-logo h1,
+body.dark .ph h2,
+body.dark .t-type,
+body.dark .at-toolbar h3,
+body.dark .tab:hover,
+body.dark .tab.active,
+body.dark .ac-name,
+body.dark .tbl .cell-mono,
+body.dark .pg-title,
+body.dark .pl-cod,
+body.dark .rec-code,
+body.dark .rec-total b,
+body.dark .hist-campo,
+body.dark .det-h,
+body.dark .res-ref{color:var(--navy-text)}
+
+</style>
+</head>
+<body>
+
+<div class="ld-overlay" id="ld"><div class="ld-box"><div class="spinner"></div><p id="ld-msg">Carregando...</p></div></div>
+<div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+
+<!-- LOGIN (mesmo login do SGE: tabela usuarios, sessão em localStorage) -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="lg-logo">
+      <div class="lg-logo-mark"><img src="icon-192.png" alt="SGE"></div>
+      <h1>SGE</h1><p>Sistema de Gestão de Estampa</p>
+    </div>
+    <div id="lg-err" class="msg-err" role="alert"></div>
+    <div class="lg-fields">
+      <div class="lg-field">
+        <label class="lg-label" for="lg-user">Usuário</label>
+        <input type="text" class="lg-input" id="lg-user" placeholder="Digite seu usuário" autocomplete="username">
+      </div>
+      <div class="lg-field">
+        <label class="lg-label" for="lg-pass">Senha</label>
+        <input type="password" class="lg-input" id="lg-pass" placeholder="Digite sua senha" autocomplete="current-password">
+      </div>
+      <button class="login-btn" id="lg-btn" type="button"></button>
+    </div>
+    <div class="lg-footer">by Reginaldo F - SGE v3.0</div>
+  </div>
+</div>
+
+<div id="app">
+  <nav>
+    <a class="nav-logo" href="index.html" aria-label="Voltar ao início do SGE">
+      <div class="nav-logo-mark"><img src="icon-192.png" alt="SGE" style="width:100%;height:100%;object-fit:contain"></div>
+    </a>
+    <a class="nb" href="index.html" id="nb-home"></a>
+    <a class="nb" href="01_Artes.html" id="nb-artes"></a>
+    <a class="nb" href="02_Estamparia.html" id="nb-est"></a>
+    <button class="nb active" type="button" id="nb-lab"></button>
+    <div class="nav-spacer"></div>
+    <div class="nav-user">
+      <div class="nav-av" id="nav-av">A</div>
+      <div><div class="nav-un" id="nav-un">—</div><div class="nav-ur" id="nav-ur">—</div></div>
+    </div>
+    <span id="conn-dot" title="Conectado"></span>
+    <button class="ni-btn" id="btn-dark" type="button" title="Alternar modo escuro" aria-label="Alternar modo escuro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="dark-icon"></svg></button>
+    <button class="ni-btn" id="btn-logout" type="button" title="Sair"></button>
+  </nav>
+
+  <main class="page">
+    <div class="ph">
+      <div class="ph-icon ic-g" id="ph-icon"></div>
+      <div class="ph-title">
+        <h2>Laboratório de Tinta</h2>
+        <div class="ph-sub">Fornecedores, produtos, pantones, receitas e estoque</div>
+      </div>
+    </div>
+
+    <div class="pb">
+      <div class="ro-banner" id="roBanner" role="status">Modo somente leitura — você pode consultar e imprimir. Para editar, peça ao Administrador a permissão do Laboratório.</div>
+
+      <div class="tabs" role="tablist" aria-label="Seções do Laboratório" id="tabs"></div>
+
+      <!-- FORNECEDOR -->
+      <section id="aba-fornecedor" class="aba" role="tabpanel" hidden>
+        <div class="ac">
+          <div class="st-title" id="fornTitulo">Novo fornecedor</div>
+          <form id="formFornecedor">
+            <input type="hidden" id="fornecedorId">
+            <div class="fgrid">
+              <div class="fl"><label for="fornecedorNome">Nome do fornecedor</label><input class="form-input" type="text" id="fornecedorNome" required></div>
+              <div class="fl"><label for="fornecedorCidade">Cidade</label><input class="form-input" type="text" id="fornecedorCidade" required></div>
+              <div class="fl"><label for="fornecedorEstado">Estado</label><select class="form-input" id="fornecedorEstado" required><option value="">Selecione</option></select></div>
+              <div class="fl"><label for="fornecedorContato">Contato</label><input class="form-input" type="text" id="fornecedorContato" required></div>
+              <div class="fl"><label for="fornecedorEmail">E-mail</label><input class="form-input" type="email" id="fornecedorEmail" required></div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="btnSalvarFornecedor"></button>
+              <button type="button" class="btn btn-ghost" id="btnCancelarFornecedor">Cancelar</button>
+            </div>
+          </form>
+        </div>
+        <div class="at-toolbar" style="margin-top:20px"><div><h3>Fornecedores cadastrados</h3></div></div>
+        <div class="ac flush"><div class="tw"><table class="tbl">
+          <thead><tr><th>Nome</th><th>Cidade</th><th>Estado</th><th>Contato</th><th>E-mail</th><th></th></tr></thead>
+          <tbody id="tbFornecedores"></tbody>
+        </table></div></div>
+      </section>
+
+      <!-- PRODUTO -->
+      <section id="aba-produto" class="aba" role="tabpanel" hidden>
+        <div class="ac">
+          <div class="st-title" id="prodTitulo">Novo produto</div>
+          <form id="formProduto">
+            <input type="hidden" id="produtoId">
+            <div class="fgrid">
+              <div class="fl"><label for="produtoFornecedor">Fornecedor</label><select class="form-input" id="produtoFornecedor" required><option value="">Selecione um fornecedor</option></select></div>
+              <div class="fl"><label for="produtoNome">Produto</label><input class="form-input" type="text" id="produtoNome" required></div>
+              <div class="fl"><label for="produtoLote">Lote</label><input class="form-input mono" type="text" id="produtoLote" required></div>
+              <div class="fl"><label for="produtoDataFabricacao">Data de fabricação</label><input class="form-input" type="date" id="produtoDataFabricacao" required></div>
+              <div class="fl"><label for="produtoQuantidade">Quantidade (kg)</label><input class="form-input mono" type="number" id="produtoQuantidade" step="0.01" min="0" required></div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="btnSalvarProduto"></button>
+              <button type="button" class="btn btn-ghost" id="btnCancelarProduto">Cancelar</button>
+            </div>
+          </form>
+        </div>
+        <div class="at-toolbar" style="margin-top:20px"><div><h3>Produtos cadastrados</h3></div></div>
+        <div class="ac flush"><div class="tw"><table class="tbl">
+          <thead><tr><th>Fornecedor</th><th>Produto</th><th>Lote</th><th>Data fab.</th><th>Quantidade (kg)</th><th>Cadastro</th><th></th></tr></thead>
+          <tbody id="tbProdutos"></tbody>
+        </table></div></div>
+      </section>
+
+      <!-- PANTONES (banco) -->
+      <section id="aba-pantones" class="aba" role="tabpanel" hidden>
+        <div class="ac">
+          <div class="st-title" id="pantTitulo">Novo pantone</div>
+          <form id="formPantone">
+            <input type="hidden" id="pantoneId">
+            <div class="fgrid">
+              <div class="fl"><label for="pantoneCodigo">Código Pantone</label><input class="form-input mono" type="text" id="pantoneCodigo" placeholder="Ex: 871 C" required></div>
+              <div class="fl"><label for="pantoneNome">Nome</label><input class="form-input" type="text" id="pantoneNome" placeholder="Ex: Dourado metálico"></div>
+              <div class="fl"><label for="pantoneCor">Cor</label>
+                <div class="cor-row"><input type="color" id="pantoneCor" value="#CCCCCC" aria-label="Escolher cor"><input class="form-input mono" type="text" id="pantoneCorHex" value="#CCCCCC" maxlength="7" aria-label="Cor em hexadecimal"></div></div>
+              <div class="fl"><label for="pantoneObs">Observações</label><input class="form-input" type="text" id="pantoneObs"></div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="btnSalvarPantone"></button>
+              <button type="button" class="btn btn-ghost" id="btnCancelarPantone">Cancelar</button>
+            </div>
+          </form>
+        </div>
+        <div class="at-toolbar" style="margin-top:20px">
+          <div><h3>Banco de pantones</h3><p>Abastecido automaticamente pelas fichas de Artes e pelas receitas. Aqui você ajusta nome e cor.</p></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <button type="button" class="btn btn-ghost" id="btnImportarFichas"></button>
+            <div class="fl" style="margin:0;min-width:200px"><label for="pantoneFiltro" class="sr">Filtrar pantones</label><input class="form-input" type="search" id="pantoneFiltro" placeholder="Filtrar por código ou nome"></div>
+          </div>
+        </div>
+        <div class="ac flush"><div class="tw"><table class="tbl">
+          <thead><tr><th>Cor</th><th>Código</th><th>Nome</th><th>Observações</th><th>Receitas</th><th>Situação</th><th></th></tr></thead>
+          <tbody id="tbPantones"></tbody>
+        </table></div></div>
+      </section>
+
+      <!-- RECEITA -->
+      <section id="aba-receita" class="aba" role="tabpanel" hidden>
+        <div class="ac">
+          <div class="ac-head">
+            <div class="ac-head-main">
+              <div class="ac-name">Receitas por pantone</div>
+              <div class="ac-sub">Escolha o pedido e clique num pantone para preencher a receita dele.</div>
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm" id="btnReceitaAvulsa"></button>
+          </div>
+          <div class="fl" style="margin-top:0">
+            <label for="receitaPedido">Pedido (Estamparia)</label>
+            <select class="form-input" id="receitaPedido"><option value="">Nenhum — escolha um pedido</option></select>
+            <div class="muted" id="receitaPedidoInfo" style="margin-top:6px"></div>
+          </div>
+          <div id="pantonesPedido" class="ac-block"></div>
+        </div>
+
+        <div class="at-toolbar" style="margin-top:20px"><div><h3>Receitas cadastradas</h3></div></div>
+        <div class="ac flush"><div class="tw"><table class="tbl">
+          <thead><tr><th>Pantone</th><th>Estampa</th><th>Tinta</th><th>Tecido</th><th>Referência</th><th>Amostra/Pedido</th><th>OP</th><th>Pedido</th><th>Data</th><th></th></tr></thead>
+          <tbody id="tbReceitas"></tbody>
+        </table></div></div>
+      </section>
+
+      <!-- ESTOQUE -->
+      <section id="aba-estoque" class="aba" role="tabpanel" hidden>
+        <div class="at-toolbar"><div><h3>Estoque</h3><p>Os produtos são baixados automaticamente quando uma receita é salva.</p></div></div>
+        <div class="ac flush"><div class="tw"><table class="tbl">
+          <thead><tr><th>Fornecedor</th><th>Produto</th><th>Lote</th><th>Data fab.</th><th>Quantidade (kg)</th><th>Cadastro</th></tr></thead>
+          <tbody id="tbEstoque"></tbody>
+        </table></div></div>
+      </section>
+
+      <!-- BUSCA -->
+      <section id="aba-busca" class="aba" role="tabpanel" hidden>
+        <div class="ac">
+          <div class="st-title">Filtros</div>
+          <form id="formBusca">
+            <div class="fgrid">
+              <div class="fl"><label for="buscaPantone">Pantone</label><input class="form-input mono" type="text" id="buscaPantone" placeholder="Ex: 186 C"></div>
+              <div class="fl"><label for="buscaReferencia">Referência</label><input class="form-input mono" type="text" id="buscaReferencia"></div>
+              <div class="fl"><label for="buscaEstampa">Estampa</label><input class="form-input" type="text" id="buscaEstampa" placeholder="Ex: Estampa Localizada, Tagless"></div>
+              <div class="fl"><label for="buscaPedido">Pedido (Estamparia)</label><input class="form-input mono" type="text" id="buscaPedido" placeholder="Ex: PD-4321"></div>
+              <div class="fl"><label for="buscaOp">Ordem de produção</label><input class="form-input mono" type="text" id="buscaOp" placeholder="Ex: OP-5561"></div>
+              <div class="fl"><label for="buscaStatusPedido">Status do pedido</label>
+                <select class="form-input" id="buscaStatusPedido"><option value="">Qualquer</option><option value="pendente">Pendente</option><option value="concluida">Concluída</option><option value="nenhum">Nenhum vínculo (receita avulsa)</option></select></div>
+              <div class="fl"><label for="buscaProduto">Produto</label><input class="form-input" type="text" id="buscaProduto"></div>
+              <div class="fl"><label for="buscaLote">Lote</label><input class="form-input mono" type="text" id="buscaLote"></div>
+              <div class="fl"><label for="buscaDataDe">Cadastrada de</label><input class="form-input" type="date" id="buscaDataDe"></div>
+              <div class="fl"><label for="buscaDataAte">Cadastrada até</label><input class="form-input" type="date" id="buscaDataAte"></div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-navy" id="btnBuscar"></button>
+              <button type="button" class="btn btn-ghost" id="btnLimparBusca">Limpar</button>
+            </div>
+          </form>
+        </div>
+        <div class="at-toolbar" style="margin-top:20px">
+          <div><h3>Resultados da busca <span class="muted" id="buscaContagem"></span></h3><p>Cada pantone é uma receita individual, organizada por referência e estampa.</p></div>
+          <button type="button" class="btn btn-ghost" id="btnImprimirResultados"></button>
+        </div>
+        <div class="ac flush"><div class="tw"><table class="tbl">
+          <thead><tr><th>Referência</th><th>Estampa</th><th>Pantone</th><th>Tinta</th><th>Amostra/Pedido</th><th>OP</th><th>Pedido</th><th>Data</th><th></th></tr></thead>
+          <tbody id="tbBusca"><tr><td colspan="9" class="tbl-empty">Defina os filtros e clique em Buscar.</td></tr></tbody>
+        </table></div></div>
+      </section>
+
+      <div class="ac ac-block" id="cardDados">
+        <div class="st-title">Importar e exportar dados</div>
+        <div class="form-actions" style="margin-top:0">
+          <button type="button" class="btn btn-ghost" id="btnExportJSON"></button>
+          <button type="button" class="btn btn-ghost" id="btnExportCSV"></button>
+          <button type="button" class="btn btn-ghost" id="btnImport"></button>
+          <input type="file" id="importFile" accept=".json" hidden>
+        </div>
+        <p class="muted" style="margin-top:8px">Importar substitui todos os fornecedores, produtos, pantones e receitas. Só o Administrador importa, e um backup é baixado antes.</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL DA RECEITA (formulário flutuante por pantone) -->
+<div class="mo" id="m-receita">
+  <div class="modal wide" role="dialog" aria-modal="true" aria-labelledby="rec-title">
+    <div class="mh">
+      <h3 id="rec-title">Receita</h3>
+      <button class="mc" type="button" id="recClose" aria-label="Fechar"></button>
+    </div>
+    <div class="mb" id="recBody"></div>
+    <div class="mf" style="justify-content:space-between">
+      <div class="rec-total" id="recTotal"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+        <button class="btn btn-ghost" id="recCopiar" type="button"></button>
+        <button class="btn btn-ghost" id="recCancelar" type="button">Cancelar</button>
+        <button class="btn btn-primary" id="recSalvar" type="button"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE DETALHES -->
+<div class="mo" id="m-detalhes">
+  <div class="modal wide" role="dialog" aria-modal="true" aria-labelledby="det-title">
+    <div class="mh">
+      <h3 id="det-title">Detalhes da receita</h3>
+      <button class="mc" type="button" id="detClose" aria-label="Fechar"></button>
+    </div>
+    <div class="mb" id="detBody"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ═══════════════════════════════════════
+   CONFIGURAÇÃO (mesmo projeto Supabase do SGE)
+═══════════════════════════════════════ */
+const SB_URL = 'https://pihxaodqwtrndsyskxte.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpaHhhb2Rxd3RybmRzeXNreHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2OTMyODAsImV4cCI6MjA5NjI2OTI4MH0.C-q6EsQzBv9FR_ueIp4_lRkJlcHEdSRt71MwDXmoJwI';
+const COR_PADRAO = '#CCCCCC';
+
+let SB = null;
+let CU = null;
+
+/* ═══════════════════════════════════════
+   UTILITÁRIOS
+═══════════════════════════════════════ */
+const $ = (s, root) => (root || document).querySelector(s);
+const uid = () => 'id' + Math.random().toString(36).slice(2, 10);
+const nowIso = () => new Date().toISOString();
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function fmtDataHora(iso){
+  if (!iso) return '';
+  const d = new Date(iso); if (isNaN(d)) return '';
+  return d.toLocaleString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'});
+}
+function errMsg(e){
+  const m = (e && (e.message || e.error_description)) || String(e || '');
+  if (/failed to fetch|networkerror|load failed/i.test(m)) return 'sem conexão com o servidor.';
+  return m;
+}
+function hp(p){ let h=0; for(let i=0;i<p.length;i++){h=((h<<5)-h)+p.charCodeAt(i);h|=0} return h.toString(36); }
+
+const ICONS = {
+  plus:'<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+  trash:'<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>',
+  zoomIn:'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>',
+  zoomOut:'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/>',
+  search:'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+  printer:'<polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
+  save:'<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>',
+  home:'<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+  upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
+  clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  x:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+  refresh:'<polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>',
+  pen:'<path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/>',
+  check:'<polyline points="20 6 9 17 4 12"/>',
+  alert:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',
+  login:'<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>',
+  logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
+  sun:'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>',
+  moon:'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+  flask:'<path d="M9 3h6"/><path d="M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2.2h12.4a1.5 1.5 0 0 0 1.3-2.2L14 9V3"/><path d="M7.5 15h9"/>',
+  reset:'<path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 3 3 9 9 9"/>'
+};
+function ic(name, size, extra){
+  return `<svg viewBox="0 0 24 24" width="${size||13}" height="${size||13}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra||''}>${ICONS[name]||''}</svg>`;
+}
+function withIcon(name, label, size){ return ic(name, size) + (label ? ' ' + esc(label) : ''); }
+
+function ld(msg){ $('#ld-msg').textContent = msg || 'Carregando...'; $('#ld').classList.add('show'); }
+function uld(){ $('#ld').classList.remove('show'); }
+
+function showToast(msg, tipo){
+  const err = tipo === 'err';
+  const el = document.createElement('div');
+  el.className = 'toast' + (err ? ' err' : '');
+  el.setAttribute('role', err ? 'alert' : 'status');
+  el.innerHTML = `<div class="toast-icon">${ic(err ? 'alert' : 'check', 15)}</div><div class="toast-body"><div class="toast-title">${err ? 'Atenção' : 'Artes'}</div><div class="toast-msg">${esc(msg)}</div></div>`;
+  const fechar = () => { el.classList.add('toast-out'); setTimeout(() => el.remove(), 260); };
+  el.addEventListener('click', fechar);
+  $('#toast-stack').appendChild(el);
+  setTimeout(fechar, err ? 6000 : 3200);
+}
+
+/* ═══════════════════════════════════════
+   MODO ESCURO / PWA / CONEXÃO (mesmas chaves do app)
+═══════════════════════════════════════ */
+function aplicarIconeTema(){
+  $('#dark-icon').innerHTML = document.body.classList.contains('dark') ? ICONS.moon : ICONS.sun;
+}
+function toggleDarkMode(){
+  const dark = document.body.classList.toggle('dark');
+  localStorage.setItem('stampos_dark', dark ? '1' : '0');
+  aplicarIconeTema();
+}
+function applyStoredDarkMode(){
+  document.body.classList.toggle('dark', localStorage.getItem('stampos_dark') === '1');
+  aplicarIconeTema();
+}
+function registerServiceWorker(){
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(err => console.warn('Service Worker não registrado:', err));
+}
+function offlineCacheSet(key, data){
+  try { localStorage.setItem('sge_cache_' + key, JSON.stringify({ data, savedAt: Date.now() })); }
+  catch(e) { console.warn('Não foi possível salvar cache offline:', e); }
+}
+function offlineCacheGet(key){
+  try { const raw = localStorage.getItem('sge_cache_' + key); return raw ? JSON.parse(raw) : null; }
+  catch(e) { return null; }
+}
+function showOfflineBanner(savedAt){
+  let b = $('#offline-banner');
+  if (!b) {
+    b = document.createElement('div');
+    b.id = 'offline-banner';
+    b.style.cssText = 'position:sticky;top:56px;z-index:50;background:#C07A00;color:#fff;text-align:center;padding:7px 14px;font-size:12px;font-weight:700';
+    $('#app').insertBefore(b, $('main.page'));
+  }
+  b.textContent = 'Sem conexão — mostrando dados salvos em ' + (savedAt ? new Date(savedAt).toLocaleString('pt-BR') : '—') + '. Salvar fica indisponível até a conexão voltar.';
+}
+function hideOfflineBanner(){ const b = $('#offline-banner'); if (b) b.remove(); }
+function updateConnectionIndicator(){
+  const dot = $('#conn-dot'); if (!dot) return;
+  dot.style.background = navigator.onLine ? '#2D7A3A' : '#C0392B';
+  dot.title = navigator.onLine ? 'Conectado' : 'Sem conexão';
+  if (navigator.onLine) hideOfflineBanner();
+}
+
+/* ═══════════════════════════════════════
+   LOGIN, SESSÃO E PERMISSÕES (padrão do SGE)
+═══════════════════════════════════════ */
+const isAdm = () => !!CU && CU.role === 'admin';
+
+function showLogin(){
+  $('#login-screen').style.display = 'flex';
+  $('#app').style.display = 'none';
+}
+
+let currentSessionToken = null;
+let sessaoHeartbeat = null;
+
+function getDeviceInfo(){
+  const ua = navigator.userAgent;
+  let dispositivo = 'Computador';
+  if (/iPad|Tablet/i.test(ua)) dispositivo = 'Tablet';
+  else if (/Mobi|Android|iPhone/i.test(ua)) dispositivo = 'Celular';
+  let navegador = 'Navegador';
+  if (ua.includes('Edg/')) navegador = 'Edge';
+  else if (ua.includes('Firefox/')) navegador = 'Firefox';
+  else if (ua.includes('Chrome/')) navegador = 'Chrome';
+  else if (ua.includes('Safari/')) navegador = 'Safari';
+  return { dispositivo, navegador };
+}
+async function criarSessaoAcesso(){
+  if (!CU) return;
+  const { dispositivo, navegador } = getDeviceInfo();
+  try {
+    const { data } = await SB.from('sessoes_acesso').insert({ usuario_id: CU.id, usuario_nome: CU.nome, dispositivo, navegador }).select().single();
+    if (data) {
+      currentSessionToken = data.id;
+      localStorage.setItem('stampos_session_token', currentSessionToken);
+      iniciarHeartbeatSessao();
+    }
+  } catch(e) { console.warn('Falha ao registrar sessão de acesso:', e); }
+}
+function iniciarHeartbeatSessao(){
+  if (sessaoHeartbeat) clearInterval(sessaoHeartbeat);
+  sessaoHeartbeat = setInterval(async () => {
+    if (!currentSessionToken) return;
+    try {
+      const { data } = await SB.from('sessoes_acesso').select('ativa').eq('id', currentSessionToken).maybeSingle();
+      if (data && data.ativa === false) {
+        clearInterval(sessaoHeartbeat);
+        alert('Sua sessão foi encerrada remotamente por um Administrador. Você precisa entrar novamente.');
+        localStorage.removeItem('stampos_session');
+        localStorage.removeItem('stampos_session_token');
+        location.reload();
+        return;
+      }
+      await SB.from('sessoes_acesso').update({ ultima_atividade: nowIso() }).eq('id', currentSessionToken);
+    } catch(e) { /* falha momentânea de rede — tenta no próximo ciclo */ }
+  }, 60000);
+}
+// Retorna false se a sessão foi encerrada remotamente por um Admin
+async function verificarOuCriarSessaoNaRestauracao(){
+  const token = localStorage.getItem('stampos_session_token');
+  if (!token) { await criarSessaoAcesso(); return true; }
+  try {
+    const { data } = await SB.from('sessoes_acesso').select('ativa').eq('id', token).maybeSingle();
+    if (!data) { await criarSessaoAcesso(); return true; }
+    if (data.ativa === false) return false;
+    currentSessionToken = token;
+    iniciarHeartbeatSessao();
+    SB.from('sessoes_acesso').update({ ultima_atividade: nowIso() }).eq('id', token).then(() => {}, () => {});
+    return true;
+  } catch(e) { currentSessionToken = token; return true; }
+}
+
+
+async function doLogin(){
+  const u = $('#lg-user').value.trim().toLowerCase();
+  const p = $('#lg-pass').value;
+  const err = $('#lg-err'), btn = $('#lg-btn');
+  err.style.display = 'none';
+  if (!u || !p) { err.textContent = 'Preencha usuário e senha.'; err.style.display = 'block'; return; }
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="width:15px;height:15px;margin:0;border-width:2px"></div>';
+  try {
+    const { data, error } = await SB.from('usuarios').select('*').eq('username', u).eq('pass_hash', hp(p)).single();
+    if (error || !data) throw new Error('Usuário ou senha incorretos.');
+    CU = data;
+    localStorage.setItem('stampos_session', CU.id);
+    offlineCacheSet('cu', CU);
+    $('#lg-pass').value = '';
+    entrarNoApp();
+    criarSessaoAcesso();
+  } catch(e) {
+    err.textContent = e.message; err.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = withIcon('login', 'Entrar', 14);
+  }
+}
+function doLogout(){
+  if (sessaoHeartbeat) { clearInterval(sessaoHeartbeat); sessaoHeartbeat = null; }
+  if (currentSessionToken) {
+    SB.from('sessoes_acesso').update({ ativa: false, encerrada_em: nowIso() }).eq('id', currentSessionToken).then(() => {}, () => {});
+  }
+  localStorage.removeItem('stampos_session_token');
+  localStorage.removeItem('stampos_session');
+  currentSessionToken = null;
+  CU = null;
+  showLogin();
+}
+
+function entrarComPerfilEmCache(savedId){
+  const cached = offlineCacheGet('cu');
+  if (cached && cached.data && cached.data.id === savedId) {
+    CU = cached.data;
+    entrarNoApp();
+    showOfflineBanner(cached.savedAt);
+    return true;
+  }
+  return false;
+}
+async function tryRestoreSession(){
+  const savedId = localStorage.getItem('stampos_session');
+  if (!savedId) { showLogin(); return; }
+  ld('Restaurando sessão...');
+  try {
+    const { data, error } = await SB.from('usuarios').select('*').eq('id', savedId).single();
+    uld();
+    if (error) {
+      if (!navigator.onLine && entrarComPerfilEmCache(savedId)) return;
+      localStorage.removeItem('stampos_session'); showLogin(); return;
+    }
+    if (!data) { localStorage.removeItem('stampos_session'); showLogin(); return; }
+    CU = data;
+    offlineCacheSet('cu', CU);
+    const sessaoOk = await verificarOuCriarSessaoNaRestauracao();
+    if (!sessaoOk) {
+      alert('Sua sessão foi encerrada remotamente por um Administrador. Faça login novamente.');
+      localStorage.removeItem('stampos_session');
+      localStorage.removeItem('stampos_session_token');
+      CU = null; showLogin(); return;
+    }
+    entrarNoApp();
+  } catch(e) {
+    uld();
+    if (!navigator.onLine && entrarComPerfilEmCache(savedId)) return;
+    localStorage.removeItem('stampos_session');
+    showLogin();
+  }
+}
+
+
+
+/* ═══════════════════════════════════════
+   PERMISSÕES DO MÓDULO
+═══════════════════════════════════════ */
+// Admin, ou Visualizador com a permissão "Laboratório de Tinta" (coluna usuarios.perm_laboratorio).
+const canEdit = () => !!CU && (CU.role === 'admin' || CU.perm_laboratorio === true);
+const canDelete = () => isAdm();   // excluir: só Admin (devolve estoque, apaga vínculos)
+
+const UFS = [['AC','Acre'],['AL','Alagoas'],['AP','Amapá'],['AM','Amazonas'],['BA','Bahia'],['CE','Ceará'],['DF','Distrito Federal'],['ES','Espírito Santo'],['GO','Goiás'],['MA','Maranhão'],['MT','Mato Grosso'],['MS','Mato Grosso do Sul'],['MG','Minas Gerais'],['PA','Pará'],['PB','Paraíba'],['PR','Paraná'],['PE','Pernambuco'],['PI','Piauí'],['RJ','Rio de Janeiro'],['RN','Rio Grande do Norte'],['RS','Rio Grande do Sul'],['RO','Rondônia'],['RR','Roraima'],['SC','Santa Catarina'],['SP','São Paulo'],['SE','Sergipe'],['TO','Tocantins']];
+const ABAS = [['fornecedor','Fornecedor'],['produto','Produto'],['pantones','Pantones'],['receita','Receita'],['estoque','Estoque'],['busca','Busca']];
+
+/* ═══════════════════════════════════════
+   UTILITÁRIOS DO MÓDULO
+═══════════════════════════════════════ */
+const normCod = s => String(s == null ? '' : s).toLowerCase().replace(/\s+/g, '');   // "871 C" = "871c"
+const normTxt = s => String(s == null ? '' : s).trim().toLowerCase();
+const corValida = c => /^#[0-9a-fA-F]{6}$/.test(c || '') ? c : COR_PADRAO;
+const corOuNulo = c => (/^#[0-9a-fA-F]{6}$/.test(c || '') && c.toUpperCase() !== COR_PADRAO) ? c : null;
+const num = v => { const n = parseFloat(v); return Number.isFinite(n) ? n : 0; };
+const qtdStr = n => (Number(n) || 0).toFixed(2);                                                              // valor guardado (ponto decimal)
+const fmtKg = n => (Number(n) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });   // o que aparece na tela (vírgula)
+const arred = n => Math.round(n * 100) / 100;
+function formatarData(v){
+  if (!v) return 'N/A';
+  const s = String(v);
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);            // data pura: não passa por fuso (evita "um dia antes")
+  if (m) return `${m[3]}/${m[2]}/${m[1]}`;
+  const d = new Date(s);
+  return isNaN(d) ? 'N/A' : d.toLocaleDateString('pt-BR');
+}
+function msgErro(e){
+  if (e && e.code === '23503') return 'este registro está em uso por outros dados e não pode ser excluído.';
+  if (e && e.code === '23505') return 'já existe um registro com esses dados.';
+  return errMsg(e);
+}
+function exigirOnline(){
+  if (!navigator.onLine) { showToast('Sem conexão: esta ação precisa de internet.', 'err'); return false; }
+  return true;
+}
+
+/* ═══════════════════════════════════════
+   CAMADA DE DADOS (mesmas tabelas do Laboratório + pantones)
+═══════════════════════════════════════ */
+const STORE_MAP = {
+  fornecedores: {
+    table: 'fornecedores',
+    toDb: o => ({ nome: o.nome, cidade: o.cidade, estado: o.estado, contato: o.contato, email: o.email }),
+    fromDb: r => ({ id: Number(r.id), nome: r.nome, cidade: r.cidade, estado: r.estado, contato: r.contato, email: r.email })
+  },
+  produtos: {
+    table: 'produtos',
+    toDb: o => ({ fornecedor_id: o.fornecedorId ?? null, nome: o.nome, lote: o.lote, data_fabricacao: o.dataFabricacao || null, quantidade: Number.isFinite(parseFloat(o.quantidade)) ? parseFloat(o.quantidade) : 0 }),
+    fromDb: r => ({ id: Number(r.id), fornecedorId: r.fornecedor_id == null ? null : Number(r.fornecedor_id), nome: r.nome, lote: r.lote, dataFabricacao: r.data_fabricacao, quantidade: Number(r.quantidade), quantidadeBruta: r.quantidade, dataCadastro: r.data_cadastro })
+  },
+  pantones: {
+    table: 'pantones',
+    toDb: o => ({ codigo: o.codigo, nome: o.nome || null, cor: o.cor || null, observacoes: o.observacoes || null, ativo: o.ativo !== false, atualizado_em: nowIso(), atualizado_por: CU ? CU.nome : null }),
+    fromDb: r => ({ id: Number(r.id), codigo: r.codigo, nome: r.nome || '', cor: r.cor || '', observacoes: r.observacoes || '', ativo: r.ativo !== false, dataCadastro: r.criado_em })
+  },
+  receitas: {
+    table: 'receitas',
+    toDb: o => ({ pantone: o.pantone, pantone_id: o.pantoneId ?? null, estampa_origem: o.estampaOrigem || null, referencia: o.referencia, tipo: o.tipo || null, tecido: o.tecido || null, amostra_pedido: o.amostraPedido || null, op: o.op || null, pedido_numero: o.pedido || null }),
+    fromDb: r => ({ id: Number(r.id), pantone: r.pantone || '', pantoneId: r.pantone_id == null ? null : Number(r.pantone_id), estampaOrigem: r.estampa_origem || '', referencia: r.referencia || '', tipo: r.tipo || '', tecido: r.tecido || '', amostraPedido: r.amostra_pedido || '', op: r.op || '', pedido: r.pedido_numero || '', dataCadastro: r.criado_em })
+  },
+  itens: {
+    table: 'receita_itens',
+    toDb: o => ({ receita_id: o.receitaId, produto_id: o.produtoId, quantidade: Number.isFinite(parseFloat(o.quantidade)) ? parseFloat(o.quantidade) : 0, tipo: o.tipo || null, categoria: o.grupo === 'coloracao' ? 'coloracao' : 'materia_prima' }),
+    fromDb: r => ({ id: Number(r.id), receitaId: Number(r.receita_id), produtoId: Number(r.produto_id), quantidade: Number(r.quantidade), tipo: r.tipo || '', grupo: r.categoria === 'coloracao' ? 'coloracao' : 'materiaPrima', dataCadastro: r.criado_em })
+  }
+};
+const INDEX_MAP = { receitaId: 'receita_id', fornecedorId: 'fornecedor_id', produtoId: 'produto_id', pantoneId: 'pantone_id' };
+
+async function addData(store, data){
+  const cfg = STORE_MAP[store];
+  const { data: row, error } = await SB.from(cfg.table).insert(cfg.toDb(data)).select().single();
+  if (error) throw error;
+  return Number(row.id);
+}
+async function getAllData(store){                 // pagina de 1000 em 1000 (o Supabase corta em 1000 por consulta)
+  const cfg = STORE_MAP[store], out = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await SB.from(cfg.table).select('*').order('id').range(from, from + 999);
+    if (error) throw error;
+    out.push(...(data || []));
+    if (!data || data.length < 1000) break;
+  }
+  return out.map(cfg.fromDb);
+}
+async function getDataByIndex(store, indexName, value){
+  const cfg = STORE_MAP[store];
+  const { data, error } = await SB.from(cfg.table).select('*').eq(INDEX_MAP[indexName] || indexName, value);
+  if (error) throw error;
+  return (data || []).map(cfg.fromDb);
+}
+async function getDataById(store, id){
+  const cfg = STORE_MAP[store];
+  const { data, error } = await SB.from(cfg.table).select('*').eq('id', id).maybeSingle();
+  if (error) throw error;
+  return data ? cfg.fromDb(data) : undefined;
+}
+async function updateData(store, id, data){
+  const cfg = STORE_MAP[store];
+  const { error } = await SB.from(cfg.table).update(cfg.toDb(data)).eq('id', id);
+  if (error) throw error;
+  return id;
+}
+async function deleteData(store, id){
+  const { error } = await SB.from(STORE_MAP[store].table).delete().eq('id', id);
+  if (error) throw error;
+  return id;
+}
+async function clearStore(store){
+  const { error } = await SB.from(STORE_MAP[store].table).delete().gt('id', 0);
+  if (error) throw error;
+}
+
+// Histórico de Alterações (mesma tabela do restante do SGE)
+async function registrarHistorico(tabela, id, linhas){
+  if (!id || !linhas || !linhas.length) return;
+  try {
+    const { error } = await SB.from('historico_alteracoes').insert(linhas.map(l => ({ tabela, registro_id: id, usuario_nome: (CU && CU.nome) || 'Desconhecido', campo: l.campo, valor_anterior: l.anterior || '—', valor_novo: l.novo || '—' })));
+    if (error) console.warn('Falha ao registrar histórico:', error);
+  } catch(e) { console.warn('Falha ao registrar histórico:', e); }
+}
+function diffCampos(antes, depois, rotulos){
+  return Object.keys(rotulos)
+    .filter(k => String(antes[k] == null ? '' : antes[k]) !== String(depois[k] == null ? '' : depois[k]))
+    .map(k => ({ campo: rotulos[k], anterior: String(antes[k] == null ? '' : antes[k]), novo: String(depois[k] == null ? '' : depois[k]) }));
+}
+
+/* ═══════════════════════════════════════
+   ESTADO EM MEMÓRIA
+═══════════════════════════════════════ */
+let fornecedores = [], produtos = [], pantones = [], receitas = [];
+const fornecedorNome = id => { const f = fornecedores.find(x => x.id === id); return f ? f.nome : 'N/A'; };
+
+async function carregarBase(){
+  [fornecedores, produtos, pantones, receitas] = await Promise.all([getAllData('fornecedores'), getAllData('produtos'), getAllData('pantones'), getAllData('receitas')]);
+}
+async function recarregar(...quais){
+  const mapa = { fornecedores: () => getAllData('fornecedores').then(v => { fornecedores = v; renderFornecedores(); renderProdutos(); }),
+                 produtos: () => getAllData('produtos').then(v => { produtos = v; renderProdutos(); }),
+                 pantones: () => getAllData('pantones').then(v => { pantones = v; renderPantones(); }),
+                 receitas: () => getAllData('receitas').then(v => { receitas = v; renderReceitas(); renderPantonesPedido(); renderPantones(); }) };
+  await Promise.all(quais.map(q => mapa[q]()));
+}
+
+/* ═══════════════════════════════════════
+   ABAS
+═══════════════════════════════════════ */
+let abaAtual = 'receita';
+function montarAbas(){
+  $('#tabs').innerHTML = ABAS.map(([id, rot]) => `<button type="button" class="tab" role="tab" id="tab-${id}" aria-controls="aba-${id}" data-aba="${id}">${esc(rot)}</button>`).join('');
+  $('#tabs').addEventListener('click', e => { const b = e.target.closest('.tab'); if (b) mostrarAba(b.dataset.aba); });
+}
+const ATUALIZA_AO_ABRIR = { receita: ['receitas'], produto: ['produtos', 'fornecedores'], estoque: ['produtos'], pantones: ['pantones', 'receitas'] };
+function mostrarAba(id, semAtualizar){
+  abaAtual = id;
+  document.querySelectorAll('#tabs .tab').forEach(t => { const on = t.dataset.aba === id; t.classList.toggle('active', on); t.setAttribute('aria-selected', on); t.tabIndex = on ? 0 : -1; });
+  document.querySelectorAll('.aba').forEach(s => { s.hidden = s.id !== 'aba-' + id; });
+  if (id === 'receita') carregarPedidos();
+  if (!semAtualizar && ATUALIZA_AO_ABRIR[id]) recarregar(...ATUALIZA_AO_ABRIR[id]).catch(e => console.warn('Não foi possível atualizar os dados desta aba:', e));   // outras pessoas podem ter alterado estoque/receitas
+}
+
+/* ═══════════════════════════════════════
+   FORNECEDOR
+═══════════════════════════════════════ */
+const ROT_FORN = { nome: 'Nome', cidade: 'Cidade', estado: 'Estado', contato: 'Contato', email: 'E-mail' };
+function renderFornecedores(){
+  const pode = canEdit(), adm = canDelete();
+  const tb = $('#tbFornecedores');
+  tb.innerHTML = fornecedores.length ? '' : '<tr><td colspan="6" class="tbl-empty">Nenhum fornecedor cadastrado ainda.</td></tr>';
+  fornecedores.forEach(f => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><strong>${esc(f.nome)}</strong></td><td>${esc(f.cidade)}</td><td>${esc(f.estado)}</td><td>${esc(f.contato)}</td><td class="cell-sub">${esc(f.email)}</td>
+      <td class="cell-act">${pode ? `<button type="button" class="btn btn-ghost btn-sm" data-a="edit">Editar</button>` : ''}${adm ? `<button type="button" class="btn btn-danger btn-sm" data-a="del" aria-label="Excluir ${esc(f.nome)}">${ic('trash')}</button>` : ''}</td>`;
+    const e = $('[data-a="edit"]', tr), d = $('[data-a="del"]', tr);
+    if (e) e.addEventListener('click', () => editarFornecedor(f.id));
+    if (d) d.addEventListener('click', () => excluirFornecedor(f.id));
+    tb.appendChild(tr);
+  });
+  const sel = $('#produtoFornecedor'), atual = sel.value;
+  sel.innerHTML = '<option value="">Selecione um fornecedor</option>' + fornecedores.map(f => `<option value="${f.id}">${esc(f.nome)}</option>`).join('');
+  if (atual && fornecedores.some(f => String(f.id) === atual)) sel.value = atual;
+}
+function limparFormFornecedor(){
+  $('#formFornecedor').reset(); $('#fornecedorId').value = '';
+  $('#fornTitulo').textContent = 'Novo fornecedor';
+}
+function editarFornecedor(id){
+  const f = fornecedores.find(x => x.id === id); if (!f) return;
+  $('#fornecedorId').value = f.id; $('#fornecedorNome').value = f.nome; $('#fornecedorCidade').value = f.cidade;
+  $('#fornecedorEstado').value = f.estado; $('#fornecedorContato').value = f.contato; $('#fornecedorEmail').value = f.email;
+  $('#fornTitulo').textContent = 'Editar fornecedor';
+  $('#fornecedorNome').focus(); window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+async function salvarFornecedor(e){
+  e.preventDefault();
+  if (!canEdit() || !exigirOnline()) return;
+  const id = $('#fornecedorId').value;
+  const dados = { nome: $('#fornecedorNome').value.trim(), cidade: $('#fornecedorCidade').value.trim(), estado: $('#fornecedorEstado').value, contato: $('#fornecedorContato').value.trim(), email: $('#fornecedorEmail').value.trim() };
+  if (id && !confirm('Deseja salvar as alterações neste fornecedor?')) return;
+  try {
+    if (id) {
+      const antes = fornecedores.find(f => f.id === Number(id));
+      await updateData('fornecedores', Number(id), dados);
+      await registrarHistorico('fornecedores', Number(id), antes ? diffCampos(antes, dados, ROT_FORN) : []);
+      showToast('Fornecedor atualizado.');
+    } else {
+      const novo = await addData('fornecedores', dados);
+      await registrarHistorico('fornecedores', novo, [{ campo: 'Fornecedor', anterior: '—', novo: 'Cadastrado: ' + dados.nome }]);
+      showToast('Fornecedor cadastrado.');
+    }
+    limparFormFornecedor();
+    await recarregar('fornecedores');
+  } catch(err) { console.error(err); showToast('Não foi possível salvar o fornecedor: ' + msgErro(err), 'err'); }
+}
+async function excluirFornecedor(id){
+  if (!canDelete() || !exigirOnline()) return;
+  const f = fornecedores.find(x => x.id === id); if (!f) return;
+  if (!confirm(`Excluir o fornecedor "${f.nome}"? Essa ação não pode ser desfeita.`)) return;
+  try {
+    await deleteData('fornecedores', id);
+    await registrarHistorico('fornecedores', id, [{ campo: 'Fornecedor', anterior: f.nome, novo: 'Excluído' }]);
+    showToast('Fornecedor excluído.');
+    await recarregar('fornecedores');
+  } catch(err) { showToast('Não foi possível excluir: ' + (err && err.code === '23503' ? 'este fornecedor tem produtos cadastrados. Exclua os produtos primeiro.' : msgErro(err)), 'err'); }
+}
+
+/* ═══════════════════════════════════════
+   PRODUTO + ESTOQUE
+═══════════════════════════════════════ */
+const ROT_PROD = { fornecedorId: 'Fornecedor (id)', nome: 'Produto', lote: 'Lote', dataFabricacao: 'Data de fabricação', quantidade: 'Quantidade (kg)' };
+function renderProdutos(){
+  const pode = canEdit(), adm = canDelete();
+  const tb = $('#tbProdutos'), te = $('#tbEstoque');
+  tb.innerHTML = produtos.length ? '' : '<tr><td colspan="7" class="tbl-empty">Nenhum produto cadastrado ainda.</td></tr>';
+  te.innerHTML = produtos.length ? '' : '<tr><td colspan="6" class="tbl-empty">Nenhum produto em estoque.</td></tr>';
+  produtos.forEach(p => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${esc(fornecedorNome(p.fornecedorId))}</td><td><strong>${esc(p.nome)}</strong></td><td class="cell-mono">${esc(p.lote)}</td><td>${esc(formatarData(p.dataFabricacao))}</td><td class="cell-num">${fmtKg(p.quantidade)}</td><td class="cell-sub">${esc(formatarData(p.dataCadastro))}</td>
+      <td class="cell-act">${pode ? `<button type="button" class="btn btn-ghost btn-sm" data-a="edit">Editar</button>` : ''}${adm ? `<button type="button" class="btn btn-danger btn-sm" data-a="del" aria-label="Excluir ${esc(p.nome)}">${ic('trash')}</button>` : ''}</td>`;
+    const e = $('[data-a="edit"]', tr), d = $('[data-a="del"]', tr);
+    if (e) e.addEventListener('click', () => editarProduto(p.id));
+    if (d) d.addEventListener('click', () => excluirProduto(p.id));
+    tb.appendChild(tr);
+    const t2 = document.createElement('tr');
+    t2.innerHTML = `<td>${esc(fornecedorNome(p.fornecedorId))}</td><td><strong>${esc(p.nome)}</strong></td><td class="cell-mono">${esc(p.lote)}</td><td>${esc(formatarData(p.dataFabricacao))}</td><td class="cell-num">${fmtKg(p.quantidade)} ${p.quantidade <= 0 ? '<span class="tag t-alert">Sem estoque</span>' : ''}</td><td class="cell-sub">${esc(formatarData(p.dataCadastro))}</td>`;
+    te.appendChild(t2);
+  });
+}
+function limparFormProduto(){ $('#formProduto').reset(); $('#produtoId').value = ''; $('#prodTitulo').textContent = 'Novo produto'; }
+function editarProduto(id){
+  const p = produtos.find(x => x.id === id); if (!p) return;
+  $('#produtoId').value = p.id; $('#produtoFornecedor').value = p.fornecedorId == null ? '' : p.fornecedorId; $('#produtoNome').value = p.nome;
+  $('#produtoLote').value = p.lote; $('#produtoDataFabricacao').value = p.dataFabricacao || ''; $('#produtoQuantidade').value = p.quantidade;
+  $('#prodTitulo').textContent = 'Editar produto';
+  $('#produtoNome').focus(); window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+async function salvarProduto(e){
+  e.preventDefault();
+  if (!canEdit() || !exigirOnline()) return;
+  const id = $('#produtoId').value;
+  const dados = { fornecedorId: parseInt($('#produtoFornecedor').value), nome: $('#produtoNome').value.trim(), lote: $('#produtoLote').value.trim(), dataFabricacao: $('#produtoDataFabricacao').value, quantidade: parseFloat($('#produtoQuantidade').value) };
+  if (!Number.isFinite(dados.quantidade) || dados.quantidade < 0) { showToast('Informe uma quantidade válida (0 ou mais).', 'err'); return; }
+  if (id && !confirm('Deseja salvar as alterações neste produto do estoque?')) return;
+  try {
+    if (id) {
+      const antes = produtos.find(p => p.id === Number(id));
+      await updateData('produtos', Number(id), dados);
+      const linhas = antes ? diffCampos(antes, dados, ROT_PROD).map(l => l.campo === 'Fornecedor (id)' ? { campo: 'Fornecedor', anterior: fornecedorNome(antes.fornecedorId), novo: fornecedorNome(dados.fornecedorId) } : l) : [];
+      await registrarHistorico('produtos', Number(id), linhas);
+      showToast('Produto atualizado.');
+    } else {
+      const novo = await addData('produtos', dados);
+      await registrarHistorico('produtos', novo, [{ campo: 'Produto', anterior: '—', novo: `Cadastrado: ${dados.nome} (lote ${dados.lote}, ${fmtKg(dados.quantidade)} kg)` }]);
+      showToast('Produto cadastrado.');
+    }
+    limparFormProduto();
+    await recarregar('produtos');
+  } catch(err) { console.error(err); showToast('Não foi possível salvar o produto: ' + msgErro(err), 'err'); }
+}
+async function excluirProduto(id){
+  if (!canDelete() || !exigirOnline()) return;
+  const p = produtos.find(x => x.id === id); if (!p) return;
+  if (!confirm(`Excluir o produto "${p.nome}" (lote ${p.lote}) do estoque? Essa ação não pode ser desfeita.`)) return;
+  try {
+    await deleteData('produtos', id);
+    await registrarHistorico('produtos', id, [{ campo: 'Produto', anterior: `${p.nome} (lote ${p.lote})`, novo: 'Excluído' }]);
+    showToast('Produto excluído.');
+    await recarregar('produtos');
+  } catch(err) { showToast('Não foi possível excluir: ' + (err && err.code === '23503' ? 'este produto é usado em receitas. Exclua ou edite as receitas primeiro.' : msgErro(err)), 'err'); }
+}
+
+/* ═══════════════════════════════════════
+   BANCO DE PANTONES
+═══════════════════════════════════════ */
+const ROT_PANT = { codigo: 'Código', nome: 'Nome', cor: 'Cor', observacoes: 'Observações', ativo: 'Ativo' };
+const receitasDoPantone = p => receitas.filter(r => r.pantoneId === p.id || (r.pantoneId == null && normCod(r.pantone) === normCod(p.codigo)));
+const pantoneDoCodigo = cod => pantones.find(p => normCod(p.codigo) === normCod(cod));
+
+function renderPantones(){
+  const pode = canEdit(), adm = canDelete();
+  const q = normTxt($('#pantoneFiltro').value);
+  const tb = $('#tbPantones');
+  const lista = pantones.filter(p => !q || normTxt(p.codigo).includes(q) || normCod(p.codigo).includes(normCod(q)) || normTxt(p.nome).includes(q));
+  tb.innerHTML = lista.length ? '' : `<tr><td colspan="7" class="tbl-empty">${pantones.length ? 'Nenhum pantone com esse filtro.' : 'O banco ainda está vazio. Ele é preenchido ao abrir pedidos na aba Receita, ou pelo botão "Importar das fichas de Artes".'}</td></tr>`;
+  lista.forEach(p => {
+    const n = receitasDoPantone(p).length;
+    const tr = document.createElement('tr');
+    if (!p.ativo) tr.className = 'inativo';
+    tr.innerHTML = `<td><span class="sw-dot" style="background:${esc(corValida(p.cor))}" title="${esc(p.cor || 'sem cor definida')}"></span></td><td class="cell-mono">${esc(p.codigo)}</td><td>${esc(p.nome) || '<span class="cell-sub">—</span>'}</td><td class="cell-sub">${esc(p.observacoes)}</td><td>${n || '—'}</td>
+      <td>${p.ativo ? '<span class="tag t-ok">Ativo</span>' : '<span class="tag t-type">Inativo</span>'}</td>
+      <td class="cell-act">${pode ? `<button type="button" class="btn btn-ghost btn-sm" data-a="edit">Editar</button><button type="button" class="btn btn-ghost btn-sm" data-a="tog">${p.ativo ? 'Inativar' : 'Ativar'}</button>` : ''}${adm ? `<button type="button" class="btn btn-danger btn-sm" data-a="del" aria-label="Excluir ${esc(p.codigo)}">${ic('trash')}</button>` : ''}</td>`;
+    const e = $('[data-a="edit"]', tr), t = $('[data-a="tog"]', tr), d = $('[data-a="del"]', tr);
+    if (e) e.addEventListener('click', () => editarPantone(p.id));
+    if (t) t.addEventListener('click', () => alternarPantone(p.id));
+    if (d) d.addEventListener('click', () => excluirPantone(p.id));
+    tb.appendChild(tr);
+  });
+}
+function limparFormPantone(){
+  $('#formPantone').reset(); $('#pantoneId').value = '';
+  $('#pantoneCor').value = COR_PADRAO; $('#pantoneCorHex').value = COR_PADRAO;
+  $('#pantTitulo').textContent = 'Novo pantone';
+}
+function editarPantone(id){
+  const p = pantones.find(x => x.id === id); if (!p) return;
+  $('#pantoneId').value = p.id; $('#pantoneCodigo').value = p.codigo; $('#pantoneNome').value = p.nome; $('#pantoneObs').value = p.observacoes;
+  $('#pantoneCor').value = corValida(p.cor); $('#pantoneCorHex').value = p.cor || COR_PADRAO;
+  $('#pantTitulo').textContent = 'Editar pantone';
+  $('#pantoneCodigo').focus(); window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+async function salvarPantone(e){
+  e.preventDefault();
+  if (!canEdit() || !exigirOnline()) return;
+  const id = $('#pantoneId').value ? Number($('#pantoneId').value) : null;
+  const codigo = $('#pantoneCodigo').value.trim().replace(/\s+/g, ' ');
+  const corTxt = $('#pantoneCorHex').value.trim();
+  if (!codigo) { showToast('Informe o código do pantone.', 'err'); return; }
+  if (corTxt && !/^#[0-9a-fA-F]{6}$/.test(corTxt)) { showToast('Cor inválida. Use o formato #RRGGBB (ex: #D4AF37).', 'err'); return; }
+  const igual = pantones.find(p => normCod(p.codigo) === normCod(codigo) && p.id !== id);
+  if (igual) { showToast(`Esse pantone já está no banco como "${igual.codigo}".`, 'err'); return; }
+  const antes = id ? pantones.find(p => p.id === id) : null;
+  const dados = { codigo, nome: $('#pantoneNome').value.trim(), cor: corTxt || null, observacoes: $('#pantoneObs').value.trim(), ativo: antes ? antes.ativo : true };
+  try {
+    if (id) {
+      await updateData('pantones', id, dados);
+      await registrarHistorico('pantones', id, diffCampos(antes, dados, ROT_PANT));
+      showToast('Pantone atualizado.');
+      // mantém o texto das receitas ligadas a ele em sincronia com o código canônico
+      if (antes && antes.codigo !== codigo) await SB.from('receitas').update({ pantone: codigo }).eq('pantone_id', id);
+    } else {
+      const novo = await addData('pantones', dados);
+      await registrarHistorico('pantones', novo, [{ campo: 'Pantone', anterior: '—', novo: 'Cadastrado: ' + codigo }]);
+      showToast('Pantone cadastrado.');
+    }
+    limparFormPantone();
+    await recarregar('pantones', 'receitas');
+  } catch(err) { console.error(err); showToast('Não foi possível salvar o pantone: ' + msgErro(err), 'err'); }
+}
+async function alternarPantone(id){
+  if (!canEdit() || !exigirOnline()) return;
+  const p = pantones.find(x => x.id === id); if (!p) return;
+  try {
+    await updateData('pantones', id, { ...p, ativo: !p.ativo });
+    await registrarHistorico('pantones', id, [{ campo: 'Ativo', anterior: p.ativo ? 'Sim' : 'Não', novo: p.ativo ? 'Não' : 'Sim' }]);
+    await recarregar('pantones');
+  } catch(err) { showToast('Não foi possível alterar: ' + msgErro(err), 'err'); }
+}
+async function excluirPantone(id){
+  if (!canDelete() || !exigirOnline()) return;
+  const p = pantones.find(x => x.id === id); if (!p) return;
+  try {
+    const usadas = await getDataByIndex('receitas', 'pantoneId', id);      // confere no banco (a lista em memória pode estar velha)
+    if (usadas.length) { showToast(`"${p.codigo}" tem ${usadas.length} receita(s). Inative o pantone em vez de excluir.`, 'err'); return; }
+    if (!confirm(`Excluir o pantone "${p.codigo}" do banco? Essa ação não pode ser desfeita.`)) return;
+    await deleteData('pantones', id);
+    await registrarHistorico('pantones', id, [{ campo: 'Pantone', anterior: p.codigo, novo: 'Excluído' }]);
+    showToast('Pantone excluído.');
+    await recarregar('pantones');
+  } catch(err) { showToast('Não foi possível excluir: ' + msgErro(err), 'err'); }
+}
+
+// Garante que o pantone existe no banco (compara sem espaços/maiúsculas) e devolve o id. Completa a cor se estiver vazia.
+async function garantirPantone(codigo, cor){
+  const cod = String(codigo || '').trim().replace(/\s+/g, ' ');
+  if (!cod) return null;
+  let p = pantoneDoCodigo(cod);
+  if (p) {
+    const nova = corOuNulo(cor);
+    if (!p.cor && nova) { try { await updateData('pantones', p.id, { ...p, cor: nova }); p.cor = nova; } catch(e) { /* cor é só um enfeite */ } }
+    return p.id;
+  }
+  try {
+    const cor2 = corOuNulo(cor);
+    const id = await addData('pantones', { codigo: cod, cor: cor2, ativo: true });
+    pantones.push({ id, codigo: cod, nome: '', cor: cor2 || '', observacoes: '', ativo: true });
+    renderPantones();
+    return id;
+  } catch(e) {
+    if (e && e.code === '23505') { pantones = await getAllData('pantones'); p = pantoneDoCodigo(cod); if (p) return p.id; }
+    throw e;
+  }
+}
+// Lê os pantones de uma ficha de Artes (mesma organização da receita: cada estampa, depois o Tagless)
+function listarPantonesFicha(dados){
+  const grupos = [];
+  if (!dados) return grupos;
+  (dados.estampas || []).forEach((est, idx) => {
+    const lista = (est.pantones || []).filter(p => p && p.code);
+    if (lista.length) grupos.push({ nome: (est.name && String(est.name).trim()) || `Estampa ${idx + 1}`, pantones: lista });
+  });
+  if (dados.tagless) {
+    const lista = (dados.tagless.pantones || []).filter(p => p && p.code);
+    if (lista.length) grupos.push({ nome: 'Tagless', pantones: lista });
+  }
+  return grupos.map(g => ({ nome: g.nome, itens: g.pantones.map((p, i) => ({ seq: String(i + 1).padStart(2, '0'), code: String(p.code).trim(), color: corValida(p.color), ink: String(p.ink || '').trim(), fabric: String(p.fabric || '').trim(), origem: g.nome })) }));
+}
+async function semearBanco(grupos){
+  if (!canEdit() || !navigator.onLine) return;
+  try {
+    let novos = 0;
+    for (const g of grupos) for (const it of g.itens) { const antes = pantones.length; await garantirPantone(it.code, it.color); if (pantones.length > antes) novos++; }
+    if (novos) renderPantones();
+  } catch(e) { console.warn('Não foi possível abastecer o banco de pantones:', e); }
+}
+async function importarPantonesDasFichas(){
+  if (!canEdit() || !exigirOnline()) return;
+  ld('Lendo as fichas de Artes...');
+  try {
+    const vistos = new Map();
+    for (let from = 0; ; from += 500) {
+      const { data, error } = await SB.from('fichas').select('dados').range(from, from + 499);
+      if (error) throw error;
+      (data || []).forEach(f => listarPantonesFicha(f.dados).forEach(g => g.itens.forEach(it => { const k = normCod(it.code); if (!vistos.has(k)) vistos.set(k, it); })));
+      if (!data || data.length < 500) break;
+    }
+    let novos = 0;
+    for (const it of vistos.values()) { const antes = pantones.length; await garantirPantone(it.code, it.color); if (pantones.length > antes) novos++; }
+    renderPantones();
+    showToast(novos ? `${novos} pantone(s) novo(s) adicionado(s) ao banco.` : 'Todos os pantones das fichas já estão no banco.');
+  } catch(e) { showToast('Não foi possível importar das fichas: ' + msgErro(e), 'err'); }
+  finally { uld(); }
+}
+
+/* ═══════════════════════════════════════
+   RECEITA — pedido (Estamparia) e pantones da ficha de Artes
+═══════════════════════════════════════ */
+let pedidosDisponiveis = [];        // pedidos da Estamparia (com as OPs de ordens_localizada)
+let fichaPedido = { referencia: '', existe: false, grupos: [] };
+let pedSeq = 0;
+const qualPorPedido = () => { const m = {}; pedidosDisponiveis.forEach(p => { m[p.pedido] = p.statusQualidade; }); return m; };
+
+async function carregarPedidos(){
+  try {
+    const { data, error } = await SB.from('pedidos').select('numero, referencia, status, status_qualidade, ordens_localizada(numero, quantidade, ordem)').order('atualizado_em', { ascending: false }).limit(500);
+    if (error) throw error;
+    pedidosDisponiveis = (data || []).map(r => ({ pedido: r.numero, referencia: r.referencia, status: r.status, statusQualidade: r.status_qualidade || 'pendente', ordens: (r.ordens_localizada || []).slice().sort((a, b) => (a.ordem || 0) - (b.ordem || 0)) }));
+    pedidosDisponiveis.sort((a, b) => (a.status === 'concluida') - (b.status === 'concluida'));   // pendentes primeiro
+  } catch(e) { console.warn('Não foi possível carregar os pedidos:', e); pedidosDisponiveis = []; }
+  preencherSelectPedido();
+  renderReceitas();
+}
+function preencherSelectPedido(){
+  const sel = $('#receitaPedido'), atual = sel.value;
+  sel.innerHTML = '<option value="">Nenhum — escolha um pedido</option>' + pedidosDisponiveis.map(p => {
+    const q = p.statusQualidade === 'aprovado' ? ' · Qualidade: Aprovado' : (p.statusQualidade === 'reprovado' ? ' · Qualidade: Reprovado' : '');
+    return `<option value="${esc(p.pedido)}">${esc(p.pedido)} — Ref. ${esc(p.referencia)} (${p.status === 'concluida' ? 'Concluída' : 'Pendente'})${esc(q)}</option>`;
+  }).join('');
+  if (atual && pedidosDisponiveis.some(p => p.pedido === atual)) sel.value = atual;
+}
+async function selecionarPedido(){
+  const numero = $('#receitaPedido').value;
+  const ped = pedidosDisponiveis.find(p => p.pedido === numero);
+  const info = $('#receitaPedidoInfo');
+  const seq = ++pedSeq;
+  if (!ped) { info.textContent = ''; fichaPedido = { referencia: '', existe: false, grupos: [] }; renderPantonesPedido(); return; }
+  info.textContent = 'Ordens de produção deste pedido: ' + (ped.ordens.map(o => `${o.numero}${o.quantidade ? ' (' + Number(o.quantidade) + ')' : ''}`).join(', ') || 'nenhuma OP cadastrada');
+  $('#pantonesPedido').innerHTML = '<p class="muted">Carregando a ficha de Artes...</p>';
+  try {
+    const { data, error } = await SB.from('fichas').select('dados').eq('referencia', ped.referencia).maybeSingle();
+    if (seq !== pedSeq) return;
+    if (error) throw error;
+    fichaPedido = { referencia: ped.referencia, existe: !!data, grupos: listarPantonesFicha(data && data.dados) };
+    semearBanco(fichaPedido.grupos);
+  } catch(e) {
+    if (seq !== pedSeq) return;
+    fichaPedido = { referencia: ped.referencia, existe: false, grupos: [], erro: true };
+  }
+  renderPantonesPedido();
+}
+// Receita já salva para um pantone do pedido (compara pedido + estampa + pantone + tinta; tecido só quando a receita tem)
+function receitasDaLinha(numeroPedido, it){
+  return receitas.filter(r => r.pedido === numeroPedido && normTxt(r.estampaOrigem) === normTxt(it.origem) && normCod(r.pantone) === normCod(it.code) && normTxt(r.tipo) === normTxt(it.ink) && (!r.tecido || normTxt(r.tecido) === normTxt(it.fabric)));
+}
+function renderPantonesPedido(){
+  const box = $('#pantonesPedido');
+  const numero = $('#receitaPedido').value;
+  if (!numero) { box.innerHTML = '<p class="muted">Escolha um pedido para ver os pantones da ficha de Artes.</p>'; return; }
+  if (fichaPedido.erro) { box.innerHTML = '<div class="ficha-aviso">Não foi possível consultar a ficha de Artes agora. Verifique a conexão e escolha o pedido de novo.</div>'; return; }
+  if (!fichaPedido.existe) { box.innerHTML = `<div class="ficha-aviso">Não existe ficha de Artes para a referência <b>${esc(fichaPedido.referencia)}</b>. <a href="01_Artes.html?ref=${encodeURIComponent(fichaPedido.referencia)}" target="_blank" rel="noopener">Cadastrar no Artes</a></div>`; return; }
+  if (!fichaPedido.grupos.length) { box.innerHTML = '<div class="ficha-aviso">A ficha de Artes desta referência não tem pantones cadastrados.</div>'; return; }
+  const todos = fichaPedido.grupos.flatMap(g => g.itens);
+  const feitos = todos.filter(it => receitasDaLinha(numero, it).length).length;
+  const pct = Math.round(feitos / todos.length * 100);
+  let h = `<div class="prog"><span class="rec-k">Progresso</span><div class="prog-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${todos.length}" aria-valuenow="${feitos}"><span style="width:${pct}%"></span></div><strong>${feitos} de ${todos.length} pantones com receita</strong></div><div class="pg-grid">`;
+  fichaPedido.grupos.forEach((g, gi) => {
+    const fg = g.itens.filter(it => receitasDaLinha(numero, it).length).length;
+    h += `<div class="pg"><div class="pg-title">${esc(g.nome)}<span>${fg} de ${g.itens.length} com receita</span></div>`;
+    g.itens.forEach((it, ii) => {
+      const feita = receitasDaLinha(numero, it).length > 0;
+      const b = pantoneDoCodigo(it.code);
+      const det = [it.ink ? 'Tinta ' + it.ink : '', it.fabric ? 'Tecido ' + it.fabric : '', b && b.nome ? b.nome : ''].filter(Boolean).join(' · ');
+      h += `<button type="button" class="pl ${feita ? 'done' : ''}" data-g="${gi}" data-i="${ii}" aria-label="Receita do pantone ${esc(it.code)}, ${esc(g.nome)}: ${feita ? 'já salva' : 'pendente'}">
+        <span class="pl-seq">${esc(it.seq)}</span><span class="sw-dot" style="background:${esc(corValida((b && b.cor) || it.color))}"></span>
+        <span class="pl-cod">${esc(it.code)}${det ? `<span class="pl-det">${esc(det)}</span>` : ''}</span>
+        <span class="tag ${feita ? 't-ok' : 't-pend'}">${feita ? 'Receita salva' : 'Pendente'}</span></button>`;
+    });
+    h += '</div>';
+  });
+  box.innerHTML = h + '</div>';
+}
+async function cliqueNoPantone(e){
+  const b = e.target.closest('.pl'); if (!b) return;
+  if (!canEdit()) { showToast('Você só pode consultar. Peça a permissão do Laboratório ao Administrador.', 'err'); return; }
+  const it = fichaPedido.grupos[Number(b.dataset.g)].itens[Number(b.dataset.i)];
+  const numero = $('#receitaPedido').value;
+  const existente = receitasDaLinha(numero, it)[0];
+  if (existente) { abrirEdicaoReceita(existente.id); return; }
+  const ped = pedidosDisponiveis.find(p => p.pedido === numero);
+  const pb = pantoneDoCodigo(it.code);
+  try { await recarregar('produtos'); } catch(err) { /* usa o que já está em memória; o salvar confere de novo */ }
+  rec = novoRec({ pedido: numero, estampaOrigem: it.origem, referencia: ped ? ped.referencia : fichaPedido.referencia, pantone: it.code, cor: (pb && pb.cor) || it.color, tinta: it.ink, tecido: it.fabric, op: ped ? ped.ordens.map(o => o.numero).filter(Boolean).join(', ') : '' });
+  abrirModalRec();
+}
+
+/* ── Tabela de receitas (aba Receita e aba Busca compartilham as linhas) ── */
+const ordenarReceitas = lista => lista.slice().sort((a, b) => (a.referencia || '').localeCompare(b.referencia || '') || (a.estampaOrigem || '').localeCompare(b.estampaOrigem || '') || (a.pantone || '').localeCompare(b.pantone || ''));
+const qualBadge = s => s === 'aprovado' ? ' <span class="tag t-ok">Aprovado</span>' : (s === 'reprovado' ? ' <span class="tag t-alert">Reprovado</span>' : '');
+function corDaReceita(r){ const b = r.pantoneId != null ? pantones.find(p => p.id === r.pantoneId) : pantoneDoCodigo(r.pantone); return corValida(b && b.cor); }
+function acoesReceitaHtml(r){
+  return `<button type="button" class="btn btn-ghost btn-sm" data-a="det" data-id="${r.id}">Detalhes</button>`
+    + (canEdit() ? `<button type="button" class="btn btn-ghost btn-sm" data-a="edit" data-id="${r.id}">Editar</button>` : '')
+    + `<button type="button" class="btn btn-ghost btn-sm" data-a="etq" data-id="${r.id}">Etiqueta</button>`
+    + (canDelete() ? `<button type="button" class="btn btn-danger btn-sm" data-a="del" data-id="${r.id}" aria-label="Excluir receita ${esc(r.pantone)}">${ic('trash')}</button>` : '');
+}
+function renderReceitas(){
+  const tb = $('#tbReceitas'); if (!tb) return;
+  const q = qualPorPedido();
+  if (!receitas.length) { tb.innerHTML = '<tr><td colspan="10" class="tbl-empty">Nenhuma receita cadastrada ainda. Escolha um pedido e clique num pantone.</td></tr>'; return; }
+  tb.innerHTML = ordenarReceitas(receitas).map(r => `<tr>
+    <td><span class="sw-dot" style="background:${esc(corDaReceita(r))}"></span> <span class="cell-mono">${esc(r.pantone)}</span></td>
+    <td>${esc(r.estampaOrigem) || '—'}</td><td>${esc(r.tipo) || '—'}</td><td>${esc(r.tecido) || '—'}</td><td class="cell-mono">${esc(r.referencia)}</td>
+    <td>${esc(r.amostraPedido)}</td><td class="cell-sub">${esc(r.op) || 'N/A'}</td><td>${r.pedido ? `<span class="cell-mono">${esc(r.pedido)}</span>${qualBadge(q[r.pedido])}` : '—'}</td>
+    <td class="cell-sub">${esc(formatarData(r.dataCadastro))}</td><td class="cell-act">${acoesReceitaHtml(r)}</td></tr>`).join('');
+}
+function ligarAcoesReceita(tbody){
+  tbody.addEventListener('click', e => {
+    const b = e.target.closest('[data-a]'); if (!b) return;
+    const id = Number(b.dataset.id);
+    ({ det: mostrarDetalhes, edit: abrirEdicaoReceita, del: excluirReceita, etq: imprimirEtiqueta })[b.dataset.a](id);
+  });
+}
+
+/* ═══════════════════════════════════════
+   FORMULÁRIO FLUTUANTE DA RECEITA
+═══════════════════════════════════════ */
+let rec = null, recBase = '';
+function novoRec(base){
+  return Object.assign({ id: null, pedido: '', avulsa: false, estampaOrigem: '', referencia: '', pantone: '', cor: COR_PADRAO, tinta: '', tecido: '', amostraPedido: '', op: '', mp: [], col: [], reserva: {}, original: null }, base || {});
+}
+const somaKg = lista => lista.reduce((s, e) => s + num(e.quantidade), 0);
+const usadoNoForm = pid => [...rec.mp, ...rec.col].filter(e => e.produtoId === pid).reduce((s, e) => s + num(e.quantidade), 0);
+const disponivelDe = pid => { const p = produtos.find(x => x.id === pid); return arred((p ? p.quantidade : 0) + (rec.reserva[pid] || 0) - usadoNoForm(pid)); };
+const resumoItens = lista => lista.map(e => `${e.produtoNome} (lote ${e.lote}, ${fmtKg(e.quantidade)} kg)`).join('; ') || '—';
+const kv = (k, v, mono) => `<div><div class="rec-k">${esc(k)}</div><div class="rec-v ${mono ? 'mono' : ''}">${esc(v)}</div></div>`;
+
+function recAssinatura(){
+  const v = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+  return JSON.stringify({ a: v('recAmostra'), o: v('recOp'), p: v('recPantone'), r: v('recReferencia'), e: v('recEstampa'), t: v('recTinta'), c: v('recTecido'), mp: rec.mp.map(e => [e.produtoId, e.quantidade]), col: rec.col.map(e => [e.produtoId, e.quantidade]) });
+}
+function abrirModalRec(){
+  renderRec();
+  $('#m-receita').classList.add('open');
+  recBase = recAssinatura();
+  const foco = $('#recPantone') || $('#recAmostra'); if (foco) setTimeout(() => foco.focus(), 30);
+}
+function tentarFecharRec(){
+  if (rec && recAssinatura() !== recBase && !confirm('Há alterações não salvas nesta receita. Descartá-las?')) return;
+  $('#m-receita').classList.remove('open'); rec = null;
+}
+
+function montarGrupo(chave, titulo){
+  const el = document.createElement('div');
+  el.className = 'ac';
+  el.innerHTML = `<div class="ac-head"><div class="ac-head-main"><div class="ac-name">${esc(titulo)}</div><div class="ac-sub">O fornecedor define o produto</div></div></div>
+    <div class="gr-row">
+      <div class="fl"><label for="g-${chave}-forn">Fornecedor</label><select class="form-input" id="g-${chave}-forn"><option value="">Selecione um fornecedor</option>${fornecedores.map(f => `<option value="${f.id}">${esc(f.nome)}</option>`).join('')}</select></div>
+      <div class="fl"><label for="g-${chave}-prod">Produto</label><select class="form-input" id="g-${chave}-prod" disabled><option value="">Selecione o fornecedor</option></select></div>
+    </div>
+    <div class="gr-disp" id="g-${chave}-disp">Selecione um produto para ver lote e estoque.</div>
+    <div class="gr-add"><div class="fl"><label for="g-${chave}-qtd">Quantidade (kg)</label><input class="form-input mono" type="number" id="g-${chave}-qtd" step="0.01" min="0" placeholder="0,00"></div>
+      <button type="button" class="btn btn-ghost" id="g-${chave}-add">${withIcon('plus', 'Adicionar')}</button></div>
+    <div id="g-${chave}-list"></div>`;
+  const forn = $(`#g-${chave}-forn`, el), prod = $(`#g-${chave}-prod`, el), disp = $(`#g-${chave}-disp`, el);
+  const info = () => {
+    const p = produtos.find(x => String(x.id) === prod.value);
+    if (!p) { disp.className = 'gr-disp'; disp.textContent = 'Selecione um produto para ver lote e estoque.'; return; }
+    const d = disponivelDe(p.id);
+    disp.className = 'gr-disp' + (d <= 0 ? ' low' : '');
+    disp.textContent = `Lote ${p.lote} · Fabricação ${formatarData(p.dataFabricacao)} · Disponível: ${fmtKg(d)} kg`;
+  };
+  el._info = info;
+  forn.addEventListener('change', () => {
+    prod.innerHTML = forn.value ? '<option value="">Selecione o produto</option>' + produtos.filter(p => String(p.fornecedorId) === forn.value).map(p => `<option value="${p.id}">${esc(p.nome)} (Lote ${esc(p.lote)})</option>`).join('') : '<option value="">Selecione o fornecedor</option>';
+    prod.disabled = !forn.value; info();
+  });
+  prod.addEventListener('change', info);
+  $(`#g-${chave}-add`, el).addEventListener('click', () => {
+    const pid = parseInt(prod.value);
+    if (!pid) { showToast('Selecione o fornecedor e o produto para adicionar.', 'err'); return; }
+    const p = produtos.find(x => x.id === pid);
+    const q = parseFloat($(`#g-${chave}-qtd`, el).value);
+    if (!(q > 0)) { showToast('Informe a quantidade em kg.', 'err'); return; }
+    const d = disponivelDe(pid);
+    if (d <= 0) { showToast(`Este produto está sem estoque disponível (${fmtKg(p.quantidade)} kg cadastrado). Cadastre entrada de estoque antes de usar nesta receita.`, 'err'); return; }
+    if (q > d + 1e-9) { showToast(`Estoque insuficiente: disponível ${fmtKg(d)} kg, mas foi solicitado ${fmtKg(q)} kg.`, 'err'); return; }
+    rec[chave].push({ produtoId: pid, produtoNome: p.nome, fornecedorNome: fornecedorNome(p.fornecedorId), lote: p.lote, data: formatarData(p.dataFabricacao), quantidade: qtdStr(q) });
+    $(`#g-${chave}-qtd`, el).value = '';
+    renderListasRec();
+  });
+  return el;
+}
+function renderListasRec(){
+  [['mp', 'Nenhuma matéria-prima adicionada ainda'], ['col', 'Nenhuma coloração adicionada ainda']].forEach(([chave, vazio]) => {
+    const host = $('#g-' + chave + '-list'); if (!host) return;
+    const lista = rec[chave];
+    host.innerHTML = lista.length ? '' : `<div class="entry-empty">${vazio}</div>`;
+    lista.forEach((e, i) => {
+      const r = document.createElement('div');
+      r.className = 'entry';
+      r.innerHTML = `<span class="entry-seq">${i + 1}</span><span class="entry-desc"><b>${esc(e.produtoNome)}</b> · ${esc(e.fornecedorNome)} · ${esc(fmtKg(e.quantidade))} kg<small>Lote ${esc(e.lote)} · Fabricação ${esc(e.data)}</small></span><button type="button" class="entry-rm" aria-label="Remover ${esc(e.produtoNome)}">${ic('x', 14)}</button>`;
+      $('.entry-rm', r).addEventListener('click', () => { lista.splice(i, 1); renderListasRec(); });
+      host.appendChild(r);
+    });
+    const g = host.closest('.ac'); if (g && g._info) g._info();
+  });
+  $('#recTotal').innerHTML = `Matérias-primas: <b>${fmtKg(somaKg(rec.mp))} kg</b> · Coloração: <b>${fmtKg(somaKg(rec.col))} kg</b> · Total: <b>${fmtKg(somaKg(rec.mp) + somaKg(rec.col))} kg</b>`;
+}
+function infoPantoneAvulso(){
+  const el = $('#recPantoneInfo'), cod = $('#recPantone').value.trim();
+  if (!el) return;
+  if (!cod) { el.textContent = ''; return; }
+  const b = pantoneDoCodigo(cod);
+  if (b) { rec.cor = b.cor || COR_PADRAO; el.innerHTML = `<span class="sw-dot" style="background:${esc(corValida(b.cor))}"></span> No banco como <b>${esc(b.codigo)}</b>${b.nome ? ' · ' + esc(b.nome) : ''}${b.ativo ? '' : ' · <b>inativo</b>'}`; }
+  else el.textContent = 'Pantone novo: será cadastrado no banco ao salvar a receita.';
+}
+function renderRec(){
+  $('#rec-title').textContent = rec.id ? `Editar receita · ${rec.pantone}` : (rec.avulsa ? 'Nova receita avulsa' : `Receita · ${rec.pantone}`);
+  const body = $('#recBody');
+  const b = pantoneDoCodigo(rec.pantone);
+  let topo;
+  if (!rec.avulsa) {
+    topo = `<div class="rec-sum"><span class="rec-sw" style="background:${esc(corValida((b && b.cor) || rec.cor))}"></span>
+      <div><div class="rec-k">Pantone</div><div class="rec-code">${esc(rec.pantone)}</div>${b && b.nome ? `<div class="muted">${esc(b.nome)}</div>` : ''}</div>
+      ${kv('Estampa', rec.estampaOrigem || '—')}${kv('Referência', rec.referencia, true)}${kv('Pedido', rec.pedido || '—', true)}${kv('Tinta', rec.tinta || '—', true)}${kv('Tecido', rec.tecido || '—', true)}</div>`;
+  } else {
+    topo = `<div class="rec-avulsa">
+      <div class="fl"><label for="recPantone">Pantone</label><input class="form-input mono" id="recPantone" list="dlPantones" value="${esc(rec.pantone)}" placeholder="Busque no banco ou digite um novo" autocomplete="off"></div>
+      <div class="fl"><label for="recReferencia">Referência</label><input class="form-input mono" id="recReferencia" value="${esc(rec.referencia)}"></div>
+      <div class="fl"><label for="recEstampa">Estampa (opcional)</label><input class="form-input" id="recEstampa" value="${esc(rec.estampaOrigem)}"></div>
+      <div class="fl"><label for="recTinta">Tinta (opcional)</label><input class="form-input mono" id="recTinta" value="${esc(rec.tinta)}"></div>
+      <div class="fl"><label for="recTecido">Tecido (opcional)</label><input class="form-input mono" id="recTecido" value="${esc(rec.tecido)}"></div>
+    </div><datalist id="dlPantones">${pantones.filter(p => p.ativo).map(p => `<option value="${esc(p.codigo)}">${esc(p.nome)}</option>`).join('')}</datalist><div class="muted" id="recPantoneInfo" style="margin:-6px 0 12px"></div>`;
+  }
+  body.innerHTML = topo + `<div class="rec-meta">
+      <div class="fl"><label for="recAmostra">Amostra ou Pedido</label><select class="form-input" id="recAmostra"><option value="">Selecione</option><option value="Amostra">Amostra</option><option value="Pedido">Pedido</option></select></div>
+      <div class="fl"><label for="recOp">OP</label><input class="form-input mono" id="recOp" value="${esc(rec.op)}"></div></div>
+    <div class="rec-groups" id="recGroups"></div>
+    ${rec.id ? '<div class="rec-hist"><div class="st-title">Histórico de alterações</div><div id="recHist"><p class="muted">Carregando histórico...</p></div></div>' : ''}`;
+  $('#recAmostra').value = rec.amostraPedido;
+  $('#recGroups').appendChild(montarGrupo('mp', 'Matérias-primas'));
+  $('#recGroups').appendChild(montarGrupo('col', 'Coloração'));
+  if (rec.avulsa) { $('#recPantone').addEventListener('input', infoPantoneAvulso); $('#recPantone').addEventListener('change', infoPantoneAvulso); infoPantoneAvulso(); }
+  renderListasRec();
+  $('#recCopiar').style.display = !rec.id ? '' : 'none';
+  if (rec.id) carregarHistoricoReceita(rec.id);
+}
+let recHistSeq = 0;
+async function carregarHistoricoReceita(id){
+  const seq = ++recHistSeq;
+  try {
+    const { data, error } = await SB.from('historico_alteracoes').select('*').eq('tabela', 'receitas').eq('registro_id', id).order('criado_em', { ascending: false }).limit(60);
+    if (seq !== recHistSeq) return;
+    if (error) throw error;
+    const box = $('#recHist'); if (!box) return;
+    box.innerHTML = (data && data.length) ? data.map(h => `<div class="hist-item"><div class="hist-campo">${esc(h.campo)}</div><div class="hist-vals"><span class="hist-old">${esc(h.valor_anterior)}</span> → <strong>${esc(h.valor_novo)}</strong></div><div class="hist-meta">${esc(h.usuario_nome)} · ${esc(fmtDataHora(h.criado_em))}</div></div>`).join('') : '<p class="muted">Nenhuma alteração registrada ainda.</p>';
+  } catch(e) { const box = $('#recHist'); if (box && seq === recHistSeq) box.innerHTML = '<p class="muted">Não foi possível carregar o histórico agora.</p>'; }
+}
+
+async function abrirReceitaAvulsa(){
+  if (!canEdit()) return;
+  try { await recarregar('produtos'); } catch(err) { /* usa o que já está em memória; o salvar confere de novo */ }
+  rec = novoRec({ avulsa: true });
+  abrirModalRec();
+}
+async function abrirEdicaoReceita(id){
+  if (!canEdit()) return;
+  try {
+    const r = receitas.find(x => x.id === id) || await getDataById('receitas', id);
+    if (!r) { showToast('Receita não encontrada.', 'err'); return; }
+    const itens = await getDataByIndex('itens', 'receitaId', id);
+    await recarregar('produtos');
+    const novo = novoRec({ id: r.id, pedido: r.pedido, avulsa: !r.pedido, estampaOrigem: r.estampaOrigem, referencia: r.referencia, pantone: r.pantone, tinta: r.tipo, tecido: r.tecido, amostraPedido: r.amostraPedido, op: r.op });
+    const pb = r.pantoneId != null ? pantones.find(p => p.id === r.pantoneId) : pantoneDoCodigo(r.pantone);
+    novo.cor = (pb && pb.cor) || COR_PADRAO;
+    itens.forEach(it => {
+      novo.reserva[it.produtoId] = arred((novo.reserva[it.produtoId] || 0) + (it.quantidade || 0));
+      const p = produtos.find(x => x.id === it.produtoId);
+      if (!p) return;   // produto excluído: o item não pode ser reeditado
+      (it.grupo === 'coloracao' ? novo.col : novo.mp).push({ produtoId: p.id, produtoNome: p.nome, fornecedorNome: fornecedorNome(p.fornecedorId), lote: p.lote, data: formatarData(p.dataFabricacao), quantidade: qtdStr(it.quantidade) });
+    });
+    novo.original = { pantone: novo.pantone, referencia: novo.referencia, estampa: novo.estampaOrigem, tinta: novo.tinta, tecido: novo.tecido, amostra: novo.amostraPedido, op: novo.op, mp: resumoItens(novo.mp), col: resumoItens(novo.col) };
+    rec = novo;
+    abrirModalRec();
+  } catch(e) { console.error(e); showToast('Não foi possível abrir a receita: ' + msgErro(e), 'err'); }
+}
+async function copiarUltimaReceita(){
+  if (rec.avulsa) rec.pantone = ($('#recPantone').value || '').trim();
+  if (rec.avulsa) rec.tinta = ($('#recTinta').value || '').trim();
+  if (!normCod(rec.pantone)) { showToast('Informe o pantone antes de copiar.', 'err'); return; }
+  const cand = receitas.filter(r => r.id !== rec.id && normCod(r.pantone) === normCod(rec.pantone) && normTxt(r.tipo) === normTxt(rec.tinta))
+    .sort((a, b) => String(b.dataCadastro).localeCompare(String(a.dataCadastro)));
+  if (!cand.length) { showToast('Ainda não há receita anterior deste pantone com a mesma tinta.'); return; }
+  if ((rec.mp.length || rec.col.length) && !confirm('Substituir os itens já adicionados pelos da última receita deste pantone?')) return;
+  try {
+    const itens = await getDataByIndex('itens', 'receitaId', cand[0].id);
+    await recarregar('produtos');
+    rec.mp = []; rec.col = [];
+    let ignorados = 0;
+    itens.forEach(it => {
+      const p = produtos.find(x => x.id === it.produtoId);
+      if (!p || disponivelDe(p.id) + 1e-9 < it.quantidade) { ignorados++; return; }
+      (it.grupo === 'coloracao' ? rec.col : rec.mp).push({ produtoId: p.id, produtoNome: p.nome, fornecedorNome: fornecedorNome(p.fornecedorId), lote: p.lote, data: formatarData(p.dataFabricacao), quantidade: qtdStr(it.quantidade) });
+    });
+    if (!$('#recAmostra').value && cand[0].amostraPedido) $('#recAmostra').value = cand[0].amostraPedido;
+    renderListasRec();
+    showToast(`Copiado da receita de ${formatarData(cand[0].dataCadastro)}${cand[0].pedido ? ' (pedido ' + cand[0].pedido + ')' : ''}.` + (ignorados ? ` ${ignorados} item(ns) ficaram de fora por falta de estoque ou produto excluído.` : ''), ignorados ? 'err' : 'ok');
+  } catch(e) { showToast('Não foi possível copiar: ' + msgErro(e), 'err'); }
+}
+
+/* ── Estoque: baixa/devolução protegida contra edição simultânea ── */
+async function produtosFrescos(ids){
+  const out = {};
+  if (!ids.length) return out;
+  const { data, error } = await SB.from('produtos').select('*').in('id', ids);
+  if (error) throw error;
+  (data || []).forEach(r => { const p = STORE_MAP.produtos.fromDb(r); out[p.id] = p; });
+  return out;
+}
+async function reverterEstoque(aplicados){
+  for (const a of aplicados.slice().reverse()) {
+    try { await SB.from('produtos').update({ quantidade: a.original }).eq('id', a.pid).eq('quantidade', a.gravado); }
+    catch(e) { console.warn('Falha ao reverter o estoque', a, e); }
+  }
+}
+// delta > 0 devolve ao estoque; delta < 0 consome. Só grava se ninguém mexeu no produto desde a leitura.
+async function aplicarDeltasEstoque(frescos, delta){
+  const aplicados = [];
+  try {
+    for (const [pidStr, d] of Object.entries(delta)) {
+      const pid = Number(pidStr), p = frescos[pid];
+      if (!d || !p) continue;
+      const novo = arred((Number(p.quantidade) || 0) + d);
+      if (novo < 0) throw new Error(`Estoque insuficiente para "${p.nome}".`);
+      const { data, error } = await SB.from('produtos').update({ quantidade: novo }).eq('id', pid).eq('quantidade', p.quantidadeBruta).select('id');
+      if (error) throw error;
+      if (!data || !data.length) throw new Error(`O estoque de "${p.nome}" mudou enquanto você salvava. Tente novamente.`);
+      aplicados.push({ pid, gravado: novo, original: p.quantidadeBruta });
+    }
+  } catch(e) { await reverterEstoque(aplicados); throw e; }
+  return aplicados;
+}
+
+async function salvarReceita(){
+  if (!canEdit() || !rec || !exigirOnline()) return;
+  rec.amostraPedido = $('#recAmostra').value;
+  rec.op = $('#recOp').value.trim();
+  if (rec.avulsa) { rec.pantone = $('#recPantone').value.trim().replace(/\s+/g, ' '); rec.referencia = $('#recReferencia').value.trim(); rec.estampaOrigem = $('#recEstampa').value.trim(); rec.tinta = $('#recTinta').value.trim(); rec.tecido = $('#recTecido').value.trim(); }
+  if (!rec.pantone) { showToast('Informe o pantone.', 'err'); return; }
+  if (!rec.referencia) { showToast('Informe a referência.', 'err'); return; }
+  if (!rec.amostraPedido) { showToast('Selecione se é Amostra ou Pedido.', 'err'); return; }
+  if (!rec.mp.length && !rec.col.length) { showToast('Adicione pelo menos uma matéria-prima ou coloração do estoque antes de salvar a receita.', 'err'); return; }
+  if (!rec.id && rec.pedido) {
+    const dup = receitasDaLinha(rec.pedido, { origem: rec.estampaOrigem, code: rec.pantone, ink: rec.tinta, fabric: rec.tecido });
+    if (dup.length) { showToast('Já existe receita deste pantone neste pedido. Feche esta janela e clique no pantone para editar a existente.', 'err'); return; }
+  }
+  ld('Salvando receita...');
+  let aplicados = [], receitaCriada = null, novosItens = [];
+  try {
+    const todas = [...rec.mp.map(e => ({ ...e, grupo: 'materiaPrima' })), ...rec.col.map(e => ({ ...e, grupo: 'coloracao' }))];
+    const necessario = {};
+    todas.forEach(e => { necessario[e.produtoId] = arred((necessario[e.produtoId] || 0) + num(e.quantidade)); });
+    const ids = [...new Set([...Object.keys(necessario).map(Number), ...Object.keys(rec.reserva).map(Number)])];
+    const frescos = await produtosFrescos(ids);
+    for (const pid of Object.keys(necessario).map(Number)) {
+      const p = frescos[pid], disp = arred((p ? p.quantidade : 0) + (rec.reserva[pid] || 0));
+      if (!p || disp + 1e-9 < necessario[pid]) { uld(); showToast(`Não é possível salvar: o produto "${p ? p.nome : 'selecionado'}" não tem estoque suficiente (disponível: ${fmtKg(disp)} kg, necessário: ${fmtKg(necessario[pid])} kg).`, 'err'); return; }
+    }
+    const delta = {};
+    ids.forEach(pid => { delta[pid] = arred((rec.reserva[pid] || 0) - (necessario[pid] || 0)); });
+    const pantoneId = await garantirPantone(rec.pantone, rec.cor);
+    const pb = pantoneId != null ? pantones.find(p => p.id === pantoneId) : null;
+    const dadosRec = { pantone: rec.avulsa && pb ? pb.codigo : rec.pantone, pantoneId, estampaOrigem: rec.estampaOrigem, referencia: rec.referencia, tipo: rec.tinta, tecido: rec.tecido, amostraPedido: rec.amostraPedido, op: rec.op, pedido: rec.pedido || null };
+
+    aplicados = await aplicarDeltasEstoque(frescos, delta);          // 1) estoque (com trava)
+    let receitaId = rec.id;
+    const antigos = rec.id ? await getDataByIndex('itens', 'receitaId', rec.id) : [];
+    if (rec.id) await updateData('receitas', rec.id, dadosRec);       // 2) receita
+    else { receitaId = await addData('receitas', dadosRec); receitaCriada = receitaId; }
+    for (const e of todas) novosItens.push(await addData('itens', { receitaId, produtoId: e.produtoId, quantidade: num(e.quantidade), tipo: '', grupo: e.grupo }));   // 3) itens novos
+    for (const a of antigos) await deleteData('itens', a.id);         // 4) só então remove os antigos
+
+    if (rec.id) {
+      const depois = { pantone: dadosRec.pantone, referencia: rec.referencia, estampa: rec.estampaOrigem, tinta: rec.tinta, tecido: rec.tecido, amostra: rec.amostraPedido, op: rec.op, mp: resumoItens(rec.mp), col: resumoItens(rec.col) };
+      const rot = { pantone: 'Pantone', referencia: 'Referência', estampa: 'Estampa', tinta: 'Tinta', tecido: 'Tecido', amostra: 'Amostra/Pedido', op: 'OP', mp: 'Matérias-primas', col: 'Coloração' };
+      await registrarHistorico('receitas', rec.id, diffCampos(rec.original || {}, depois, rot));
+    } else {
+      await registrarHistorico('receitas', receitaId, [{ campo: 'Receita', anterior: '—', novo: `Criada: ${dadosRec.pantone}${rec.pedido ? ' (pedido ' + rec.pedido + ')' : ' (avulsa)'}` }]);
+    }
+    const eraEdicao = !!rec.id, pedidoRec = rec.pedido, pantoneTxt = dadosRec.pantone;
+    $('#m-receita').classList.remove('open'); rec = null;
+    await Promise.all([recarregar('produtos'), recarregar('receitas'), recarregar('pantones')]);
+    showToast(eraEdicao ? `Receita do pantone ${pantoneTxt} atualizada.` : `Receita do pantone ${pantoneTxt} cadastrada.`);
+    if (pedidoRec) { await sincronizarPedido(pedidoRec); await carregarPedidos(); renderPantonesPedido(); }
+  } catch(e) {
+    console.error(e);
+    await reverterEstoque(aplicados);
+    for (const id of novosItens) { try { await deleteData('itens', id); } catch(x) { /* melhor esforço */ } }
+    if (receitaCriada) { try { await deleteData('receitas', receitaCriada); } catch(x) { /* melhor esforço */ } }
+    showToast('Não foi possível salvar a receita: ' + msgErro(e), 'err');
+  } finally { uld(); }
+}
+
+// Conclui o pedido na Estamparia quando TODOS os pantones da ficha têm receita (nunca reabre sozinho).
+async function sincronizarPedido(numero){
+  if (!numero) return;
+  try {
+    const { data: ped } = await SB.from('pedidos').select('id, referencia, status').eq('numero', numero).maybeSingle();
+    if (!ped || ped.status === 'concluida') return;
+    const { data: f } = await SB.from('fichas').select('dados').eq('referencia', ped.referencia).maybeSingle();
+    const linhas = listarPantonesFicha(f && f.dados).flatMap(g => g.itens);
+    if (!linhas.length) return;
+    const { data: rs } = await SB.from('receitas').select('*').eq('pedido_numero', numero);
+    const feitas = (rs || []).map(STORE_MAP.receitas.fromDb);
+    const completo = linhas.every(it => feitas.some(r => normTxt(r.estampaOrigem) === normTxt(it.origem) && normCod(r.pantone) === normCod(it.code) && normTxt(r.tipo) === normTxt(it.ink) && (!r.tecido || normTxt(r.tecido) === normTxt(it.fabric))));
+    if (!completo) return;
+    const { error } = await SB.from('pedidos').update({ status: 'concluida', atualizado_em: nowIso(), atualizado_por: CU.nome }).eq('id', ped.id);
+    if (error) return;
+    await registrarHistorico('pedidos', ped.id, [{ campo: 'Situação', anterior: 'Pendente', novo: 'Concluída (todas as receitas do Laboratório foram salvas)' }]);
+    showToast(`Todos os pantones do pedido ${numero} têm receita: pedido marcado como Concluída.`);
+  } catch(e) { console.warn('Não foi possível sincronizar o pedido:', e); }
+}
+
+async function excluirReceita(id){
+  if (!canDelete() || !exigirOnline()) return;
+  const r = receitas.find(x => x.id === id); if (!r) return;
+  if (!confirm(`Excluir a receita do pantone "${r.pantone}" e os itens dela? O estoque usado será devolvido. Essa ação não pode ser desfeita.`)) return;
+  ld('Excluindo receita...');
+  let aplicados = [];
+  try {
+    const itens = await getDataByIndex('itens', 'receitaId', id);
+    const delta = {};
+    itens.forEach(it => { delta[it.produtoId] = arred((delta[it.produtoId] || 0) + (it.quantidade || 0)); });
+    const frescos = await produtosFrescos(Object.keys(delta).map(Number));
+    aplicados = await aplicarDeltasEstoque(frescos, delta);
+    for (const it of itens) await deleteData('itens', it.id);
+    await deleteData('receitas', id);
+    await registrarHistorico('receitas', id, [{ campo: 'Receita', anterior: `${r.pantone}${r.pedido ? ' (pedido ' + r.pedido + ')' : ''}`, novo: 'Excluída' }]);
+    await Promise.all([recarregar('receitas'), recarregar('produtos')]);
+    showToast('Receita excluída. O estoque usado por ela foi devolvido.');
+    if (abaAtual === 'busca') await realizarBusca();
+  } catch(e) {
+    await reverterEstoque(aplicados);
+    showToast('Não foi possível excluir a receita: ' + msgErro(e), 'err');
+  } finally { uld(); }
+}
+
+/* ═══════════════════════════════════════
+   DETALHES E ETIQUETA
+═══════════════════════════════════════ */
+async function mostrarDetalhes(id){
+  try {
+    const r = receitas.find(x => x.id === id) || await getDataById('receitas', id);
+    if (!r) return;
+    const itens = await getDataByIndex('itens', 'receitaId', id);
+    const grupo = (titulo, lista) => {
+      if (!lista.length) return `<div class="det-h">${esc(titulo)}</div><p class="muted">Nenhum item adicionado.</p>`;
+      return `<div class="det-h">${esc(titulo)}</div><div class="tw"><table class="tbl tbl-mini"><thead><tr><th>Fornecedor</th><th>Produto</th><th>Lote</th><th>Data fab.</th><th>Qtd. (kg)</th></tr></thead><tbody>${lista.map(it => {
+        const p = produtos.find(x => x.id === it.produtoId);
+        return p ? `<tr><td>${esc(fornecedorNome(p.fornecedorId))}</td><td>${esc(p.nome)}</td><td class="cell-mono">${esc(p.lote)}</td><td>${esc(formatarData(p.dataFabricacao))}</td><td class="cell-num">${fmtKg(it.quantidade)}</td></tr>` : `<tr><td colspan="4" class="cell-sub">Produto excluído</td><td class="cell-num">${fmtKg(it.quantidade)}</td></tr>`;
+      }).join('')}</tbody></table></div>`;
+    };
+    const campo = (k, v) => `<div class="fl"><div class="fl-label">${esc(k)}</div><div class="ro-val">${esc(v) || '—'}</div></div>`;
+    $('#det-title').textContent = `Detalhes da receita: ${r.pantone}`;
+    $('#detBody').innerHTML = `<div class="det-grid">${campo('Pantone', r.pantone)}${campo('Estampa', r.estampaOrigem)}${campo('Referência', r.referencia)}${campo('Tinta', r.tipo)}${campo('Tecido', r.tecido)}${campo('Amostra/Pedido', r.amostraPedido)}${campo('OP', r.op || 'N/A')}${campo('Pedido (Estamparia)', r.pedido || 'Nenhum — receita avulsa')}${campo('Cadastro', formatarData(r.dataCadastro))}</div>`
+      + grupo('Matérias-primas', itens.filter(i => i.grupo !== 'coloracao')) + grupo('Coloração', itens.filter(i => i.grupo === 'coloracao'));
+    $('#m-detalhes').classList.add('open');
+  } catch(e) { showToast('Não foi possível carregar os detalhes: ' + msgErro(e), 'err'); }
+}
+const htmlPopup = (titulo, css, corpo) => `<html><head><meta charset="utf-8"><title>${esc(titulo)}</title><style>${css}</style></head><body onload="window.print(); window.onafterprint = function(){ window.close(); }">${corpo}</body></html>`;
+async function imprimirEtiqueta(id){
+  const w = window.open('', '_blank');           // abre já no clique (senão o navegador bloqueia o pop-up)
+  if (!w) { showToast('O navegador bloqueou a janela de impressão. Libere pop-ups para este site.', 'err'); return; }
+  try {
+    const r = receitas.find(x => x.id === id) || await getDataById('receitas', id);
+    if (!r) { w.close(); return; }
+    const css = `body{font-family:Arial,sans-serif;margin:0;padding:0;display:flex;justify-content:center;align-items:center;height:100vh}.etiqueta{width:9cm;height:9cm;border:1px solid #000;padding:0.5cm;page-break-inside:avoid}.t{text-align:center;font-size:20px;font-weight:bold;margin-bottom:0.5cm;color:#1B3A5C}.c{margin-bottom:0.2cm}.l{font-weight:bold;display:inline-block;width:2.5cm}@media print{.etiqueta{margin:0;border:none}}`;
+    const linha = (k, v) => `<div class="c"><span class="l">${esc(k)}</span> ${esc(v)}</div>`;
+    w.document.write(htmlPopup('Etiqueta - ' + r.pantone, css, `<div class="etiqueta"><div class="t">${esc(r.pantone)}${r.tipo ? ' - ' + esc(r.tipo) : ''}</div>${linha('Referência:', r.referencia)}${linha('OP:', r.op || 'N/A')}${linha('Tipo:', r.amostraPedido)}${r.tecido ? linha('Tecido:', r.tecido) : ''}${linha('Data:', formatarData(r.dataCadastro))}</div>`));
+    w.document.close();
+  } catch(e) { w.close(); showToast('Não foi possível imprimir a etiqueta.', 'err'); }
+}
+
+/* ═══════════════════════════════════════
+   BUSCA
+═══════════════════════════════════════ */
+let ultimaBusca = [], buscaSeq = 0;
+async function realizarBusca(){
+  const seq = ++buscaSeq;
+  const v = id => $('#' + id).value.trim();
+  const f = { pantone: v('buscaPantone'), referencia: v('buscaReferencia').toLowerCase(), estampa: v('buscaEstampa').toLowerCase(), pedido: v('buscaPedido').toLowerCase(), op: v('buscaOp').toLowerCase(), status: $('#buscaStatusPedido').value, produto: v('buscaProduto').toLowerCase(), lote: v('buscaLote').toLowerCase(), de: $('#buscaDataDe').value, ate: $('#buscaDataAte').value };
+  const tb = $('#tbBusca');
+  tb.innerHTML = '<tr><td colspan="9" class="tbl-empty">Buscando...</td></tr>';
+  try {
+    let lista = await getAllData('receitas');
+    if (seq !== buscaSeq) return;
+    if (f.pantone) lista = lista.filter(r => normCod(r.pantone).includes(normCod(f.pantone)));
+    if (f.referencia) lista = lista.filter(r => r.referencia.toLowerCase().includes(f.referencia));
+    if (f.estampa) lista = lista.filter(r => r.estampaOrigem.toLowerCase().includes(f.estampa));
+    if (f.pedido) lista = lista.filter(r => r.pedido.toLowerCase().includes(f.pedido));
+    if (f.op) lista = lista.filter(r => r.op.toLowerCase().includes(f.op));
+    if (f.status) {
+      if (f.status === 'nenhum') lista = lista.filter(r => !r.pedido);
+      else { await carregarPedidos(); const st = {}; pedidosDisponiveis.forEach(p => { st[p.pedido] = p.status === 'concluida' ? 'concluida' : 'pendente'; }); lista = lista.filter(r => r.pedido && st[r.pedido] === f.status); }
+    }
+    if (f.de) lista = lista.filter(r => r.dataCadastro && r.dataCadastro.slice(0, 10) >= f.de);
+    if (f.ate) lista = lista.filter(r => r.dataCadastro && r.dataCadastro.slice(0, 10) <= f.ate);
+    if (f.produto || f.lote) {
+      const [itens, prods, forns] = await Promise.all([getAllData('itens'), getAllData('produtos'), getAllData('fornecedores')]);
+      const fn = {}; forns.forEach(x => { fn[x.id] = (x.nome || '').toLowerCase(); });
+      lista = lista.filter(r => itens.filter(i => i.receitaId === r.id).some(i => {
+        const p = prods.find(x => x.id === i.produtoId); if (!p) return false;
+        const okP = f.produto ? ((p.nome || '').toLowerCase().includes(f.produto) || (fn[p.fornecedorId] || '').includes(f.produto)) : true;
+        const okL = f.lote ? (p.lote || '').toLowerCase().includes(f.lote) : true;
+        return okP && okL;
+      }));
+    }
+    if (seq !== buscaSeq) return;
+    ultimaBusca = ordenarReceitas(lista);
+    $('#buscaContagem').textContent = ultimaBusca.length ? `· ${ultimaBusca.length} receita(s) encontrada(s)` : '· nenhuma receita encontrada';
+    if (!ultimaBusca.length) {
+      tb.innerHTML = `<tr><td colspan="9" class="tbl-empty">Nenhuma receita encontrada para este filtro.${(f.produto || f.lote) ? ' Busca por Produto/Lote só encontra receitas que já têm matéria-prima ou coloração desse produto.' : ''}</td></tr>`;
+      return;
+    }
+    tb.innerHTML = ultimaBusca.map(r => `<tr><td class="cell-mono">${esc(r.referencia)}</td><td>${esc(r.estampaOrigem) || '—'}</td><td><span class="sw-dot" style="background:${esc(corDaReceita(r))}"></span> <span class="cell-mono">${esc(r.pantone)}</span></td><td>${esc(r.tipo) || '—'}</td><td>${esc(r.amostraPedido)}</td><td class="cell-sub">${esc(r.op) || 'N/A'}</td><td>${r.pedido ? `<span class="cell-mono">${esc(r.pedido)}</span>` : '—'}</td><td class="cell-sub">${esc(formatarData(r.dataCadastro))}</td><td class="cell-act">${acoesReceitaHtml(r)}</td></tr>`).join('');
+  } catch(e) {
+    if (seq !== buscaSeq) return;
+    tb.innerHTML = '<tr><td colspan="9" class="tbl-empty">Não foi possível buscar agora. Verifique a conexão e tente de novo.</td></tr>';
+  }
+}
+function limparBusca(){
+  ['buscaPantone', 'buscaReferencia', 'buscaEstampa', 'buscaPedido', 'buscaOp', 'buscaProduto', 'buscaLote', 'buscaDataDe', 'buscaDataAte'].forEach(id => { $('#' + id).value = ''; });
+  $('#buscaStatusPedido').value = '';
+  realizarBusca();
+}
+async function imprimirResultados(){
+  if (!ultimaBusca.length) { showToast('Nenhum resultado para imprimir. Faça uma busca primeiro.', 'err'); return; }
+  const w = window.open('', '_blank');
+  if (!w) { showToast('O navegador bloqueou a janela de impressão. Libere pop-ups para este site.', 'err'); return; }
+  try {
+    const [itens, prods, forns] = await Promise.all([getAllData('itens'), getAllData('produtos'), getAllData('fornecedores')]);
+    const linhas = lista => lista.length ? lista.map(m => { const p = prods.find(x => x.id === m.produtoId), fo = p ? forns.find(x => x.id === p.fornecedorId) : null; return `<tr><td>${esc(fo ? fo.nome : 'N/A')}</td><td>${esc(p ? p.nome : 'N/A')}</td><td>${esc(p ? p.lote : '—')}</td><td>${fmtKg(m.quantidade)} kg</td></tr>`; }).join('') : '<tr><td colspan="4" style="color:#888">Nenhum item cadastrado.</td></tr>';
+    const blocos = ultimaBusca.map(r => { const its = itens.filter(i => i.receitaId === r.id);
+      return `<div class="rr"><div class="rp">${esc(r.pantone)}</div><div class="rs">Estampa: ${esc(r.estampaOrigem) || '—'} · Referência: ${esc(r.referencia)} · Tinta: ${esc(r.tipo) || '—'}${r.tecido ? ' · Tecido: ' + esc(r.tecido) : ''}</div><div class="rs">Amostra/Pedido: ${esc(r.amostraPedido)} · OP: ${esc(r.op) || 'N/A'} · Pedido: ${esc(r.pedido) || '—'} · Cadastro: ${esc(formatarData(r.dataCadastro))}</div>
+        <div class="rg">Matérias-primas</div><table><thead><tr><th>Fornecedor</th><th>Produto</th><th>Lote</th><th>Qtd.</th></tr></thead><tbody>${linhas(its.filter(i => i.grupo !== 'coloracao'))}</tbody></table>
+        <div class="rg">Coloração</div><table><thead><tr><th>Fornecedor</th><th>Produto</th><th>Lote</th><th>Qtd.</th></tr></thead><tbody>${linhas(its.filter(i => i.grupo === 'coloracao'))}</tbody></table></div>`; }).join('');
+    const css = `*{box-sizing:border-box}body{font-family:Arial,sans-serif;margin:0;padding:24px;color:#1A2B1A}.hd{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #1B3A5C;padding-bottom:10px;margin-bottom:18px}.br{font-weight:800;font-size:15px;color:#1B3A5C}.mt{font-size:11px;color:#7A9A7C}.ct{font-size:12px;color:#7A9A7C;margin-bottom:14px}.rr{border:1.5px solid #C8D8C8;border-radius:10px;padding:14px 16px;margin-bottom:14px;page-break-inside:avoid}.rp{font-size:17px;font-weight:800;color:#1B3A5C}.rs{font-size:11.5px;color:#444;margin-top:2px}.rg{font-size:10.5px;text-transform:uppercase;font-weight:700;color:#2D7A3A;margin:10px 0 4px}table{width:100%;border-collapse:collapse;font-size:11px}th{text-align:left;background:#EBF0E8;padding:5px 8px;font-size:9.5px;text-transform:uppercase;border-bottom:2px solid #1B3A5C}td{padding:5px 8px;border-bottom:1px solid #C8D8C8}@page{size:A4;margin:12mm}`;
+    w.document.write(htmlPopup('Relatório de Receitas', css, `<div class="hd"><div class="br">SGE — LABORATÓRIO DE TINTA · RELATÓRIO DE RECEITAS</div><div class="mt">Emitido em ${esc(new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }))}</div></div><div class="ct">${ultimaBusca.length} receita(s), resultado da Busca no momento da impressão</div>${blocos}`));
+    w.document.close();
+  } catch(e) { w.close(); showToast('Não foi possível gerar o relatório para impressão.', 'err'); }
+}
+
+/* ═══════════════════════════════════════
+   IMPORTAR / EXPORTAR
+═══════════════════════════════════════ */
+async function coletarBackup(){
+  const [f, p, pa, r, i] = await Promise.all([getAllData('fornecedores'), getAllData('produtos'), getAllData('pantones'), getAllData('receitas'), getAllData('itens')]);
+  return { fornecedores: f, produtos: p.map(({ quantidadeBruta, ...resto }) => resto), pantones: pa, receitas: r, materiasPrimas: i };
+}
+function baixarArquivo(nome, tipo, conteudo){
+  const url = URL.createObjectURL(new Blob([conteudo], { type: tipo }));
+  const a = document.createElement('a');
+  a.href = url; a.download = nome; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+async function exportarJSON(nome){
+  try { baixarArquivo(nome || 'insumos_data.json', 'application/json;charset=utf-8', JSON.stringify(await coletarBackup(), null, 2)); }
+  catch(e) { showToast('Não foi possível exportar: ' + msgErro(e), 'err'); }
+}
+const csvCel = v => { const s = v == null ? '' : String(v); return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+function paraCSV(lista, titulo){
+  if (!lista.length) return `# ${titulo}\nNenhum dado disponível`;
+  const cab = Object.keys(lista[0]);
+  return `# ${titulo}\n` + cab.join(',') + '\r\n' + lista.map(o => cab.map(c => csvCel(o[c])).join(',')).join('\r\n');
+}
+async function exportarCSV(){
+  try {
+    const d = await coletarBackup();
+    baixarArquivo('insumos_data.csv', 'text/csv;charset=utf-8', ['fornecedores', 'produtos', 'pantones', 'receitas', 'materiasPrimas'].map(k => paraCSV(d[k], k)).join('\n\n'));
+  } catch(e) { showToast('Não foi possível exportar: ' + msgErro(e), 'err'); }
+}
+function validarBackup(d){
+  if (!d || typeof d !== 'object' || Array.isArray(d)) return 'o arquivo não é um backup do Laboratório.';
+  for (const k of ['fornecedores', 'produtos', 'receitas', 'materiasPrimas']) if (!Array.isArray(d[k])) return `falta a lista "${k}".`;
+  if (d.pantones != null && !Array.isArray(d.pantones)) return 'a lista "pantones" está inválida.';
+  if (d.fornecedores.some(x => !x || !x.nome)) return 'há fornecedor sem nome.';
+  if (d.produtos.some(x => !x || !x.nome)) return 'há produto sem nome.';
+  if (d.receitas.some(x => !x || !x.pantone || !x.referencia)) return 'há receita sem pantone ou referência.';
+  if ((d.pantones || []).some(x => !x || !x.codigo)) return 'há pantone sem código.';
+  return null;
+}
+async function importarDados(ev){
+  const arquivo = ev.target.files[0]; ev.target.value = '';
+  if (!arquivo || !isAdm() || !exigirOnline()) return;
+  let d;
+  try { d = JSON.parse(await arquivo.text()); } catch(e) { showToast('Não foi possível ler o arquivo: não é um JSON válido.', 'err'); return; }
+  const erro = validarBackup(d);                                  // valida ANTES de apagar qualquer coisa
+  if (erro) { showToast('Arquivo recusado: ' + erro, 'err'); return; }
+  if (!confirm(`Importar vai APAGAR todos os fornecedores, produtos, pantones e receitas atuais e trocar pelos do arquivo (${d.fornecedores.length} fornecedores, ${d.produtos.length} produtos, ${(d.pantones || []).length} pantones, ${d.receitas.length} receitas). Um backup dos dados atuais será baixado antes. Continuar?`)) return;
+  ld('Baixando backup e importando...');
+  try {
+    await exportarJSON('insumos_backup_antes_de_importar.json');
+    await clearStore('itens'); await clearStore('receitas'); await clearStore('produtos'); await clearStore('fornecedores'); await clearStore('pantones');
+    const mF = {}, mP = {}, mPa = {}, mR = {};
+    for (const it of d.fornecedores) mF[it.id] = await addData('fornecedores', it);
+    for (const it of d.produtos) mP[it.id] = await addData('produtos', { ...it, fornecedorId: mF[it.fornecedorId] ?? it.fornecedorId });
+    for (const it of (d.pantones || [])) mPa[it.id] = await addData('pantones', it);
+    for (const it of d.receitas) mR[it.id] = await addData('receitas', { ...it, pantoneId: it.pantoneId != null ? (mPa[it.pantoneId] ?? null) : null });
+    for (const it of d.materiasPrimas) await addData('itens', { ...it, receitaId: mR[it.receitaId] ?? it.receitaId, produtoId: mP[it.produtoId] ?? it.produtoId });
+    await carregarBase();
+    renderFornecedores(); renderProdutos(); renderPantones(); renderReceitas(); renderPantonesPedido();
+    showToast('Dados importados. O backup anterior foi baixado.');
+  } catch(e) { console.error(e); showToast('Erro ao importar: ' + msgErro(e) + ' Use o backup baixado para restaurar.', 'err'); }
+  finally { uld(); }
+}
+
+/* ═══════════════════════════════════════
+   PERMISSÕES NA TELA / ENTRADA
+═══════════════════════════════════════ */
+function applyPerms(){
+  $('#nav-un').textContent = CU.nome;
+  $('#nav-ur').textContent = isAdm() ? 'Administrador' : 'Visualizador';
+  const colors = ['#1B3A5C','#2D7A3A','#7A4A2A','#4A2A7A','#2A6A7A'];
+  $('#nav-av').style.background = colors[CU.nome.charCodeAt(0) % colors.length];
+  $('#nav-av').textContent = CU.nome.charAt(0).toUpperCase();
+  const pode = canEdit();
+  ['#formFornecedor', '#formProduto', '#formPantone'].forEach(s => { $(s).closest('.ac').style.display = pode ? '' : 'none'; });
+  $('#btnReceitaAvulsa').style.display = pode ? '' : 'none';
+  $('#btnImportarFichas').style.display = pode ? '' : 'none';
+  $('#btnImport').style.display = isAdm() ? '' : 'none';
+  $('#roBanner').style.display = pode ? 'none' : 'block';
+}
+async function entrarNoApp(){
+  $('#login-screen').style.display = 'none';
+  $('#app').style.display = 'block';
+  applyPerms();
+  ld('Carregando dados do laboratório...');
+  try { await carregarBase(); }
+  catch(e) { console.error(e); showToast('Não foi possível carregar os dados: ' + msgErro(e), 'err'); }
+  finally { uld(); }
+  renderFornecedores(); renderProdutos(); renderPantones(); renderReceitas();
+  mostrarAba(abaAtual, true);
+  renderPantonesPedido();
+}
+
+/* ═══════════════════════════════════════
+   INICIALIZAÇÃO
+═══════════════════════════════════════ */
+function montarIconesEstaticos(){
+  $('#ph-icon').innerHTML = ic('flask', 17, 'style="stroke:var(--green)"');
+  $('#nb-home').innerHTML = ic('home', 14) + '<span>Início</span>';
+  $('#nb-artes').innerHTML = ic('pen', 14) + '<span>Artes</span>';
+  $('#nb-est').innerHTML = ic('printer', 14) + '<span>Estamparia</span>';
+  $('#nb-lab').innerHTML = ic('flask', 14) + '<span>Laboratório</span>';
+  $('#btn-logout').innerHTML = ic('logout', 14) + '<span>Sair</span>';
+  $('#lg-btn').innerHTML = withIcon('login', 'Entrar', 14);
+  $('#recClose').innerHTML = ic('x', 14); $('#detClose').innerHTML = ic('x', 14);
+  $('#recSalvar').innerHTML = withIcon('save', 'Salvar receita');
+  $('#recCopiar').innerHTML = withIcon('refresh', 'Copiar da última receita deste pantone');
+  $('#btnReceitaAvulsa').innerHTML = withIcon('plus', 'Nova receita avulsa');
+  $('#btnSalvarFornecedor').innerHTML = withIcon('save', 'Salvar'); $('#btnSalvarProduto').innerHTML = withIcon('save', 'Salvar'); $('#btnSalvarPantone').innerHTML = withIcon('save', 'Salvar');
+  $('#btnBuscar').innerHTML = withIcon('search', 'Buscar');
+  $('#btnImprimirResultados').innerHTML = withIcon('printer', 'Imprimir resultados');
+  $('#btnExportJSON').innerHTML = withIcon('save', 'Exportar JSON'); $('#btnExportCSV').innerHTML = withIcon('save', 'Exportar CSV'); $('#btnImport').innerHTML = withIcon('upload', 'Importar dados');
+  $('#btnImportarFichas').innerHTML = withIcon('refresh', 'Importar das fichas de Artes');
+  $('#fornecedorEstado').insertAdjacentHTML('beforeend', UFS.map(([s, n]) => `<option value="${s}">${esc(n)}</option>`).join(''));
+}
+function ligarEventos(){
+  $('#lg-btn').addEventListener('click', doLogin);
+  $('#lg-user').addEventListener('keydown', e => { if (e.key === 'Enter') $('#lg-pass').focus(); });
+  $('#lg-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  $('#btn-dark').addEventListener('click', toggleDarkMode);
+  $('#btn-logout').addEventListener('click', doLogout);
+
+  $('#formFornecedor').addEventListener('submit', salvarFornecedor);
+  $('#btnCancelarFornecedor').addEventListener('click', limparFormFornecedor);
+  $('#formProduto').addEventListener('submit', salvarProduto);
+  $('#btnCancelarProduto').addEventListener('click', limparFormProduto);
+  $('#formPantone').addEventListener('submit', salvarPantone);
+  $('#btnCancelarPantone').addEventListener('click', limparFormPantone);
+  $('#pantoneFiltro').addEventListener('input', renderPantones);
+  $('#btnImportarFichas').addEventListener('click', importarPantonesDasFichas);
+  $('#pantoneCor').addEventListener('input', e => { $('#pantoneCorHex').value = e.target.value.toUpperCase(); });
+  $('#pantoneCorHex').addEventListener('input', e => { if (/^#[0-9a-fA-F]{6}$/.test(e.target.value)) $('#pantoneCor').value = e.target.value; });
+
+  $('#receitaPedido').addEventListener('change', selecionarPedido);
+  $('#pantonesPedido').addEventListener('click', cliqueNoPantone);
+  $('#btnReceitaAvulsa').addEventListener('click', abrirReceitaAvulsa);
+  ligarAcoesReceita($('#tbReceitas')); ligarAcoesReceita($('#tbBusca'));
+  $('#recSalvar').addEventListener('click', salvarReceita);
+  $('#recCopiar').addEventListener('click', copiarUltimaReceita);
+  $('#recCancelar').addEventListener('click', tentarFecharRec);
+  $('#recClose').addEventListener('click', tentarFecharRec);
+  $('#detClose').addEventListener('click', () => $('#m-detalhes').classList.remove('open'));
+  const md = $('#m-detalhes'); let downDet = false;
+  md.addEventListener('mousedown', e => { downDet = e.target === md; });
+  md.addEventListener('mouseup', e => { if (downDet && e.target === md) md.classList.remove('open'); downDet = false; });   // o modal da receita NÃO fecha no fundo (evita perder o que foi digitado)
+
+  $('#formBusca').addEventListener('submit', e => { e.preventDefault(); realizarBusca(); });
+  $('#btnLimparBusca').addEventListener('click', limparBusca);
+  $('#btnImprimirResultados').addEventListener('click', imprimirResultados);
+  $('#btnExportJSON').addEventListener('click', () => exportarJSON());
+  $('#btnExportCSV').addEventListener('click', exportarCSV);
+  $('#btnImport').addEventListener('click', () => $('#importFile').click());
+  $('#importFile').addEventListener('change', importarDados);
+
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    if ($('#m-receita').classList.contains('open')) tentarFecharRec();
+    else if ($('#m-detalhes').classList.contains('open')) $('#m-detalhes').classList.remove('open');
+  });
+  window.addEventListener('online', updateConnectionIndicator);
+  window.addEventListener('offline', updateConnectionIndicator);
+  window.addEventListener('beforeunload', e => { if (CU && rec && recAssinatura() !== recBase) { e.preventDefault(); e.returnValue = ''; } });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  montarAbas();
+  montarIconesEstaticos();
+  ligarEventos();
+  applyStoredDarkMode();
+  updateConnectionIndicator();
+  if (!window.supabase) {
+    showLogin();
+    const err = $('#lg-err');
+    err.textContent = 'Não foi possível carregar o sistema. Verifique a conexão e recarregue a página.';
+    err.style.display = 'block';
+    return;
+  }
+  SB = window.supabase.createClient(SB_URL, SB_KEY);
+  registerServiceWorker();
+  tryRestoreSession();
+});
+
+
+})();
+</script>
+</body>
+</html>
