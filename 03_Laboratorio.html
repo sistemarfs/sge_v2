@@ -184,6 +184,15 @@ table.tbl{width:100%;border-collapse:collapse}
 .tbl tr.inativo td{opacity:0.55}
 .sw-dot{display:inline-block;width:18px;height:18px;border-radius:5px;border:1px solid var(--border);vertical-align:middle;flex-shrink:0}
 
+/* ── ACRÉSCIMO PROPORCIONAL ── */
+.ac-acr{margin-top:14px}
+.acr-preview{margin-top:10px;border:1.5px dashed var(--border);border-radius:var(--radius-sm);padding:10px 12px;background:var(--bg)}
+.acr-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;font-size:13px;padding:4px 0;text-align:right}
+.acr-row span:first-child{font-weight:600}
+.acr-row.acr-low{color:var(--red)}
+.acr-warn{font-size:11.5px;font-weight:600;color:var(--red)}
+.acr-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+
 /* ── PANTONES DO PEDIDO ── */
 .prog{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
 .prog-bar{flex:1;min-width:120px;height:8px;border-radius:99px;background:var(--surface2);overflow:hidden}
@@ -1511,6 +1520,71 @@ function renderListasRec(){
     const g = host.closest('.ac'); if (g && g._info) g._info();
   });
   $('#recTotal').innerHTML = `Matérias-primas: <b>${fmtKg(somaKg(rec.mp))} kg</b> · Coloração: <b>${fmtKg(somaKg(rec.col))} kg</b> · Total: <b>${fmtKg(somaKg(rec.mp) + somaKg(rec.col))} kg</b>`;
+  atualizarAcrescimo();
+}
+
+/* ── Acréscimo proporcional: faltou tinta para terminar a produção?
+   Informa-se quanto foi usado A MAIS de UM item, e os demais são somados
+   na mesma proporção em que já estão na receita. Só ajusta os campos desta
+   janela — o desconto no estoque só acontece quando o usuário clicar em Salvar
+   (o Salvar já desconta apenas a diferença entre o que estava e o que ficou). ── */
+function itensCombinados(){
+  return [...rec.mp.map(e => ({ e, grupo: 'mp' })), ...rec.col.map(e => ({ e, grupo: 'col' }))];
+}
+function montarAcrescimo(){
+  const el = document.createElement('div');
+  el.className = 'ac ac-acr';
+  el.innerHTML = `<div class="ac-head"><div class="ac-head-main"><div class="ac-name">Acréscimo proporcional</div><div class="ac-sub">Faltou tinta para terminar a produção? Informe quanto foi usado a mais de um item: os outros são somados na mesma proporção desta receita.</div></div></div>
+    <div class="gr-row">
+      <div class="fl"><label for="acrItem">Item usado a mais</label><select class="form-input" id="acrItem"></select></div>
+      <div class="fl"><label for="acrQtd">Quantidade a mais (kg)</label><input class="form-input mono" type="number" id="acrQtd" step="0.01" min="0" placeholder="0,00"></div>
+    </div>
+    <button type="button" class="btn btn-ghost btn-sm" id="acrCalc">${withIcon('refresh', 'Calcular acréscimo proporcional')}</button>
+    <div id="acrPreview"></div>`;
+  const sel = $('#acrItem', el);
+  const preencherSelect = () => {
+    const selecionado = sel.value;
+    sel.innerHTML = itensCombinados().map((x, i) => `<option value="${i}">${esc(x.e.produtoNome)} — atual ${esc(fmtKg(x.e.quantidade))} kg</option>`).join('');
+    if (selecionado && sel.querySelector(`option[value="${selecionado}"]`)) sel.value = selecionado;
+  };
+  preencherSelect();
+  el._refresh = preencherSelect;
+  $('#acrCalc', el).addEventListener('click', () => {
+    const itens = itensCombinados();
+    const idx = parseInt(sel.value, 10);
+    const add = num($('#acrQtd', el).value);
+    if (!itens[idx]) { showToast('Selecione o item que recebeu a quantidade a mais.', 'err'); return; }
+    if (!(add > 0)) { showToast('Informe a quantidade usada a mais, em kg.', 'err'); return; }
+    const ref = itens[idx];
+    const base = num(ref.e.quantidade);
+    if (base <= 0) { showToast('Este item está com quantidade zerada na receita: escolha outro como referência.', 'err'); return; }
+    const fator = add / base;
+    // "Disponível" já desconta o que esta receita está usando agora — dá exatamente quanto dá para acrescentar de cada item.
+    const deltas = itens.map(x => {
+      const delta = x === ref ? add : arred(num(x.e.quantidade) * fator);
+      const falta = arred(delta - disponivelDe(x.e.produtoId));
+      return { x, delta, falta: falta > 1e-9 ? falta : 0 };
+    });
+    const semEstoque = deltas.filter(d => d.falta > 0);
+    const prev = $('#acrPreview', el);
+    prev.innerHTML = `<div class="acr-preview">${deltas.map(d => `<div class="acr-row${d.falta ? ' acr-low' : ''}"><span>${esc(d.x.e.produtoNome)}</span><span>+${esc(fmtKg(d.delta))} kg <span class="muted">(fica ${esc(fmtKg(num(d.x.e.quantidade) + d.delta))} kg)</span>${d.falta ? `<br><span class="acr-warn">Faltam ${esc(fmtKg(d.falta))} kg em estoque</span>` : ''}</span></div>`).join('')}
+      <div class="acr-actions"><button type="button" class="btn btn-ghost btn-sm" id="acrCancel">Cancelar</button><button type="button" class="btn btn-primary btn-sm" id="acrAplicar"${semEstoque.length ? ' disabled' : ''}>Aplicar à receita</button></div></div>`;
+    $('#acrCancel', prev).addEventListener('click', () => { prev.innerHTML = ''; });
+    if (semEstoque.length) { showToast('Estoque insuficiente para este acréscimo em ' + semEstoque.map(d => d.x.e.produtoNome).join(', ') + '.', 'err'); return; }
+    $('#acrAplicar', prev).addEventListener('click', () => {
+      deltas.forEach(d => { d.x.e.quantidade = qtdStr(num(d.x.e.quantidade) + d.delta); });
+      $('#acrQtd', el).value = '';
+      prev.innerHTML = '';
+      renderListasRec();
+      showToast('Acréscimo aplicado nesta janela. Clique em Salvar para descontar do estoque.');
+    });
+  });
+  return el;
+}
+function atualizarAcrescimo(){
+  const wrap = $('#recAcrWrap'); if (!wrap) return;
+  wrap.innerHTML = '';
+  if (itensCombinados().length) wrap.appendChild(montarAcrescimo());
 }
 function infoPantoneAvulso(){
   const el = $('#recPantoneInfo'), cod = $('#recPantone').value.trim();
@@ -1542,6 +1616,7 @@ function renderRec(){
       <div class="fl"><label for="recAmostra">Amostra ou Pedido</label><select class="form-input" id="recAmostra"><option value="">Selecione</option><option value="Amostra">Amostra</option><option value="Pedido">Pedido</option></select></div>
       <div class="fl"><label for="recOp">OP</label><input class="form-input mono" id="recOp" value="${esc(rec.op)}"></div></div>
     <div class="rec-groups" id="recGroups"></div>
+    <div id="recAcrWrap"></div>
     ${rec.id ? '<div class="rec-hist"><div class="st-title">Histórico de alterações</div><div id="recHist"><p class="muted">Carregando histórico...</p></div></div>' : ''}`;
   $('#recAmostra').value = rec.amostraPedido;
   $('#recGroups').appendChild(montarGrupo('mp', 'Matérias-primas'));
