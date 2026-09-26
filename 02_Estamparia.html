@@ -399,6 +399,7 @@ body.dark .res-ref{color:var(--navy-text)}
       <div class="ph-actions">
         <button class="btn btn-ghost" id="btnOpenSearch" type="button"></button>
         <button class="btn btn-ghost" id="btnPrint" type="button"></button>
+        <button class="btn btn-ghost" id="btnRelatorioCompleto" type="button"></button>
         <button class="btn btn-primary" id="btnSave" type="button"></button>
       </div>
     </div>
@@ -1317,8 +1318,9 @@ function renderTabela(){
     tr.innerHTML = `<td class="cell-mono">${esc(p.numero)}</td><td class="cell-mono">${esc(p.referencia)}</td><td class="cell-sub">${esc(ops)}</td>
       <td>${qtd || '—'}</td><td>${statusTag(p)}</td><td>${qualTag(p.status_qualidade)}</td>
       <td class="cell-sub">${p.atualizado_em ? esc(fmtDataHora(p.atualizado_em)) : '—'}</td>
-      <td class="cell-act"><button type="button" class="btn btn-ghost btn-sm" data-a="abrir">Abrir</button>${canDelete() ? `<button type="button" class="btn btn-danger btn-sm" data-a="del" aria-label="Excluir pedido ${esc(p.numero)}">${ic('trash')}</button>` : ''}</td>`;
+      <td class="cell-act"><button type="button" class="btn btn-ghost btn-sm" data-a="abrir">Abrir</button><button type="button" class="btn btn-ghost btn-sm" data-a="relatorio">Relatório</button>${canDelete() ? `<button type="button" class="btn btn-danger btn-sm" data-a="del" aria-label="Excluir pedido ${esc(p.numero)}">${ic('trash')}</button>` : ''}</td>`;
     $('[data-a="abrir"]', tr).addEventListener('click', () => carregarPedido(p.numero));
+    $('[data-a="relatorio"]', tr).addEventListener('click', () => abrirRelatorioCompletoLinha(p.numero));
     const del = $('[data-a="del"]', tr);
     if (del) del.addEventListener('click', () => excluirPedido(p.id, p.numero));
     body.appendChild(tr);
@@ -1381,11 +1383,11 @@ function tabelaPantonesPrint(lista){
     uteis.map((p, i) => `<tr><td>${i + 1}</td><td><span class="pv-sw" style="background:${esc(corValida(p.color))}"></span></td><td>${esc(p.code) || '—'}</td><td>${esc(p.ink) || '—'}</td><td>${esc(p.fabric) || '—'}</td></tr>`).join('')
   }</tbody></table>`;
 }
-function montarImpressao(){
+function montarBlocoPedidoFicha(){
   const d = coletar();
   const ultima = meta.atualizadoEm ? `<br>Última alteração: ${esc(fmtDataHora(meta.atualizadoEm))}${meta.atualizadoPor ? ' · ' + esc(meta.atualizadoPor) : ''}` : '';
   const total = d.ordens.reduce((s, o) => s + o.quantidade, 0);
-  let h = `<div class="pv"><div class="pv-hb"><div><div class="pv-kicker">FICHA DE PRODUÇÃO — ESTAMPARIA</div><div class="pv-ref">${esc(d.numero || '—')}</div>
+  let h = `<div class="pv-hb"><div><div class="pv-kicker">FICHA DE PRODUÇÃO — ESTAMPARIA</div><div class="pv-ref">${esc(d.numero || '—')}</div>
     <div class="pv-sub">Referência ${esc(d.referencia || '—')} · ${esc(STATUS_PEDIDO[d.status])}</div></div>
     <div class="pv-meta">Impresso em ${esc(new Date().toLocaleString('pt-BR'))}${ultima}</div></div>`;
   h += '<div class="pv-sl">Ordens de produção</div>';
@@ -1408,7 +1410,10 @@ function montarImpressao(){
       <div class="pv-line"><strong>Descrição:</strong> ${esc(t.description) || '—'}</div>${tabelaPantonesPrint(t.pantones)}</div>`;
   } else h += '<p class="pv-line">Nenhuma ficha de Artes vinculada a esta referência.</p>';
   if (d.observacoes) h += `<div class="pv-obs"><strong>Observações de produção:</strong> ${esc(d.observacoes)}</div>`;
-  $('#printArea').innerHTML = h + '</div>';
+  return h;
+}
+function montarImpressao(){
+  $('#printArea').innerHTML = '<div class="pv">' + montarBlocoPedidoFicha() + '</div>';
 }
 function aguardarImagens(root, limiteMs){
   const imgs = [...root.querySelectorAll('img')].filter(i => !i.complete);
@@ -1427,6 +1432,77 @@ async function imprimir(){
 }
 
 /* ═══════════════════════════════════════
+   RELATÓRIO COMPLETO DO PEDIDO
+   (Artes + Estamparia + Laboratório + Qualidade num documento só)
+═══════════════════════════════════════ */
+const fmtKgRel = n => (Number(n) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const CATEGORIA_LABEL = { coloracao: 'Coloração', auxiliar: 'Auxiliar', materia_prima: 'Matéria-prima' };
+const STATUS_QUAL_LABEL = { aprovado: 'Aprovado', reprovado: 'Reprovado', pendente: 'Pendente' };
+async function buscarReceitasDoPedido(numero){
+  const { data: receitas, error } = await SB.from('receitas').select('*').eq('pedido_numero', numero).order('criado_em', { ascending: true });
+  if (error) throw error;
+  if (!receitas || !receitas.length) return [];
+  const ids = receitas.map(r => r.id);
+  const { data: itensBrutos, error: e2 } = await SB.from('receita_itens').select('*').in('receita_id', ids);
+  if (e2) throw e2;
+  const produtoIds = [...new Set((itensBrutos || []).map(i => i.produto_id))];
+  const { data: produtos } = produtoIds.length ? await SB.from('produtos').select('id, nome, fornecedor_id').in('id', produtoIds) : { data: [] };
+  const fornecedorIds = [...new Set((produtos || []).map(p => p.fornecedor_id).filter(v => v != null))];
+  const { data: fornecedores } = fornecedorIds.length ? await SB.from('fornecedores').select('id, nome').in('id', fornecedorIds) : { data: [] };
+  const produtoDe = pid => (produtos || []).find(p => p.id === pid);
+  const fornecedorNomeDe = pid => { const p = produtoDe(pid); const f = p && (fornecedores || []).find(x => x.id === p.fornecedor_id); return f ? f.nome : '—'; };
+  return receitas.map(r => ({ ...r, itens: (itensBrutos || []).filter(i => i.receita_id === r.id).map(i => ({ ...i, produtoNome: (produtoDe(i.produto_id) || {}).nome || 'Produto excluído', fornecedorNome: fornecedorNomeDe(i.produto_id) })) }));
+}
+async function buscarQualidadeDoPedido(numero){
+  const { data, error } = await SB.from('registros_qualidade').select('*').eq('pedido_numero', numero).order('criado_em', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+function montarBlocoLaboratorio(receitas){
+  let h = '<div class="pv-sl">Laboratório — receitas de tinta</div>';
+  if (!receitas.length) return h + '<p class="pv-line">Nenhuma receita cadastrada para este pedido.</p>';
+  receitas.forEach(r => {
+    h += `<div class="pv-blk"><div class="pv-name">Pantone ${esc(r.pantone) || '—'}${r.tipo ? ' · ' + esc(r.tipo) : ''}</div>
+      <div class="pv-line">Estampa: ${esc(r.estampa_origem) || '—'} · Tecido: ${esc(r.tecido) || '—'} · Cadastrada em ${esc(fmtDataHora(r.criado_em))}</div>
+      ${r.itens.length ? `<table class="pv-tbl"><thead><tr><th>Produto</th><th>Fornecedor</th><th>Categoria</th><th>Qtd. (kg)</th></tr></thead><tbody>${r.itens.map(i => `<tr><td>${esc(i.produtoNome)}</td><td>${esc(i.fornecedorNome)}</td><td>${esc(CATEGORIA_LABEL[i.categoria] || 'Matéria-prima')}</td><td>${fmtKgRel(i.quantidade)}</td></tr>`).join('')}</tbody></table>` : '<p class="pv-line">Sem itens cadastrados.</p>'}</div>`;
+  });
+  return h;
+}
+function montarBlocoQualidade(registros){
+  let h = '<div class="pv-sl">Qualidade — testes e aprovação</div>';
+  if (!registros.length) return h + '<p class="pv-line">Nenhum cadastro de qualidade para este pedido.</p>';
+  registros.forEach(r => {
+    const t = r.testes || {}, fr = t.friccao || {}, lv = t.lavagem || {}, aps = Array.isArray(t.aplicacoes) ? t.aplicacoes : [];
+    const fotos = ((r.imagens && Array.isArray(r.imagens.estampas)) ? r.imagens.estampas : []).filter(i => i && i.produzida);
+    h += `<div class="pv-blk"><div class="pv-name">Cadastro #${r.id} — ${esc(STATUS_QUAL_LABEL[r.status] || 'Pendente')}</div>
+      <div class="pv-line">Responsável técnico: ${esc(r.responsavel_nome) || '—'} · Cadastrado em ${esc(fmtDataHora(r.criado_em))}</div>
+      <div class="pv-line">Fricção — seco: ${esc(fr.seco) || '—'} · molhado: ${esc(fr.molhado) || '—'} · avaliação: ${esc(fr.avaliacao) || '—'}</div>
+      <div class="pv-line">Lavagem — defeito em: ${esc(lv.defeito) || '—'} · aprovado até: ${esc(lv.aprovado) || '—'} · avaliação: ${esc(lv.avaliacao) || '—'}</div>
+      ${aps.length ? `<div class="pv-line">Aplicações: ${aps.map(a => `${esc(a.tecnica) || '—'}: ${esc(a.avaliacao) || '—'}`).join(' · ')}</div>` : ''}
+      ${r.observacoes ? `<div class="pv-line"><strong>Observações:</strong> ${esc(r.observacoes)}</div>` : ''}
+      ${fotos.length ? `<div class="pv-line"><strong>Fotos da peça produzida:</strong></div>` + fotos.map(i => `<img src="${esc(i.produzida)}" alt="${esc(i.nome) || 'Peça produzida'}" style="max-height:190px;margin:4px 8px 0 0">`).join('') : ''}</div>`;
+  });
+  return h;
+}
+async function imprimirRelatorioCompleto(){
+  const d = coletar();
+  if (!d.numero) { showToast('Informe (ou carregue) o número do pedido antes de gerar o relatório completo.', 'err'); return; }
+  if (!navigator.onLine) { showToast('Sem conexão: o relatório completo precisa buscar dados do Laboratório e da Qualidade.', 'err'); return; }
+  ld('Reunindo dados de Artes, Laboratório e Qualidade...');
+  try {
+    const [receitasLab, registrosQual] = await Promise.all([buscarReceitasDoPedido(d.numero), buscarQualidadeDoPedido(d.numero)]);
+    $('#printArea').innerHTML = '<div class="pv">' + montarBlocoPedidoFicha() + montarBlocoLaboratorio(receitasLab) + montarBlocoQualidade(registrosQual) + '</div>';
+    await aguardarImagens($('#printArea'));
+    uld();
+    window.print();
+  } catch(e) { uld(); showToast('Não foi possível gerar o relatório completo: ' + errMsg(e), 'err'); }
+}
+async function abrirRelatorioCompletoLinha(numero){
+  const ok = await carregarPedido(numero);      // também traz a ficha: o relatório usa o mesmo estado do formulário
+  if (ok) await imprimirRelatorioCompleto();
+}
+
+/* ═══════════════════════════════════════
    INICIALIZAÇÃO
 ═══════════════════════════════════════ */
 function montarIconesEstaticos(){
@@ -1439,6 +1515,7 @@ function montarIconesEstaticos(){
   $('#btn-logout').innerHTML = ic('logout', 14) + '<span>Sair</span>';
   $('#btnOpenSearch').innerHTML = withIcon('search', 'Busca avançada');
   $('#btnPrint').innerHTML = withIcon('printer', 'Imprimir');
+  $('#btnRelatorioCompleto').innerHTML = withIcon('printer', 'Relatório completo');
   $('#btnSave').innerHTML = withIcon('save', 'Salvar pedido');
   $('#btnAddOp').innerHTML = withIcon('plus', 'Adicionar OP');
   $('#buscaClose').innerHTML = ic('x', 14);
@@ -1467,6 +1544,7 @@ function ligarEventos(){
   $('#btnAddOp').addEventListener('click', () => { pedido.ordens.push(makeOrdem()); renderOrdens(); atualizarSujo(); });
   $('#btnSave').addEventListener('click', salvar);
   $('#btnPrint').addEventListener('click', imprimir);
+  $('#btnRelatorioCompleto').addEventListener('click', imprimirRelatorioCompleto);
   $('#filterTabs').addEventListener('click', e => {
     const b = e.target.closest('.seg-btn'); if (!b) return;
     filtro = b.dataset.f; renderFiltro(); renderTabela();
