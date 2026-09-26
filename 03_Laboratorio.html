@@ -184,6 +184,11 @@ table.tbl{width:100%;border-collapse:collapse}
 .tbl tr.inativo td{opacity:0.55}
 .sw-dot{display:inline-block;width:18px;height:18px;border-radius:5px;border:1px solid var(--border);vertical-align:middle;flex-shrink:0}
 
+/* ── ETIQUETA: configuração ── */
+.etq-campos{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.etq-campos label{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
+.etq-campos input{width:15px;height:15px;cursor:pointer}
+
 /* ── ACRÉSCIMO PROPORCIONAL ── */
 .ac-acr{margin-top:14px}
 .acr-preview{margin-top:10px;border:1.5px dashed var(--border);border-radius:var(--radius-sm);padding:10px 12px;background:var(--bg)}
@@ -506,7 +511,10 @@ body.dark .res-ref{color:var(--navy-text)}
           <div id="pantonesPedido" class="ac-block"></div>
         </div>
 
-        <div class="at-toolbar" style="margin-top:20px"><div><h3>Receitas cadastradas</h3></div></div>
+        <div class="at-toolbar" style="margin-top:20px">
+          <div><h3>Receitas cadastradas</h3></div>
+          <button type="button" class="btn btn-ghost btn-sm" id="btnEtqConfig"></button>
+        </div>
         <div class="ac flush"><div class="tw"><table class="tbl">
           <thead><tr><th>Pantone</th><th>Estampa</th><th>Tinta</th><th>Tecido</th><th>Referência</th><th>Amostra/Pedido</th><th>OP</th><th>Pedido</th><th>Data</th><th></th></tr></thead>
           <tbody id="tbReceitas"></tbody>
@@ -597,6 +605,43 @@ body.dark .res-ref{color:var(--navy-text)}
       <button class="mc" type="button" id="detClose" aria-label="Fechar"></button>
     </div>
     <div class="mb" id="detBody"></div>
+  </div>
+</div>
+
+<!-- CONFIGURAR ETIQUETA -->
+<div class="mo" id="m-etq-config">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="etq-title">
+    <div class="mh">
+      <h3 id="etq-title">Configurar etiqueta</h3>
+      <button class="mc" type="button" id="etqConfigClose" aria-label="Fechar"></button>
+    </div>
+    <div class="mb">
+      <div class="fl" style="margin-top:0">
+        <label for="etqTamanho">Tamanho da etiqueta</label>
+        <select class="form-input" id="etqTamanho">
+          <option value="9x9">9 × 9 cm (padrão)</option>
+          <option value="10x15">10 × 15 cm (grande)</option>
+          <option value="6x4">6 × 4 cm (pequena)</option>
+          <option value="5x3">5 × 3 cm (mini)</option>
+        </select>
+        <div class="muted" style="margin-top:6px">Se os campos marcados não couberem, a etiqueta impressa fica um pouco mais alta — nenhuma informação é cortada.</div>
+      </div>
+      <div class="fl">
+        <div class="fl-label">Campos na etiqueta</div>
+        <div class="etq-campos">
+          <label><input type="checkbox" id="etqCampoPedido"><span>Pedido (Estamparia)</span></label>
+          <label><input type="checkbox" id="etqCampoOp"><span>OP</span></label>
+          <label><input type="checkbox" id="etqCampoTipo"><span>Amostra/Pedido</span></label>
+          <label><input type="checkbox" id="etqCampoTecido"><span>Tecido</span></label>
+          <label><input type="checkbox" id="etqCampoData"><span>Data de cadastro</span></label>
+        </div>
+        <div class="muted" style="margin-top:6px">Pantone, tinta e referência aparecem sempre.</div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-ghost" id="etqConfigRestaurar" type="button">Restaurar padrão</button>
+      <button class="btn btn-primary" id="etqConfigSalvar" type="button">Salvar</button>
+    </div>
   </div>
 </div>
 
@@ -937,8 +982,8 @@ const STORE_MAP = {
   },
   itens: {
     table: 'receita_itens',
-    toDb: o => ({ receita_id: o.receitaId, produto_id: o.produtoId, quantidade: Number.isFinite(parseFloat(o.quantidade)) ? parseFloat(o.quantidade) : 0, tipo: o.tipo || null, categoria: o.grupo === 'coloracao' ? 'coloracao' : 'materia_prima' }),
-    fromDb: r => ({ id: Number(r.id), receitaId: Number(r.receita_id), produtoId: Number(r.produto_id), quantidade: Number(r.quantidade), tipo: r.tipo || '', grupo: r.categoria === 'coloracao' ? 'coloracao' : 'materiaPrima', dataCadastro: r.criado_em })
+    toDb: o => ({ receita_id: o.receitaId, produto_id: o.produtoId, quantidade: Number.isFinite(parseFloat(o.quantidade)) ? parseFloat(o.quantidade) : 0, tipo: o.tipo || null, categoria: o.grupo === 'coloracao' ? 'coloracao' : (o.grupo === 'auxiliar' ? 'auxiliar' : 'materia_prima') }),
+    fromDb: r => ({ id: Number(r.id), receitaId: Number(r.receita_id), produtoId: Number(r.produto_id), quantidade: Number(r.quantidade), tipo: r.tipo || '', grupo: r.categoria === 'coloracao' ? 'coloracao' : (r.categoria === 'auxiliar' ? 'auxiliar' : 'materiaPrima'), dataCadastro: r.criado_em })
   }
 };
 const INDEX_MAP = { receitaId: 'receita_id', fornecedorId: 'fornecedor_id', produtoId: 'produto_id', pantoneId: 'pantone_id' };
@@ -1441,17 +1486,18 @@ function ligarAcoesReceita(tbody){
 ═══════════════════════════════════════ */
 let rec = null, recBase = '';
 function novoRec(base){
-  return Object.assign({ id: null, pedido: '', avulsa: false, estampaOrigem: '', referencia: '', pantone: '', cor: COR_PADRAO, tinta: '', tecido: '', amostraPedido: '', op: '', mp: [], col: [], reserva: {}, original: null }, base || {});
+  return Object.assign({ id: null, pedido: '', avulsa: false, estampaOrigem: '', referencia: '', pantone: '', cor: COR_PADRAO, tinta: '', tecido: '', amostraPedido: '', op: '', mp: [], col: [], aux: [], reserva: {}, original: null }, base || {});
 }
 const somaKg = lista => lista.reduce((s, e) => s + num(e.quantidade), 0);
-const usadoNoForm = pid => [...rec.mp, ...rec.col].filter(e => e.produtoId === pid).reduce((s, e) => s + num(e.quantidade), 0);
+const destinoPorGrupo = g => g === 'coloracao' ? 'col' : (g === 'auxiliar' ? 'aux' : 'mp');
+const usadoNoForm = pid => [...rec.mp, ...rec.col, ...rec.aux].filter(e => e.produtoId === pid).reduce((s, e) => s + num(e.quantidade), 0);
 const disponivelDe = pid => { const p = produtos.find(x => x.id === pid); return arred((p ? p.quantidade : 0) + (rec.reserva[pid] || 0) - usadoNoForm(pid)); };
 const resumoItens = lista => lista.map(e => `${e.produtoNome} (lote ${e.lote}, ${fmtKg(e.quantidade)} kg)`).join('; ') || '—';
 const kv = (k, v, mono) => `<div><div class="rec-k">${esc(k)}</div><div class="rec-v ${mono ? 'mono' : ''}">${esc(v)}</div></div>`;
 
 function recAssinatura(){
   const v = id => { const el = document.getElementById(id); return el ? el.value : ''; };
-  return JSON.stringify({ a: v('recAmostra'), o: v('recOp'), p: v('recPantone'), r: v('recReferencia'), e: v('recEstampa'), t: v('recTinta'), c: v('recTecido'), mp: rec.mp.map(e => [e.produtoId, e.quantidade]), col: rec.col.map(e => [e.produtoId, e.quantidade]) });
+  return JSON.stringify({ a: v('recAmostra'), o: v('recOp'), p: v('recPantone'), r: v('recReferencia'), e: v('recEstampa'), t: v('recTinta'), c: v('recTecido'), mp: rec.mp.map(e => [e.produtoId, e.quantidade]), col: rec.col.map(e => [e.produtoId, e.quantidade]), aux: rec.aux.map(e => [e.produtoId, e.quantidade]) });
 }
 function abrirModalRec(){
   renderRec();
@@ -1506,7 +1552,7 @@ function montarGrupo(chave, titulo){
   return el;
 }
 function renderListasRec(){
-  [['mp', 'Nenhuma matéria-prima adicionada ainda'], ['col', 'Nenhuma coloração adicionada ainda']].forEach(([chave, vazio]) => {
+  [['mp', 'Nenhuma matéria-prima adicionada ainda'], ['col', 'Nenhuma coloração adicionada ainda'], ['aux', 'Nenhum auxiliar adicionado ainda']].forEach(([chave, vazio]) => {
     const host = $('#g-' + chave + '-list'); if (!host) return;
     const lista = rec[chave];
     host.innerHTML = lista.length ? '' : `<div class="entry-empty">${vazio}</div>`;
@@ -1519,7 +1565,7 @@ function renderListasRec(){
     });
     const g = host.closest('.ac'); if (g && g._info) g._info();
   });
-  $('#recTotal').innerHTML = `Matérias-primas: <b>${fmtKg(somaKg(rec.mp))} kg</b> · Coloração: <b>${fmtKg(somaKg(rec.col))} kg</b> · Total: <b>${fmtKg(somaKg(rec.mp) + somaKg(rec.col))} kg</b>`;
+  $('#recTotal').innerHTML = `Matérias-primas: <b>${fmtKg(somaKg(rec.mp))} kg</b> · Coloração: <b>${fmtKg(somaKg(rec.col))} kg</b> · Auxiliar: <b>${fmtKg(somaKg(rec.aux))} kg</b> · Total: <b>${fmtKg(somaKg(rec.mp) + somaKg(rec.col) + somaKg(rec.aux))} kg</b>`;
   atualizarAcrescimo();
 }
 
@@ -1529,7 +1575,7 @@ function renderListasRec(){
    janela — o desconto no estoque só acontece quando o usuário clicar em Salvar
    (o Salvar já desconta apenas a diferença entre o que estava e o que ficou). ── */
 function itensCombinados(){
-  return [...rec.mp.map(e => ({ e, grupo: 'mp' })), ...rec.col.map(e => ({ e, grupo: 'col' }))];
+  return [...rec.mp.map(e => ({ e, grupo: 'mp' })), ...rec.col.map(e => ({ e, grupo: 'col' })), ...rec.aux.map(e => ({ e, grupo: 'aux' }))];
 }
 function montarAcrescimo(){
   const el = document.createElement('div');
@@ -1621,6 +1667,7 @@ function renderRec(){
   $('#recAmostra').value = rec.amostraPedido;
   $('#recGroups').appendChild(montarGrupo('mp', 'Matérias-primas'));
   $('#recGroups').appendChild(montarGrupo('col', 'Coloração'));
+  $('#recGroups').appendChild(montarGrupo('aux', 'Auxiliar'));
   if (rec.avulsa) { $('#recPantone').addEventListener('input', infoPantoneAvulso); $('#recPantone').addEventListener('change', infoPantoneAvulso); infoPantoneAvulso(); }
   renderListasRec();
   $('#recCopiar').style.display = !rec.id ? '' : 'none';
@@ -1658,9 +1705,9 @@ async function abrirEdicaoReceita(id){
       novo.reserva[it.produtoId] = arred((novo.reserva[it.produtoId] || 0) + (it.quantidade || 0));
       const p = produtos.find(x => x.id === it.produtoId);
       if (!p) return;   // produto excluído: o item não pode ser reeditado
-      (it.grupo === 'coloracao' ? novo.col : novo.mp).push({ produtoId: p.id, produtoNome: p.nome, fornecedorNome: fornecedorNome(p.fornecedorId), lote: p.lote, data: formatarData(p.dataFabricacao), quantidade: qtdStr(it.quantidade) });
+      (novo[destinoPorGrupo(it.grupo)]).push({ produtoId: p.id, produtoNome: p.nome, fornecedorNome: fornecedorNome(p.fornecedorId), lote: p.lote, data: formatarData(p.dataFabricacao), quantidade: qtdStr(it.quantidade) });
     });
-    novo.original = { pantone: novo.pantone, referencia: novo.referencia, estampa: novo.estampaOrigem, tinta: novo.tinta, tecido: novo.tecido, amostra: novo.amostraPedido, op: novo.op, mp: resumoItens(novo.mp), col: resumoItens(novo.col) };
+    novo.original = { pantone: novo.pantone, referencia: novo.referencia, estampa: novo.estampaOrigem, tinta: novo.tinta, tecido: novo.tecido, amostra: novo.amostraPedido, op: novo.op, mp: resumoItens(novo.mp), col: resumoItens(novo.col), aux: resumoItens(novo.aux) };
     rec = novo;
     abrirModalRec();
   } catch(e) { console.error(e); showToast('Não foi possível abrir a receita: ' + msgErro(e), 'err'); }
@@ -1672,16 +1719,16 @@ async function copiarUltimaReceita(){
   const cand = receitas.filter(r => r.id !== rec.id && normCod(r.pantone) === normCod(rec.pantone) && normTxt(r.tipo) === normTxt(rec.tinta))
     .sort((a, b) => String(b.dataCadastro).localeCompare(String(a.dataCadastro)));
   if (!cand.length) { showToast('Ainda não há receita anterior deste pantone com a mesma tinta.'); return; }
-  if ((rec.mp.length || rec.col.length) && !confirm('Substituir os itens já adicionados pelos da última receita deste pantone?')) return;
+  if ((rec.mp.length || rec.col.length || rec.aux.length) && !confirm('Substituir os itens já adicionados pelos da última receita deste pantone?')) return;
   try {
     const itens = await getDataByIndex('itens', 'receitaId', cand[0].id);
     await recarregar('produtos');
-    rec.mp = []; rec.col = [];
+    rec.mp = []; rec.col = []; rec.aux = [];
     let ignorados = 0;
     itens.forEach(it => {
       const p = produtos.find(x => x.id === it.produtoId);
       if (!p || disponivelDe(p.id) + 1e-9 < it.quantidade) { ignorados++; return; }
-      (it.grupo === 'coloracao' ? rec.col : rec.mp).push({ produtoId: p.id, produtoNome: p.nome, fornecedorNome: fornecedorNome(p.fornecedorId), lote: p.lote, data: formatarData(p.dataFabricacao), quantidade: qtdStr(it.quantidade) });
+      (rec[destinoPorGrupo(it.grupo)]).push({ produtoId: p.id, produtoNome: p.nome, fornecedorNome: fornecedorNome(p.fornecedorId), lote: p.lote, data: formatarData(p.dataFabricacao), quantidade: qtdStr(it.quantidade) });
     });
     if (!$('#recAmostra').value && cand[0].amostraPedido) $('#recAmostra').value = cand[0].amostraPedido;
     renderListasRec();
@@ -1730,7 +1777,7 @@ async function salvarReceita(){
   if (!rec.pantone) { showToast('Informe o pantone.', 'err'); return; }
   if (!rec.referencia) { showToast('Informe a referência.', 'err'); return; }
   if (!rec.amostraPedido) { showToast('Selecione se é Amostra ou Pedido.', 'err'); return; }
-  if (!rec.mp.length && !rec.col.length) { showToast('Adicione pelo menos uma matéria-prima ou coloração do estoque antes de salvar a receita.', 'err'); return; }
+  if (!rec.mp.length && !rec.col.length && !rec.aux.length) { showToast('Adicione pelo menos uma matéria-prima, coloração ou auxiliar do estoque antes de salvar a receita.', 'err'); return; }
   if (!rec.id && rec.pedido) {
     const dup = receitasDaLinha(rec.pedido, { origem: rec.estampaOrigem, code: rec.pantone, ink: rec.tinta, fabric: rec.tecido });
     if (dup.length) { showToast('Já existe receita deste pantone neste pedido. Feche esta janela e clique no pantone para editar a existente.', 'err'); return; }
@@ -1738,7 +1785,7 @@ async function salvarReceita(){
   ld('Salvando receita...');
   let aplicados = [], receitaCriada = null, novosItens = [];
   try {
-    const todas = [...rec.mp.map(e => ({ ...e, grupo: 'materiaPrima' })), ...rec.col.map(e => ({ ...e, grupo: 'coloracao' }))];
+    const todas = [...rec.mp.map(e => ({ ...e, grupo: 'materiaPrima' })), ...rec.col.map(e => ({ ...e, grupo: 'coloracao' })), ...rec.aux.map(e => ({ ...e, grupo: 'auxiliar' }))];
     const necessario = {};
     todas.forEach(e => { necessario[e.produtoId] = arred((necessario[e.produtoId] || 0) + num(e.quantidade)); });
     const ids = [...new Set([...Object.keys(necessario).map(Number), ...Object.keys(rec.reserva).map(Number)])];
@@ -1762,8 +1809,8 @@ async function salvarReceita(){
     for (const a of antigos) await deleteData('itens', a.id);         // 4) só então remove os antigos
 
     if (rec.id) {
-      const depois = { pantone: dadosRec.pantone, referencia: rec.referencia, estampa: rec.estampaOrigem, tinta: rec.tinta, tecido: rec.tecido, amostra: rec.amostraPedido, op: rec.op, mp: resumoItens(rec.mp), col: resumoItens(rec.col) };
-      const rot = { pantone: 'Pantone', referencia: 'Referência', estampa: 'Estampa', tinta: 'Tinta', tecido: 'Tecido', amostra: 'Amostra/Pedido', op: 'OP', mp: 'Matérias-primas', col: 'Coloração' };
+      const depois = { pantone: dadosRec.pantone, referencia: rec.referencia, estampa: rec.estampaOrigem, tinta: rec.tinta, tecido: rec.tecido, amostra: rec.amostraPedido, op: rec.op, mp: resumoItens(rec.mp), col: resumoItens(rec.col), aux: resumoItens(rec.aux) };
+      const rot = { pantone: 'Pantone', referencia: 'Referência', estampa: 'Estampa', tinta: 'Tinta', tecido: 'Tecido', amostra: 'Amostra/Pedido', op: 'OP', mp: 'Matérias-primas', col: 'Coloração', aux: 'Auxiliar' };
       await registrarHistorico('receitas', rec.id, diffCampos(rec.original || {}, depois, rot));
     } else {
       await registrarHistorico('receitas', receitaId, [{ campo: 'Receita', anterior: '—', novo: `Criada: ${dadosRec.pantone}${rec.pedido ? ' (pedido ' + rec.pedido + ')' : ' (avulsa)'}` }]);
@@ -1844,20 +1891,69 @@ async function mostrarDetalhes(id){
     const campo = (k, v) => `<div class="fl"><div class="fl-label">${esc(k)}</div><div class="ro-val">${esc(v) || '—'}</div></div>`;
     $('#det-title').textContent = `Detalhes da receita: ${r.pantone}`;
     $('#detBody').innerHTML = `<div class="det-grid">${campo('Pantone', r.pantone)}${campo('Estampa', r.estampaOrigem)}${campo('Referência', r.referencia)}${campo('Tinta', r.tipo)}${campo('Tecido', r.tecido)}${campo('Amostra/Pedido', r.amostraPedido)}${campo('OP', r.op || 'N/A')}${campo('Pedido (Estamparia)', r.pedido || 'Nenhum — receita avulsa')}${campo('Cadastro', formatarData(r.dataCadastro))}</div>`
-      + grupo('Matérias-primas', itens.filter(i => i.grupo !== 'coloracao')) + grupo('Coloração', itens.filter(i => i.grupo === 'coloracao'));
+      + grupo('Matérias-primas', itens.filter(i => i.grupo === 'materiaPrima')) + grupo('Coloração', itens.filter(i => i.grupo === 'coloracao')) + grupo('Auxiliar', itens.filter(i => i.grupo === 'auxiliar'));
     $('#m-detalhes').classList.add('open');
   } catch(e) { showToast('Não foi possível carregar os detalhes: ' + msgErro(e), 'err'); }
 }
 const htmlPopup = (titulo, css, corpo) => `<html><head><meta charset="utf-8"><title>${esc(titulo)}</title><style>${css}</style></head><body onload="window.print(); window.onafterprint = function(){ window.close(); }">${corpo}</body></html>`;
+/* ── Configuração da etiqueta (guardada no navegador, como o modo escuro) ── */
+const ETQ_TAMANHOS = {
+  '9x9': { w: '9cm', h: '9cm', titulo: 20, texto: 13 },
+  '10x15': { w: '10cm', h: '15cm', titulo: 24, texto: 15 },
+  '6x4': { w: '6cm', h: '4cm', titulo: 13, texto: 9.5 },
+  '5x3': { w: '5cm', h: '3cm', titulo: 11, texto: 8 }
+};
+const etqConfigPadrao = () => ({ tamanho: '9x9', campos: { pedido: true, op: true, tipo: true, tecido: true, data: true } });
+function carregarEtqConfig(){
+  try {
+    const salvo = JSON.parse(localStorage.getItem('stampos_etiqueta_config') || 'null');
+    if (!salvo || !ETQ_TAMANHOS[salvo.tamanho]) return etqConfigPadrao();
+    return { tamanho: salvo.tamanho, campos: Object.assign(etqConfigPadrao().campos, salvo.campos || {}) };
+  } catch(e) { return etqConfigPadrao(); }
+}
+function abrirEtqConfig(){
+  const cfg = carregarEtqConfig();
+  $('#etqTamanho').value = cfg.tamanho;
+  $('#etqCampoPedido').checked = cfg.campos.pedido;
+  $('#etqCampoOp').checked = cfg.campos.op;
+  $('#etqCampoTipo').checked = cfg.campos.tipo;
+  $('#etqCampoTecido').checked = cfg.campos.tecido;
+  $('#etqCampoData').checked = cfg.campos.data;
+  $('#m-etq-config').classList.add('open');
+}
+function salvarEtqConfig(){
+  const cfg = { tamanho: $('#etqTamanho').value, campos: { pedido: $('#etqCampoPedido').checked, op: $('#etqCampoOp').checked, tipo: $('#etqCampoTipo').checked, tecido: $('#etqCampoTecido').checked, data: $('#etqCampoData').checked } };
+  localStorage.setItem('stampos_etiqueta_config', JSON.stringify(cfg));
+  $('#m-etq-config').classList.remove('open');
+  showToast('Formato da etiqueta salvo neste computador.');
+}
+function restaurarEtqConfig(){
+  const cfg = etqConfigPadrao();
+  $('#etqTamanho').value = cfg.tamanho;
+  $('#etqCampoPedido').checked = cfg.campos.pedido;
+  $('#etqCampoOp').checked = cfg.campos.op;
+  $('#etqCampoTipo').checked = cfg.campos.tipo;
+  $('#etqCampoTecido').checked = cfg.campos.tecido;
+  $('#etqCampoData').checked = cfg.campos.data;
+}
 async function imprimirEtiqueta(id){
   const w = window.open('', '_blank');           // abre já no clique (senão o navegador bloqueia o pop-up)
   if (!w) { showToast('O navegador bloqueou a janela de impressão. Libere pop-ups para este site.', 'err'); return; }
   try {
     const r = receitas.find(x => x.id === id) || await getDataById('receitas', id);
     if (!r) { w.close(); return; }
-    const css = `body{font-family:Arial,sans-serif;margin:0;padding:0;display:flex;justify-content:center;align-items:center;height:100vh}.etiqueta{width:9cm;height:9cm;border:1px solid #000;padding:0.5cm;page-break-inside:avoid}.t{text-align:center;font-size:20px;font-weight:bold;margin-bottom:0.5cm;color:#1B3A5C}.c{margin-bottom:0.2cm}.l{font-weight:bold;display:inline-block;width:2.5cm}@media print{.etiqueta{margin:0;border:none}}`;
+    const cfg = carregarEtqConfig(), tam = ETQ_TAMANHOS[cfg.tamanho] || ETQ_TAMANHOS['9x9'];
+    const css = `body{font-family:Arial,sans-serif;margin:0;padding:0;display:flex;justify-content:center;align-items:center;min-height:100vh}.etiqueta{width:${tam.w};min-height:${tam.h};border:1px solid #000;padding:0.35cm;box-sizing:border-box;page-break-inside:avoid}.t{text-align:center;font-size:${tam.titulo}px;font-weight:bold;margin-bottom:0.3cm;color:#1B3A5C;line-height:1.15}.c{margin-bottom:0.12cm;font-size:${tam.texto}px;line-height:1.3}.l{font-weight:bold;display:inline-block;min-width:2.1cm}@media print{body{min-height:0}.etiqueta{margin:0;border:none}}`;
     const linha = (k, v) => `<div class="c"><span class="l">${esc(k)}</span> ${esc(v)}</div>`;
-    w.document.write(htmlPopup('Etiqueta - ' + r.pantone, css, `<div class="etiqueta"><div class="t">${esc(r.pantone)}${r.tipo ? ' - ' + esc(r.tipo) : ''}</div>${linha('Referência:', r.referencia)}${linha('OP:', r.op || 'N/A')}${linha('Tipo:', r.amostraPedido)}${r.tecido ? linha('Tecido:', r.tecido) : ''}${linha('Data:', formatarData(r.dataCadastro))}</div>`));
+    const linhas = [
+      linha('Referência:', r.referencia),
+      cfg.campos.pedido && r.pedido ? linha('Pedido:', r.pedido) : '',
+      cfg.campos.op ? linha('OP:', r.op || 'N/A') : '',
+      cfg.campos.tipo ? linha('Tipo:', r.amostraPedido) : '',
+      cfg.campos.tecido && r.tecido ? linha('Tecido:', r.tecido) : '',
+      cfg.campos.data ? linha('Data:', formatarData(r.dataCadastro)) : ''
+    ].join('');
+    w.document.write(htmlPopup('Etiqueta - ' + r.pantone, css, `<div class="etiqueta"><div class="t">${esc(r.pantone)}${r.tipo ? ' - ' + esc(r.tipo) : ''}</div>${linhas}</div>`));
     w.document.close();
   } catch(e) { w.close(); showToast('Não foi possível imprimir a etiqueta.', 'err'); }
 }
@@ -1923,8 +2019,9 @@ async function imprimirResultados(){
     const linhas = lista => lista.length ? lista.map(m => { const p = prods.find(x => x.id === m.produtoId), fo = p ? forns.find(x => x.id === p.fornecedorId) : null; return `<tr><td>${esc(fo ? fo.nome : 'N/A')}</td><td>${esc(p ? p.nome : 'N/A')}</td><td>${esc(p ? p.lote : '—')}</td><td>${fmtKg(m.quantidade)} kg</td></tr>`; }).join('') : '<tr><td colspan="4" style="color:#888">Nenhum item cadastrado.</td></tr>';
     const blocos = ultimaBusca.map(r => { const its = itens.filter(i => i.receitaId === r.id);
       return `<div class="rr"><div class="rp">${esc(r.pantone)}</div><div class="rs">Estampa: ${esc(r.estampaOrigem) || '—'} · Referência: ${esc(r.referencia)} · Tinta: ${esc(r.tipo) || '—'}${r.tecido ? ' · Tecido: ' + esc(r.tecido) : ''}</div><div class="rs">Amostra/Pedido: ${esc(r.amostraPedido)} · OP: ${esc(r.op) || 'N/A'} · Pedido: ${esc(r.pedido) || '—'} · Cadastro: ${esc(formatarData(r.dataCadastro))}</div>
-        <div class="rg">Matérias-primas</div><table><thead><tr><th>Fornecedor</th><th>Produto</th><th>Lote</th><th>Qtd.</th></tr></thead><tbody>${linhas(its.filter(i => i.grupo !== 'coloracao'))}</tbody></table>
-        <div class="rg">Coloração</div><table><thead><tr><th>Fornecedor</th><th>Produto</th><th>Lote</th><th>Qtd.</th></tr></thead><tbody>${linhas(its.filter(i => i.grupo === 'coloracao'))}</tbody></table></div>`; }).join('');
+        <div class="rg">Matérias-primas</div><table><thead><tr><th>Fornecedor</th><th>Produto</th><th>Lote</th><th>Qtd.</th></tr></thead><tbody>${linhas(its.filter(i => i.grupo === 'materiaPrima'))}</tbody></table>
+        <div class="rg">Coloração</div><table><thead><tr><th>Fornecedor</th><th>Produto</th><th>Lote</th><th>Qtd.</th></tr></thead><tbody>${linhas(its.filter(i => i.grupo === 'coloracao'))}</tbody></table>
+        <div class="rg">Auxiliar</div><table><thead><tr><th>Fornecedor</th><th>Produto</th><th>Lote</th><th>Qtd.</th></tr></thead><tbody>${linhas(its.filter(i => i.grupo === 'auxiliar'))}</tbody></table></div>`; }).join('');
     const css = `*{box-sizing:border-box}body{font-family:Arial,sans-serif;margin:0;padding:24px;color:#1A2B1A}.hd{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #1B3A5C;padding-bottom:10px;margin-bottom:18px}.br{font-weight:800;font-size:15px;color:#1B3A5C}.mt{font-size:11px;color:#7A9A7C}.ct{font-size:12px;color:#7A9A7C;margin-bottom:14px}.rr{border:1.5px solid #C8D8C8;border-radius:10px;padding:14px 16px;margin-bottom:14px;page-break-inside:avoid}.rp{font-size:17px;font-weight:800;color:#1B3A5C}.rs{font-size:11.5px;color:#444;margin-top:2px}.rg{font-size:10.5px;text-transform:uppercase;font-weight:700;color:#2D7A3A;margin:10px 0 4px}table{width:100%;border-collapse:collapse;font-size:11px}th{text-align:left;background:#EBF0E8;padding:5px 8px;font-size:9.5px;text-transform:uppercase;border-bottom:2px solid #1B3A5C}td{padding:5px 8px;border-bottom:1px solid #C8D8C8}@page{size:A4;margin:12mm}`;
     w.document.write(htmlPopup('Relatório de Receitas', css, `<div class="hd"><div class="br">SGE — LABORATÓRIO DE TINTA · RELATÓRIO DE RECEITAS</div><div class="mt">Emitido em ${esc(new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }))}</div></div><div class="ct">${ultimaBusca.length} receita(s), resultado da Busca no momento da impressão</div>${blocos}`));
     w.document.close();
@@ -2045,6 +2142,8 @@ function montarIconesEstaticos(){
   $('#btnImprimirResultados').innerHTML = withIcon('printer', 'Imprimir resultados');
   $('#btnExportJSON').innerHTML = withIcon('save', 'Exportar JSON'); $('#btnExportCSV').innerHTML = withIcon('save', 'Exportar CSV'); $('#btnImport').innerHTML = withIcon('upload', 'Importar dados');
   $('#btnImportarFichas').innerHTML = withIcon('refresh', 'Importar das fichas de Artes');
+  $('#btnEtqConfig').innerHTML = withIcon('pen', 'Configurar etiqueta');
+  $('#etqConfigClose').innerHTML = ic('x', 14);
   $('#fornecedorEstado').insertAdjacentHTML('beforeend', UFS.map(([s, n]) => `<option value="${s}">${esc(n)}</option>`).join(''));
 }
 function ligarEventos(){
@@ -2068,6 +2167,10 @@ function ligarEventos(){
   $('#receitaPedido').addEventListener('change', selecionarPedido);
   $('#pantonesPedido').addEventListener('click', cliqueNoPantone);
   $('#btnReceitaAvulsa').addEventListener('click', abrirReceitaAvulsa);
+  $('#btnEtqConfig').addEventListener('click', abrirEtqConfig);
+  $('#etqConfigClose').addEventListener('click', () => $('#m-etq-config').classList.remove('open'));
+  $('#etqConfigSalvar').addEventListener('click', salvarEtqConfig);
+  $('#etqConfigRestaurar').addEventListener('click', restaurarEtqConfig);
   ligarAcoesReceita($('#tbReceitas')); ligarAcoesReceita($('#tbBusca'));
   $('#recSalvar').addEventListener('click', salvarReceita);
   $('#recCopiar').addEventListener('click', copiarUltimaReceita);
@@ -2086,9 +2189,14 @@ function ligarEventos(){
   $('#btnImport').addEventListener('click', () => $('#importFile').click());
   $('#importFile').addEventListener('change', importarDados);
 
+  const me = $('#m-etq-config'); let downEtq = false;
+  me.addEventListener('mousedown', e => { downEtq = e.target === me; });
+  me.addEventListener('mouseup', e => { if (downEtq && e.target === me) me.classList.remove('open'); downEtq = false; });
+
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
     if ($('#m-receita').classList.contains('open')) tentarFecharRec();
+    else if ($('#m-etq-config').classList.contains('open')) $('#m-etq-config').classList.remove('open');
     else if ($('#m-detalhes').classList.contains('open')) $('#m-detalhes').classList.remove('open');
   });
   window.addEventListener('online', updateConnectionIndicator);
