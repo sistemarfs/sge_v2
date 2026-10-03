@@ -162,6 +162,10 @@ body.dark .ic-m svg{stroke:#8FBFE0!important}
 .fm-trigger:hover{border-color:var(--green);color:var(--green)}
 .fm-trigger.fm-active{border-color:var(--navy);background:var(--navy-pale);color:var(--navy)}
 .fm-trigger svg{width:14px;height:14px;flex-shrink:0}
+.chk-soft{appearance:none;-webkit-appearance:none;width:14px;height:14px;border:1.5px solid var(--border);border-radius:4px;background:var(--surface);cursor:pointer;flex-shrink:0;position:relative;margin:0;vertical-align:middle}
+.chk-soft:hover{border-color:var(--green)}
+.chk-soft:checked{background:var(--green);border-color:var(--green)}
+.chk-soft:checked::after{content:'';position:absolute;left:3.5px;top:0.5px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
 .fm-badge{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--navy);color:#fff;font-size:9px;font-weight:700;margin-left:2px}
 .fm-dropdown{display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:300;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);min-width:240px;padding:10px 0}
 .fm-dropdown.open{display:block}
@@ -639,6 +643,8 @@ tr:hover td{background:var(--bg)}
       <a role="menuitem" href="02_Estamparia.html"><span class="mm-ic ic-g"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2D7A3A" stroke-width="1.9"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></span><span><b>Estamparia</b><small>Pedidos e OPs da estampa localizada.</small></span></a>
       <a role="menuitem" href="03_Laboratorio.html"><span class="mm-ic ic-n"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.9"><path d="M9 3h6"/><path d="M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2.2h12.4a1.5 1.5 0 0 0 1.3-2.2L14 9V3"/><path d="M7.5 15h9"/></svg></span><span><b>Laboratório</b><small>Receitas de tinta, pantones e estoque.</small></span></a>
       <a role="menuitem" href="04_Qualidade.html"><span class="mm-ic ic-g"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2D7A3A" stroke-width="1.9"><path d="M9 3h6a1 1 0 0 1 1 1v2H8V4a1 1 0 0 1 1-1z"/><path d="M8 5H6a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><path d="m9 14 2 2 4-4"/></svg></span><span><b>Qualidade</b><small>Testes e aprovação por pedido.</small></span></a>
+      <div style="height:1px;background:var(--border);margin:6px 4px"></div>
+      <a role="menuitem" href="#" onclick="fecharModulos(); go('painel'); return false;"><span class="mm-ic ic-g"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2D7A3A" stroke-width="1.9"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span><span><b>Painel</b><small>Acompanhamento dos pedidos nos 4 módulos.</small></span></a>
     </div>
   </div>
   <button class="nb" id="nb-usuarios" style="display:none" onclick="go('usuarios')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Usuários</span></button>
@@ -714,6 +720,22 @@ tr:hover td{background:var(--bg)}
   </div>
 </div>
 
+<!-- PAINEL — ESTAMPA LOCALIZADA -->
+<div class="page" id="page-painel">
+  <div class="ph"><div class="ph-icon ic-g"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2D7A3A" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><h2>Painel — Estampa Localizada</h2></div>
+  <div class="pb">
+    <div class="stats-row" id="painel-kpis"></div>
+    <div class="sw">
+      <div class="st">
+        <div class="sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="painel-busca" placeholder="Buscar por pedido ou referência..." oninput="aplicarFiltrosPainel()"></div>
+        <div class="sc" style="gap:3px"><label>Situação</label><select id="painel-f-sit" onchange="aplicarFiltrosPainel()"><option value="">Todas</option><option value="pendente">Pendente</option><option value="concluida">Concluída</option></select></div>
+        <div class="sc" style="gap:3px"><label>Qualidade</label><select id="painel-f-qual" onchange="aplicarFiltrosPainel()"><option value="">Todas</option><option value="aprovado">Aprovado</option><option value="reprovado">Reprovado</option><option value="pendente">Pendente</option></select></div>
+      </div>
+    </div>
+    <div class="tw"><table><thead><tr><th>Pedido</th><th>Referência</th><th>OPs</th><th>Artes</th><th>Receitas</th><th>Situação</th><th>Qualidade</th><th>Atualizado em</th><th></th></tr></thead><tbody id="painel-body"></tbody></table></div>
+  </div>
+</div>
+
 <!-- ESTAMPAS -->
 <div class="page" id="page-estampas">
   <div class="ph"><div class="ph-icon ic-n"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div><h2>Estampas</h2>
@@ -724,7 +746,7 @@ tr:hover td{background:var(--bg)}
     <div class="sw">
       <div class="st">
         <!-- Busca livre -->
-        <div class="sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="q-est" placeholder="Ref., código, pantone, fornecedor, artigo..." oninput="estRenderLimit=40;renderEstampas()"></div>
+        <div class="sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="q-est" placeholder="Ref., código, pantone, fornecedor, artigo..." oninput="estRenderLimit=40;renderEstampas()" style="padding-top:6px;padding-bottom:6px"></div>
         <!-- Filtros ocultos (texto) usados internamente -->
         <input type="hidden" id="f-tipo"><input type="hidden" id="f-status">
         <input type="hidden" id="f-tec"><input type="hidden" id="f-art"><input type="hidden" id="f-rap">
@@ -794,8 +816,8 @@ tr:hover td{background:var(--bg)}
           </div>
         </div>
         <!-- Mostrar arquivadas -->
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;padding:6px 10px;border-radius:6px;border:1.5px solid var(--border);font-size:12px;font-weight:600;color:var(--ink2)">
-          <input type="checkbox" id="chk-arquivadas" onchange="renderEstampas()" style="width:14px;height:14px;cursor:pointer">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;padding:6px 11px;border-radius:6px;border:1.5px solid var(--border);font-size:12px;font-weight:600;color:var(--ink2);align-self:center">
+          <input type="checkbox" id="chk-arquivadas" class="chk-soft" onchange="renderEstampas()">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px"><rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg> Mostrar arquivadas
         </label>
         <!-- Filtros Salvos -->
@@ -812,7 +834,7 @@ tr:hover td{background:var(--bg)}
           </div>
         </div>
         <!-- Limpar -->
-        <button class="btn btn-ghost btn-sm" onclick="clearF()">
+        <button class="btn btn-ghost btn-sm" onclick="clearF()" style="padding:6px 11px;align-self:center">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Limpar
         </button>
       </div>
@@ -873,7 +895,7 @@ tr:hover td{background:var(--bg)}
         <div class="sc" style="gap:3px"><label>Status</label><select id="f-am-st" onchange="renderAmostras()"><option value="">Todos</option><option>Aguardando</option><option>Aprovada</option><option>Reprovada</option><option>Solicitada</option></select></div>
       </div>
       <label style="display:flex;align-items:center;gap:6px;margin-top:9px;cursor:pointer;user-select:none;font-size:12px;color:var(--ink2)">
-        <input type="checkbox" id="am-show-arquivadas" onchange="renderAmostras()" style="width:14px;height:14px;cursor:pointer"> Mostrar arquivadas
+        <input type="checkbox" id="am-show-arquivadas" class="chk-soft" onchange="renderAmostras()"> Mostrar arquivadas
       </label>
     </div>
     <div class="tw"><table><thead><tr><th>Fornecedor</th><th>Produto</th><th>Qtd</th><th>Destino</th><th>Status</th><th>Custo</th><th>Solicitante</th><th>Data / Prazo</th><th>Ações</th></tr></thead><tbody id="am-tbody"></tbody></table></div>
@@ -2106,6 +2128,92 @@ function toggleModulos(e){
 }
 document.addEventListener('click', e => { if (!e.target.closest('#mod-wrap')) fecharModulos(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharModulos(); });
+/* ═══════════════════════════════════════
+   PAINEL — ESTAMPA LOCALIZADA
+   (junta Artes + Estamparia + Laboratório + Qualidade,
+   sem mexer em nada das outras telas)
+═══════════════════════════════════════ */
+function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+function fmtDataHora(iso) { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }); }
+const normPant = s => String(s || '').trim().toLowerCase().replace(/\s+/g, '');
+function pantonesFicha(dados) {
+  const out = new Set();
+  if (!dados) return out;
+  (dados.estampas || []).forEach(e => (e.pantones || []).forEach(p => { if (p && p.code && String(p.code).trim()) out.add(normPant(p.code)); }));
+  const t = dados.tagless;
+  if (t && Array.isArray(t.pantones)) t.pantones.forEach(p => { if (p && p.code && String(p.code).trim()) out.add(normPant(p.code)); });
+  return out;
+}
+let painelDados = null;
+async function carregarPainelEL() {
+  ld('Carregando painel...');
+  try {
+    const { data: pedidos, error } = await SB.from('pedidos').select('*, ordens_localizada(numero)').order('atualizado_em', { ascending: false }).limit(500);
+    if (error) throw error;
+    const refs = [...new Set((pedidos || []).map(p => p.referencia).filter(Boolean))];
+    const { data: fichas } = refs.length ? await SB.from('fichas').select('referencia,dados').in('referencia', refs) : { data: [] };
+    const numeros = (pedidos || []).map(p => p.numero).filter(Boolean);
+    const { data: receitas } = numeros.length ? await SB.from('receitas').select('pantone,pedido_numero').in('pedido_numero', numeros) : { data: [] };
+    const fichaPorRef = {};
+    (fichas || []).forEach(f => { fichaPorRef[f.referencia] = f.dados; });
+    const receitasPorPedido = {};
+    (receitas || []).forEach(r => { const k = r.pedido_numero; (receitasPorPedido[k] || (receitasPorPedido[k] = new Set())).add(normPant(r.pantone)); });
+    painelDados = (pedidos || []).map(p => {
+      const dados = fichaPorRef[p.referencia];
+      const necess = pantonesFicha(dados);
+      const tem = receitasPorPedido[p.numero] || new Set();
+      const cobertos = [...necess].filter(c => tem.has(c)).length;
+      return Object.assign({}, p, { ops: (p.ordens_localizada || []).map(o => o.numero).filter(Boolean), temFicha: !!dados, pantonesNecessarios: necess.size, pantonesCobertos: cobertos });
+    });
+  } catch (e) { painelDados = []; document.getElementById('painel-kpis').innerHTML = ''; document.getElementById('painel-body').innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--red);padding:20px">Não foi possível carregar o painel: ${esc(e && e.message ? e.message : 'erro desconhecido')}. Recarregue a página para tentar de novo.</td></tr>`; uld(); return; }
+  uld();
+  aplicarFiltrosPainel();
+}
+function aplicarFiltrosPainel() {
+  if (!painelDados) return;
+  const busca = (document.getElementById('painel-busca').value || '').trim().toLowerCase();
+  const sit = document.getElementById('painel-f-sit').value;
+  const qual = document.getElementById('painel-f-qual').value;
+  let itens = painelDados;
+  if (busca) itens = itens.filter(p => (p.numero || '').toLowerCase().includes(busca) || (p.referencia || '').toLowerCase().includes(busca));
+  if (sit) itens = itens.filter(p => (p.status === 'concluida' ? 'concluida' : 'pendente') === sit);
+  if (qual) itens = itens.filter(p => (p.status_qualidade || 'pendente') === qual);
+
+  const total = painelDados.length;
+  const semFicha = painelDados.filter(p => !p.temFicha).length;
+  const receitaIncompleta = painelDados.filter(p => p.pantonesNecessarios > 0 && p.pantonesCobertos < p.pantonesNecessarios).length;
+  const qualAprov = painelDados.filter(p => p.status_qualidade === 'aprovado').length;
+  const qualReprov = painelDados.filter(p => p.status_qualidade === 'reprovado').length;
+  document.getElementById('painel-kpis').innerHTML = `
+    <div class="smi"><div class="smi-v">${total}</div><div class="smi-l">Pedidos</div></div>
+    <div class="smi"><div class="smi-v" style="color:${semFicha ? 'var(--red)' : 'inherit'}">${semFicha}</div><div class="smi-l">Sem ficha de Artes</div></div>
+    <div class="smi"><div class="smi-v" style="color:${receitaIncompleta ? '#C07A00' : 'inherit'}">${receitaIncompleta}</div><div class="smi-l">Receita incompleta</div></div>
+    <div class="smi"><div class="smi-v" style="color:var(--green)">${qualAprov}</div><div class="smi-l">Qualidade aprovada</div></div>
+    <div class="smi"><div class="smi-v" style="color:${qualReprov ? 'var(--red)' : 'inherit'}">${qualReprov}</div><div class="smi-l">Qualidade reprovada</div></div>`;
+
+  const body = document.getElementById('painel-body');
+  if (!itens.length) { body.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--ink3);padding:20px">${painelDados.length ? 'Nenhum pedido encontrado para este filtro.' : 'Nenhum pedido cadastrado ainda na Estampa Localizada.'}</td></tr>`; return; }
+  const qualMap = { aprovado: ['t-ok', 'Aprovado'], reprovado: ['t-alert', 'Reprovado'], pendente: ['t-pend', 'Pendente'] };
+  body.innerHTML = itens.map(p => {
+    const sitTag = p.status === 'concluida' ? '<span class="tag t-ok">Concluída</span>' : '<span class="tag t-pend">Pendente</span>';
+    const [qc, ql] = qualMap[p.status_qualidade] || qualMap.pendente;
+    const artesTag = p.temFicha ? '<span class="tag t-ok">Ficha ok</span>' : '<span class="tag t-alert">Sem ficha</span>';
+    let recTag = '<span style="color:var(--ink3)">—</span>';
+    if (p.pantonesNecessarios > 0) recTag = `<span class="tag ${p.pantonesCobertos === p.pantonesNecessarios ? 't-ok' : 't-pend'}">${p.pantonesCobertos}/${p.pantonesNecessarios}</span>`;
+    return `<tr>
+      <td style="font-family:'IBM Plex Mono',monospace;font-weight:600">${esc(p.numero)}</td>
+      <td style="font-family:'IBM Plex Mono',monospace">${esc(p.referencia)}</td>
+      <td style="font-size:12px;color:var(--ink2)">${esc(p.ops.join(', ')) || '—'}</td>
+      <td>${artesTag}</td>
+      <td>${recTag}</td>
+      <td>${sitTag}</td>
+      <td><span class="tag ${qc}">${ql}</span></td>
+      <td style="font-size:12px;color:var(--ink3)">${p.atualizado_em ? esc(fmtDataHora(p.atualizado_em)) : '—'}</td>
+      <td><a class="btn btn-ghost btn-sm" href="02_Estamparia.html?pedido=${encodeURIComponent(p.numero)}" target="_blank" rel="noopener">Abrir</a></td>
+    </tr>`;
+  }).join('');
+}
+
 function go(name, skipHistory) {
   if (name==='usuarios' && !isAdm()) return;
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -2121,6 +2229,7 @@ function go(name, skipHistory) {
   if (name==='relatorio') { renderRelList(); }
   if (name==='home')      renderAlerts();
   if (name==='dashboard') renderDashboard();
+  if (name==='painel')    carregarPainelEL();
   if (name==='usuarios')  renderUsuarios();
 }
 
