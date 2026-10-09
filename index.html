@@ -468,6 +468,9 @@ tr:hover td{background:var(--bg)}
 .kan-edit-btn{width:22px;height:22px;border-radius:6px;border:none;background:var(--surface2);box-shadow:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink2);transition:all 0.13s}
 .kan-edit-btn:hover{background:var(--kc-color,var(--navy));color:#fff}
 .kan-card-resp{font-size:10px;color:var(--ink3);display:flex;align-items:center;gap:4px;margin-top:6px;padding-top:6px;border-top:1px solid var(--border)}
+.op-forecast{font-size:10px;color:var(--navy);display:flex;flex-direction:column;gap:2px;margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-weight:600}
+.op-forecast span{display:flex;align-items:center;gap:4px}
+.op-forecast-incompleto{font-size:10px;color:#C07A00;margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-weight:600}
 .kan-card-resp.kan-resp-warn{color:var(--red)}
 @media(max-width:900px){.kan-board{flex-wrap:nowrap}}
 
@@ -1522,6 +1525,13 @@ tr:hover td{background:var(--bg)}
           <label class="fl">Número da OB (Ordem de Beneficiamento) *</label>
           <input type="text" class="form-input" id="op-numero" placeholder="Ex: 0143">
         </div>
+        <div id="op-vel-hint" style="font-size:11px;color:var(--ink3);margin-top:8px"></div>
+        <div class="fg s3" style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div><label class="fl">Quilos a produzir *</label><input type="number" class="form-input" id="op-kg" min="0" step="0.1" placeholder="200" oninput="opAtualizarPrevia()"></div>
+          <div><label class="fl">Rendimento (m/kg) *</label><input type="number" class="form-input" id="op-rendimento" min="0" step="0.01" placeholder="2.70" oninput="opAtualizarPrevia()"></div>
+          <div><label class="fl">Nº de rolos *</label><input type="number" class="form-input" id="op-rolos" min="1" step="1" placeholder="4" oninput="opAtualizarPrevia()"></div>
+        </div>
+        <div id="op-previa-tempo" style="font-size:12px;color:var(--navy);font-weight:700;margin-top:8px"></div>
         <div class="fg" style="margin-top:12px">
           <label class="fl">Responsável pelo Cartão</label>
           <input type="text" class="form-input" id="op-responsavel" placeholder="Nome de quem conduz esta OB">
@@ -1545,6 +1555,11 @@ tr:hover td{background:var(--bg)}
       <div class="fg">
         <label class="fl">Número da OB *</label>
         <input type="text" class="form-input" id="edit-op-numero" placeholder="Ex: 0143">
+      </div>
+      <div class="fg s3" style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <div><label class="fl">Quilos a produzir *</label><input type="number" class="form-input" id="edit-op-kg" min="0" step="0.1" placeholder="200"></div>
+        <div><label class="fl">Rendimento (m/kg) *</label><input type="number" class="form-input" id="edit-op-rendimento" min="0" step="0.01" placeholder="2.70"></div>
+        <div><label class="fl">Nº de rolos *</label><input type="number" class="form-input" id="edit-op-rolos" min="1" step="1" placeholder="4"></div>
       </div>
       <div class="fg" style="margin-top:12px">
         <label class="fl">Responsável pelo Cartão</label>
@@ -4282,6 +4297,97 @@ function renderActiveKanBoard() {
 // PPCP — ORDENS DE PRODUÇÃO
 // ═══════════════════════════════════════
 const OP_STAGES = ['Solicitação de produção','Impressão','Pausada/Cancelada','Concluída'];
+
+/* ═══════════════════════════════════════
+   PREVISÃO DE AGENDA — Digital-Produção
+   Turno: 07:30–17:30, segunda a sexta. Fora disso, tudo pausa e
+   retoma no próximo turno. Ajuste os 4 números abaixo se o turno mudar.
+═══════════════════════════════════════ */
+const TURNO_INICIO_MIN = 7 * 60 + 30;   // 07:30
+const TURNO_FIM_MIN = 17 * 60 + 30;     // 17:30
+const MIN_TROCA_ROLO = 12.5;            // troca de rolo (todo rolo, inclusive o 1º)
+const MIN_TROCA_ESTAMPA = 7;            // limpeza de cabeçotes + checagem de entupimento, só quando muda o desenho
+
+function ehDiaUtilProducao(d) { const wd = d.getDay(); return wd >= 1 && wd <= 5; }
+
+// Dado um instante, devolve o próximo instante dentro do turno (se já estiver dentro, devolve o mesmo).
+function proximoInstanteUtil(d) {
+  const atual = new Date(d.getTime());
+  for (let i = 0; i < 30; i++) {
+    if (!ehDiaUtilProducao(atual)) { atual.setDate(atual.getDate() + 1); atual.setHours(0, 0, 0, 0); continue; }
+    const minutosNoDia = atual.getHours() * 60 + atual.getMinutes();
+    if (minutosNoDia < TURNO_INICIO_MIN) { atual.setHours(7, 30, 0, 0); return atual; }
+    if (minutosNoDia >= TURNO_FIM_MIN) { atual.setDate(atual.getDate() + 1); atual.setHours(0, 0, 0, 0); continue; }
+    return atual;
+  }
+  return atual;
+}
+
+// Soma 'minutos' de tempo de turno a partir de 'inicio', pausando fora do turno/fim de semana.
+function avancarTempoUtil(inicio, minutos) {
+  let atual = proximoInstanteUtil(inicio);
+  let restante = minutos;
+  for (let i = 0; i < 400 && restante > 0.001; i++) {
+    const minutosNoDia = atual.getHours() * 60 + atual.getMinutes();
+    const minutosAteFim = TURNO_FIM_MIN - minutosNoDia;
+    if (restante <= minutosAteFim) { atual = new Date(atual.getTime() + restante * 60000); restante = 0; }
+    else { restante -= minutosAteFim; atual.setDate(atual.getDate() + 1); atual.setHours(0, 0, 0, 0); atual = proximoInstanteUtil(atual); }
+  }
+  return atual;
+}
+
+function formatarDuracaoMin(min) {
+  const h = Math.floor(min / 60), m = Math.round(min % 60);
+  return h > 0 ? `${h}h${String(m).padStart(2, '0')}min` : `${m}min`;
+}
+const DIAS_SEMANA_CURTO = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+function formatarPrevisao(d) {
+  return `${DIAS_SEMANA_CURTO[d.getDay()]} ${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+// Tempo de impressão (minutos) desta OB, ou null se faltar algum dado pra calcular.
+function opTempoImpressaoMin(op) {
+  const vel = Number((op.estampas || {}).velocidade_impressao) || 0;
+  const kg = Number(op.quantidade_kg) || 0;
+  const rend = Number(op.rendimento_m_kg) || 0;
+  if (!vel || !kg || !rend) return null;
+  return (kg * rend / vel) * 60;
+}
+
+// Percorre a fila (Impressão + Solicitação de produção, na ordem real de produção) e calcula
+// início/término previstos de cada OB, encadeando uma depois da outra numa única máquina.
+function calcularPrevisoesFila() {
+  const emImpressao = opCache.filter(op => (op.etapa || OP_STAGES[0]) === 'Impressão');
+  const emFila = opCache.filter(op => (op.etapa || OP_STAGES[0]) === 'Solicitação de produção')
+    .slice().sort((a, b) => (a.ordem || 0) - (b.ordem || 0));
+  const sequencia = [...emImpressao, ...emFila]; // com 1 máquina só, "Impressão" deve ter no máx. 1 cartão
+  const previsoes = {};
+  let cursor = null;
+  let estampaAnterior = null;
+  sequencia.forEach(op => {
+    const estaImprimindo = (op.etapa || OP_STAGES[0]) === 'Impressão';
+    const inicio = (estaImprimindo && op.iniciado_em) ? new Date(op.iniciado_em) : (cursor ? new Date(cursor) : proximoInstanteUtil(new Date()));
+    // A troca de estampa só é cobrada se a OB anterior NESTA fila tinha um desenho diferente
+    // (se já está imprimindo, a limpeza — se houve — já aconteceu antes; não cobra de novo).
+    const trocaEstampa = (!estaImprimindo && estampaAnterior != null && estampaAnterior !== op.estampa_id) ? MIN_TROCA_ESTAMPA : 0;
+    const tImpressao = opTempoImpressaoMin(op);
+    const tRolos = (Number(op.num_rolos) || 0) * MIN_TROCA_ROLO;
+    const completo = tImpressao != null && op.num_rolos > 0;
+    const fim = completo ? avancarTempoUtil(inicio, trocaEstampa + tRolos + tImpressao) : null;
+    const semVelocidade = !completo && !Number((op.estampas || {}).velocidade_impressao);
+    previsoes[op.id] = { inicio, fim, completo, semVelocidade };
+    cursor = fim || inicio;
+    estampaAnterior = op.estampa_id;
+  });
+  return previsoes;
+}
+function opForecastHtml(prev) {
+  if (!prev) return '';
+  if (!prev.completo) return prev.semVelocidade
+    ? `<div class="op-forecast op-forecast-incompleto">Estampa sem velocidade cadastrada — sem previsão</div>`
+    : `<div class="op-forecast op-forecast-incompleto">Edite a OB e informe quilos/rendimento/rolos</div>`;
+  return `<div class="op-forecast"><span>${ic('clock',10)} Início ${formatarPrevisao(prev.inicio)}</span><span>${ic('alarmClock',10)} Término ${formatarPrevisao(prev.fim)}</span></div>`;
+}
 const OP_ICONS  = {'Solicitação de produção':'fileText','Impressão':'printer','Pausada/Cancelada':'alertTriangle','Concluída':'checkCircle'};
 const OP_PERM_MAP = { 'Impressão':'perm_op_impressao', 'Pausada/Cancelada':'perm_op_pausada', 'Concluída':'perm_op_concluida' };
 let opCache = [];
@@ -4320,7 +4426,7 @@ function opTransicaoValida(atual, nova) {
 
 async function renderOPBoard() {
   ld('Carregando Digital-Produção...');
-  const { data, error } = await SB.from('ordens_producao').select('*, estampas(ref, nome, img_url, cod_eng, variante)').eq('arquivado', false).order('criado_em', { ascending:false });
+  const { data, error } = await SB.from('ordens_producao').select('*, estampas(ref, nome, img_url, cod_eng, variante, velocidade_impressao, passadas)').eq('arquivado', false).order('criado_em', { ascending:false });
   uld();
   if (error) {
     console.error('renderOPBoard error:', error);
@@ -4328,6 +4434,7 @@ async function renderOPBoard() {
     return;
   }
   opCache = data || [];
+  const previsoes = calcularPrevisoesFila();
   const q = (document.getElementById('q-kan')?.value||'').toLowerCase().trim();
   const items = opCache.filter(op => {
     const e = op.estampas || {};
@@ -4375,6 +4482,7 @@ async function renderOPBoard() {
         <div class="kan-card-name">${e.nome||e.ref||'—'}</div>
         <div class="op-badge">OB ${op.numero_op}</div>
         ${op.responsavel_op?`<div class="kan-card-resp">${ic('userCheck',11)} ${op.responsavel_op}${movLivre?' '+ic('checkCircle',10):''}</div>`:op.criado_por?`<div class="kan-card-resp">${ic('userCheck',11)} ${op.criado_por}</div>`:''}
+        ${(stage==='Solicitação de produção'||stage==='Impressão')?opForecastHtml(previsoes[op.id]):''}
       </div>`;
     }).join('') : '<div class="kan-empty-col">Sem cards</div>';
     return `
@@ -4421,7 +4529,10 @@ async function opDrop(ev, novaEtapa) {
   // Com movimento livre (responsável + etapa Impressão), qualquer etapa de destino é permitida
   ld('Movendo...');
   try {
-    const { error } = await SB.from('ordens_producao').update({ etapa: novaEtapa }).eq('id', op.id);
+    const payloadMove = { etapa: novaEtapa };
+    // Grava quando a OB entra em "Impressão" — só na transição, pra previsão do que já está rodando ficar certa.
+    if (novaEtapa === 'Impressão') payloadMove.iniciado_em = new Date().toISOString();
+    const { error } = await SB.from('ordens_producao').update(payloadMove).eq('id', op.id);
     if (error) throw error;
     // Notifica o criador da OP e todos os administradores
     const e = op.estampas || {};
@@ -4447,6 +4558,11 @@ function openAddOP() {
   document.getElementById('op-add-results').innerHTML = '<p style="font-size:12px;color:var(--ink3)">Digite para buscar...</p>';
   document.getElementById('op-numero').value = '';
   document.getElementById('op-responsavel').value = '';
+  document.getElementById('op-kg').value = '';
+  document.getElementById('op-rendimento').value = '';
+  document.getElementById('op-rolos').value = '';
+  document.getElementById('op-vel-hint').innerHTML = '';
+  document.getElementById('op-previa-tempo').innerHTML = '';
   document.getElementById('op-step-search').style.display = 'block';
   document.getElementById('op-step-numero').style.display = 'none';
   document.getElementById('op-btn-confirm').style.display = 'none';
@@ -4481,14 +4597,33 @@ function selectEstampaForOP(estampa) {
   prev.innerHTML = `
     ${estampa.img_url?`<img class="kan-add-thumb" src="${estampa.img_url}" style="width:44px;height:44px">`:'<div class="kan-add-thumb" style="width:44px;height:44px"></div>'}
     <div><div style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase">${estampa.cod_eng?estampa.cod_eng+' · ':''}${estampa.ref}</div><div style="font-size:14px;font-weight:700;color:var(--navy)">${estampa.nome||'—'}</div></div>`;
+  const vh = document.getElementById('op-vel-hint');
+  vh.innerHTML = estampa.velocidade_impressao
+    ? `Velocidade cadastrada desta estampa: <strong>${estampa.velocidade_impressao} m/h</strong>${estampa.passadas?' ('+estampa.passadas+' passadas)':''} — é ela que entra na previsão de agenda.`
+    : `<span style="color:#C07A00">Esta estampa ainda não tem "Velocidade de Impressão" cadastrada — sem isso, não dá pra prever o tempo desta OB. Preencha no cadastro da estampa.</span>`;
+  opAtualizarPrevia();
   setTimeout(() => document.getElementById('op-numero').focus(), 100);
+}
+function opAtualizarPrevia() {
+  const box = document.getElementById('op-previa-tempo');
+  const vel = Number(opSelectedEstampa?.velocidade_impressao) || 0;
+  const kg = Number(document.getElementById('op-kg').value) || 0;
+  const rend = Number(document.getElementById('op-rendimento').value) || 0;
+  const rolos = Number(document.getElementById('op-rolos').value) || 0;
+  if (!vel || !kg || !rend || !rolos) { box.innerHTML = ''; return; }
+  const minutos = (kg * rend / vel) * 60 + rolos * MIN_TROCA_ROLO;
+  box.innerHTML = `≈ ${formatarDuracaoMin(minutos)} de máquina (impressão + troca de rolos; não conta eventual troca de estampa na fila)`;
 }
 
 async function confirmarNovaOP() {
   if (!canAddOP() || !opSelectedEstampa) return;
   const numero = document.getElementById('op-numero').value.trim();
   const responsavel = document.getElementById('op-responsavel').value.trim();
+  const kg = Number(document.getElementById('op-kg').value);
+  const rendimento = Number(document.getElementById('op-rendimento').value);
+  const rolos = Number(document.getElementById('op-rolos').value);
   if (!numero) { alert('Informe o número da Ordem de Produção.'); return; }
+  if (!(kg > 0) || !(rendimento > 0) || !(rolos > 0)) { alert('Informe quilos a produzir, rendimento (m/kg) e número de rolos — são usados para prever o tempo de máquina.'); return; }
   ld('Criando Ordem de Produção...');
   try {
     const { error } = await SB.from('ordens_producao').insert({
@@ -4498,6 +4633,9 @@ async function confirmarNovaOP() {
       criado_por: CU.nome,
       criado_por_id: CU.id,
       responsavel_op: responsavel || null,
+      quantidade_kg: kg,
+      rendimento_m_kg: rendimento,
+      num_rolos: rolos,
       ordem: Date.now()
     });
     if (error) throw error;
@@ -4543,6 +4681,9 @@ function openEditOP(id) {
     ${e.img_url?`<img class="kan-add-thumb" src="${e.img_url}" style="width:44px;height:44px">`:'<div class="kan-add-thumb" style="width:44px;height:44px"></div>'}
     <div><div style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase">${e.cod_eng?e.cod_eng+' · ':''}${e.ref||''}</div><div style="font-size:14px;font-weight:700;color:var(--navy)">${e.nome||'—'}</div></div>`;
   document.getElementById('edit-op-numero').value = op.numero_op;
+  document.getElementById('edit-op-kg').value = op.quantidade_kg || '';
+  document.getElementById('edit-op-rendimento').value = op.rendimento_m_kg || '';
+  document.getElementById('edit-op-rolos').value = op.num_rolos || '';
   document.getElementById('edit-op-responsavel').value = op.responsavel_op || '';
   document.getElementById('edit-op-etapa').value = op.etapa || OP_STAGES[0];
   openM('m-edit-op');
@@ -4550,13 +4691,21 @@ function openEditOP(id) {
 
 async function saveEditOP() {
   if (!editOPId) return;
+  const op = opCache.find(x => x.id === editOPId);
   const numero = document.getElementById('edit-op-numero').value.trim();
   const responsavel = document.getElementById('edit-op-responsavel').value.trim();
   const etapa = document.getElementById('edit-op-etapa').value;
+  const kg = Number(document.getElementById('edit-op-kg').value);
+  const rendimento = Number(document.getElementById('edit-op-rendimento').value);
+  const rolos = Number(document.getElementById('edit-op-rolos').value);
   if (!numero) { alert('Informe o número da OB.'); return; }
+  if (!(kg > 0) || !(rendimento > 0) || !(rolos > 0)) { alert('Informe quilos a produzir, rendimento (m/kg) e número de rolos — são usados para prever o tempo de máquina.'); return; }
+  const payload = { numero_op: numero, etapa, responsavel_op: responsavel || null, quantidade_kg: kg, rendimento_m_kg: rendimento, num_rolos: rolos };
+  // Grava quando a OB entra em "Impressão" — só na transição, pra previsão do que já está rodando ficar certa.
+  if (etapa === 'Impressão' && op && (op.etapa || OP_STAGES[0]) !== 'Impressão') payload.iniciado_em = new Date().toISOString();
   ld('Salvando...');
   try {
-    const { error } = await SB.from('ordens_producao').update({ numero_op: numero, etapa, responsavel_op: responsavel || null }).eq('id', editOPId);
+    const { error } = await SB.from('ordens_producao').update(payload).eq('id', editOPId);
     if (error) throw error;
     closeM('m-edit-op');
     await renderOPBoard();
