@@ -5546,7 +5546,9 @@ async function saveUsuario() {
     } else {
       const pass=gv('u-pass');
       if(!pass||pass.length<4){alert('Senha mínima: 4 caracteres.');return;}
-      const {error}=await SB.from('usuarios').insert({nome,username,email:email||null,telefone_whatsapp:tel||null,whatsapp_apikey:apikey||null,pass_hash:hp(pass),role,...permRow});
+      // v30 — todo usuário novo nasce vinculado à MESMA empresa de quem o está
+      // criando (nunca a outra empresa — o RLS nem deixaria enxergar outra).
+      const {error}=await SB.from('usuarios').insert({nome,username,email:email||null,telefone_whatsapp:tel||null,whatsapp_apikey:apikey||null,pass_hash:hp(pass),role,empresa_id:CU.empresa_id,...permRow});
       if(error) throw error;
     }
     closeM('m-usuario'); await renderUsuarios();
