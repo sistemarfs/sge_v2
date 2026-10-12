@@ -477,6 +477,7 @@ body.dark .res-ref{color:var(--navy-text)}
 ═══════════════════════════════════════ */
 const SB_URL = 'https://pihxaodqwtrndsyskxte.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpaHhhb2Rxd3RybmRzeXNreHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2OTMyODAsImV4cCI6MjA5NjI2OTI4MH0.C-q6EsQzBv9FR_ueIp4_lRkJlcHEdSRt71MwDXmoJwI';
+const SB_FUNCTIONS_URL = SB_URL + '/functions/v1';
 const BUCKET = 'estampas-imagens';
 const APLICACOES = ['Foil','Floco','Termo','Aplicação','Bordado','DTF'];
 const TECNICAS_TAGLESS = { tampografia:'Tampografia', silk:'Silk' };
@@ -688,9 +689,17 @@ async function doLogin(){
   btn.disabled = true;
   btn.innerHTML = '<div class="spinner" style="width:15px;height:15px;margin:0;border-width:2px"></div>';
   try {
-    const { data, error } = await SB.from('usuarios').select('*').eq('username', u).eq('pass_hash', hp(p)).single();
-    if (error || !data) throw new Error('Usuário ou senha incorretos.');
-    CU = data;
+    // v30 — login confere no servidor (função Edge) e devolve um JWT com a
+    // empresa do usuário; a tabela usuarios não é mais legível sem ele.
+    const resp = await fetch(SB_FUNCTIONS_URL + '/login', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ username: u, password: p })
+    });
+    const payload = await resp.json();
+    if (!resp.ok) throw new Error(payload.error || 'Usuário ou senha incorretos.');
+    CU = payload.user;
+    localStorage.setItem('stampos_jwt', payload.jwt);
+    SB = window.supabase.createClient(SB_URL, SB_KEY, { global: { headers: { Authorization: 'Bearer ' + payload.jwt } } });
     localStorage.setItem('stampos_session', CU.id);
     offlineCacheSet('cu', CU);
     $('#lg-pass').value = '';
@@ -710,9 +719,17 @@ function doLogout(){
   }
   localStorage.removeItem('stampos_session_token');
   localStorage.removeItem('stampos_session');
+  localStorage.removeItem('stampos_jwt');
   currentSessionToken = null;
   CU = null;
   showLogin();
+}
+
+function jwtExpirado(jwt){
+  try {
+    const payload = JSON.parse(atob(jwt.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+    return !payload.exp || (payload.exp * 1000) < Date.now();
+  } catch(e) { return true; }
 }
 
 function entrarComPerfilEmCache(savedId){
@@ -727,7 +744,13 @@ function entrarComPerfilEmCache(savedId){
 }
 async function tryRestoreSession(){
   const savedId = localStorage.getItem('stampos_session');
-  if (!savedId) { showLogin(); return; }
+  const jwt = localStorage.getItem('stampos_jwt');
+  if (!savedId || !jwt || jwtExpirado(jwt)) {
+    localStorage.removeItem('stampos_session');
+    localStorage.removeItem('stampos_jwt');
+    showLogin();
+    return;
+  }
   ld('Restaurando sessão...');
   try {
     const { data, error } = await SB.from('usuarios').select('*').eq('id', savedId).single();
@@ -1503,7 +1526,8 @@ document.addEventListener('DOMContentLoaded', () => {
     err.style.display = 'block';
     return;
   }
-  SB = window.supabase.createClient(SB_URL, SB_KEY);
+  const jwt0 = localStorage.getItem('stampos_jwt');
+  SB = window.supabase.createClient(SB_URL, SB_KEY, jwt0 ? { global: { headers: { Authorization: 'Bearer ' + jwt0 } } } : {});
   registerServiceWorker();
   tryRestoreSession();
 });
