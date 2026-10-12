@@ -849,7 +849,7 @@ async function doLogin(){
   btn.innerHTML = '<div class="spinner" style="width:15px;height:15px;margin:0;border-width:2px"></div>';
   try {
     const resp = await fetch(SB_FUNCTIONS_URL + '/login', {
-      method: 'POST', headers: { 'content-type': 'application/json' },
+      method: 'POST', headers: { 'content-type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY },
       body: JSON.stringify({ username: u, password: p })
     });
     const payload = await resp.json();

@@ -692,7 +692,7 @@ async function doLogin(){
     // v30 — login confere no servidor (função Edge) e devolve um JWT com a
     // empresa do usuário; a tabela usuarios não é mais legível sem ele.
     const resp = await fetch(SB_FUNCTIONS_URL + '/login', {
-      method: 'POST', headers: { 'content-type': 'application/json' },
+      method: 'POST', headers: { 'content-type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY },
       body: JSON.stringify({ username: u, password: p })
     });
     const payload = await resp.json();
