@@ -1889,7 +1889,7 @@ async function criarSessaoAcesso() {
   const { dispositivo, navegador } = getDeviceInfo();
   try {
     const { data } = await SB.from('sessoes_acesso').insert({
-      usuario_id: CU.id, usuario_nome: CU.nome, dispositivo, navegador
+      usuario_id: CU.id, usuario_nome: CU.nome, dispositivo, navegador, empresa_id: CU.empresa_id
     }).select().single();
     if (data) {
       currentSessionToken = data.id;
@@ -2141,7 +2141,7 @@ async function saveAviso() {
   if (!titulo || !mensagem) { alert('Preencha título e mensagem.'); return; }
   ld('Publicando...');
   try {
-    const { error } = await SB.from('avisos').insert({ titulo, mensagem, tipo, ativo:true });
+    const { error } = await SB.from('avisos').insert({ titulo, mensagem, tipo, ativo:true, empresa_id: CU.empresa_id });
     if (error) throw error;
     document.getElementById('avz-titulo').value = '';
     document.getElementById('avz-mensagem').value = '';
@@ -2333,6 +2333,7 @@ async function registrarHistorico(tabela, registroId, antes, depois, camposMap) 
         campo: camposMap[campo],
         valor_anterior: vAntes===null||vAntes===''? '—' : String(vAntes),
         valor_novo: vDepois===null||vDepois===''? '—' : String(vDepois),
+        empresa_id: CU?.empresa_id,
       });
     }
   }
@@ -2968,7 +2969,8 @@ async function saveEstampa() {
     perfil_cor: gv('e-perfil-cor')||null,
     largura_tecido: gv('e-largura-tecido')||null,
     velocidade_impressao: gv('e-velocidade')||null,
-    updated_by:CU?.nome
+    updated_by:CU?.nome,
+    empresa_id: CU?.empresa_id
   };
   try {
     const isNovaEstampa = !editEstId;
@@ -2984,6 +2986,7 @@ async function saveEstampa() {
           estampa_id: editEstId,
           img_url: editEstBeforeSnapshot.img_url,
           substituido_por: CU?.nome || null,
+          empresa_id: CU?.empresa_id,
         }).then(({error}) => { if (error) console.warn('Falha ao salvar versão da imagem:', error); });
       }
     }
@@ -3191,7 +3194,7 @@ async function salvarFiltroAtual() {
   ld('Salvando filtro...');
   try {
     const { error } = await SB.from('filtros_salvos').insert({
-      usuario_id: CU.id, tela: 'estampas', nome: nome.trim(), filtros
+      usuario_id: CU.id, tela: 'estampas', nome: nome.trim(), filtros, empresa_id: CU.empresa_id
     });
     if (error) throw error;
     await renderFiltrosSalvosLista();
@@ -3568,7 +3571,8 @@ async function saveAmostra() {
     destino:gv('a-dest'), ref_cliente:gv('a-refc'),
     solicitante: editAmId ? gv('a-solic') : (CU?.nome || gv('a-solic')),
     data_sol:gv('a-dsol')||null, data_prev:gv('a-dprev')||null, obs:gv('a-obs'),
-    timeline: amTlEvts, testes_qualidade: amTestes, updated_at: new Date().toISOString()
+    timeline: amTlEvts, testes_qualidade: amTestes, updated_at: new Date().toISOString(),
+    empresa_id: CU?.empresa_id
   };
   try {
     const { error } = editAmId
@@ -4579,7 +4583,7 @@ async function opDrop(ev, novaEtapa) {
     const { data: admins } = await SB.from('usuarios').select('id').eq('role','admin');
     (admins||[]).forEach(a => { if (a.id !== CU.id) destinatarios.add(a.id); });
     for (const uid of destinatarios) {
-      await SB.from('notificacoes').insert({ usuario_id: uid, mensagem: msg, op_id: op.id });
+      await SB.from('notificacoes').insert({ usuario_id: uid, mensagem: msg, op_id: op.id, empresa_id: CU.empresa_id });
     }
     await renderOPBoard();
     atualizarNotifBadge();
@@ -4673,7 +4677,8 @@ async function confirmarNovaOP() {
       quantidade_kg: kg,
       rendimento_m_kg: rendimento,
       num_rolos: rolos,
-      ordem: Date.now()
+      ordem: Date.now(),
+      empresa_id: CU.empresa_id
     });
     if (error) throw error;
     closeM('m-add-op');

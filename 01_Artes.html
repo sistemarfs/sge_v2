@@ -629,7 +629,7 @@ async function criarSessaoAcesso(){
   if (!CU) return;
   const { dispositivo, navegador } = getDeviceInfo();
   try {
-    const { data } = await SB.from('sessoes_acesso').insert({ usuario_id: CU.id, usuario_nome: CU.nome, dispositivo, navegador }).select().single();
+    const { data } = await SB.from('sessoes_acesso').insert({ usuario_id: CU.id, usuario_nome: CU.nome, dispositivo, navegador, empresa_id: CU.empresa_id }).select().single();
     if (data) {
       currentSessionToken = data.id;
       localStorage.setItem('stampos_session_token', currentSessionToken);
@@ -1193,7 +1193,7 @@ async function registrarHistoricoFicha(fichaId, antes, depois){
   campos.forEach(c => {
     const va = a[c] == null ? '' : String(a[c]), vb = b[c] == null ? '' : String(b[c]);
     if (c.endsWith('Arquivo da imagem') && va === 'Imagem antiga') return;   // migração automática, não é troca de imagem
-    if (va !== vb) linhas.push({ tabela: 'fichas', registro_id: fichaId, usuario_nome: (CU && CU.nome) || 'Desconhecido', campo: c, valor_anterior: va || '—', valor_novo: vb || '—' });
+    if (va !== vb) linhas.push({ tabela: 'fichas', registro_id: fichaId, usuario_nome: (CU && CU.nome) || 'Desconhecido', campo: c, valor_anterior: va || '—', valor_novo: vb || '—', empresa_id: CU && CU.empresa_id });
   });
   if (!linhas.length) return;
   try {
@@ -1250,7 +1250,7 @@ async function salvar(){
     const dados = serializar(ref);
     const agora = nowIso();
     const { data: salvo, error } = await SB.from('fichas')
-      .upsert({ referencia: ref, dados, atualizado_em: agora }, { onConflict: 'referencia' })
+      .upsert({ referencia: ref, dados, atualizado_em: agora, empresa_id: CU.empresa_id }, { onConflict: 'referencia' })
       .select('id, atualizado_em').single();
     if (error) throw error;
     if (existente) registrarHistoricoFicha(salvo.id, existente.dados, dados).then(() => { if (meta.fichaId === salvo.id) renderHistorico(); });
@@ -1274,7 +1274,7 @@ async function excluirFicha(id, ref, aposExcluir){
   try {
     const { error } = await SB.from('fichas').delete().eq('referencia', ref);
     if (error) throw error;
-    if (id) SB.from('historico_alteracoes').insert({ tabela: 'fichas', registro_id: id, usuario_nome: CU.nome, campo: 'Ficha', valor_anterior: ref, valor_novo: 'Excluída' }).then(() => {}, () => {});
+    if (id) SB.from('historico_alteracoes').insert({ tabela: 'fichas', registro_id: id, usuario_nome: CU.nome, campo: 'Ficha', valor_anterior: ref, valor_novo: 'Excluída', empresa_id: CU.empresa_id }).then(() => {}, () => {});
     try { localStorage.removeItem('sge_cache_ficha_' + ref); } catch(e) { /* sem cache */ }
     if (meta.loadedRef === ref) novaFicha(true);
     showToast(`Ficha ${ref} excluída.`);

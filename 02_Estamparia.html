@@ -685,7 +685,7 @@ async function criarSessaoAcesso(){
   if (!CU) return;
   const { dispositivo, navegador } = getDeviceInfo();
   try {
-    const { data } = await SB.from('sessoes_acesso').insert({ usuario_id: CU.id, usuario_nome: CU.nome, dispositivo, navegador }).select().single();
+    const { data } = await SB.from('sessoes_acesso').insert({ usuario_id: CU.id, usuario_nome: CU.nome, dispositivo, navegador, empresa_id: CU.empresa_id }).select().single();
     if (data) {
       currentSessionToken = data.id;
       localStorage.setItem('stampos_session_token', currentSessionToken);
@@ -1126,7 +1126,7 @@ async function registrarHistoricoPedido(id, antes, depois){
   const linhas = [];
   Object.keys(a).forEach(c => {
     const va = a[c] == null ? '' : String(a[c]), vb = b[c] == null ? '' : String(b[c]);
-    if (va !== vb) linhas.push({ tabela: 'pedidos', registro_id: id, usuario_nome: (CU && CU.nome) || 'Desconhecido', campo: c, valor_anterior: va || '—', valor_novo: vb || '—' });
+    if (va !== vb) linhas.push({ tabela: 'pedidos', registro_id: id, usuario_nome: (CU && CU.nome) || 'Desconhecido', campo: c, valor_anterior: va || '—', valor_novo: vb || '—', empresa_id: CU && CU.empresa_id });
   });
   if (!linhas.length) return;
   try {
@@ -1209,12 +1209,12 @@ async function salvar(){
     // 4) Pedido
     const agora = nowIso();
     const { data: row, error } = await SB.from('pedidos')
-      .upsert({ numero: d.numero, referencia: d.referencia, status: d.status, observacoes: d.observacoes, atualizado_em: agora, atualizado_por: CU.nome }, { onConflict: 'numero' })
+      .upsert({ numero: d.numero, referencia: d.referencia, status: d.status, observacoes: d.observacoes, atualizado_em: agora, atualizado_por: CU.nome, empresa_id: CU.empresa_id }, { onConflict: 'numero' })
       .select('id, atualizado_em').single();
     if (error) throw error;
     // 5) Ordens: grava as novas ANTES de apagar as antigas (se falhar, nada se perde)
     const antigas = ((ex && ex.ordens_localizada) || []).map(o => o.id);
-    const { error: eo } = await SB.from('ordens_localizada').insert(d.ordens.map((o, i) => ({ pedido_id: row.id, numero: o.numero, quantidade: o.quantidade, ordem: i })));
+    const { error: eo } = await SB.from('ordens_localizada').insert(d.ordens.map((o, i) => ({ pedido_id: row.id, numero: o.numero, quantidade: o.quantidade, ordem: i, empresa_id: CU.empresa_id })));
     if (eo) throw eo;
     if (antigas.length) {
       const { error: ed } = await SB.from('ordens_localizada').delete().in('id', antigas);
@@ -1277,7 +1277,7 @@ async function excluirPedido(id, numero, apos){
     if (r1.error) throw r1.error;
     const r2 = await SB.from('pedidos').delete().eq('id', id);
     if (r2.error) throw r2.error;
-    SB.from('historico_alteracoes').insert({ tabela: 'pedidos', registro_id: id, usuario_nome: CU.nome, campo: 'Pedido', valor_anterior: numero, valor_novo: 'Excluído' }).then(() => {}, () => {});
+    SB.from('historico_alteracoes').insert({ tabela: 'pedidos', registro_id: id, usuario_nome: CU.nome, campo: 'Pedido', valor_anterior: numero, valor_novo: 'Excluído', empresa_id: CU.empresa_id }).then(() => {}, () => {});
     if (meta.loadedNumero === numero) novoPedidoTela(true);
     showToast(`Pedido ${numero} excluído.`);
     refreshPedidos(); carregarOpsRef($('#refInput').value);

@@ -846,7 +846,7 @@ async function criarSessaoAcesso(){
   if (!CU) return;
   const { dispositivo, navegador } = getDeviceInfo();
   try {
-    const { data } = await SB.from('sessoes_acesso').insert({ usuario_id: CU.id, usuario_nome: CU.nome, dispositivo, navegador }).select().single();
+    const { data } = await SB.from('sessoes_acesso').insert({ usuario_id: CU.id, usuario_nome: CU.nome, dispositivo, navegador, empresa_id: CU.empresa_id }).select().single();
     if (data) {
       currentSessionToken = data.id;
       localStorage.setItem('stampos_session_token', currentSessionToken);
@@ -1060,7 +1060,7 @@ async function carregarPedidos(){
 async function registrarHistorico(tabela, id, linhas){
   if (!id || !linhas || !linhas.length) return;
   try {
-    const { error } = await SB.from('historico_alteracoes').insert(linhas.map(l => ({ tabela, registro_id: id, usuario_nome: (CU && CU.nome) || 'Desconhecido', campo: l.campo, valor_anterior: l.anterior || '—', valor_novo: l.novo || '—' })));
+    const { error } = await SB.from('historico_alteracoes').insert(linhas.map(l => ({ tabela, registro_id: id, usuario_nome: (CU && CU.nome) || 'Desconhecido', campo: l.campo, valor_anterior: l.anterior || '—', valor_novo: l.novo || '—', empresa_id: CU && CU.empresa_id })));
     if (error) console.warn('Falha ao registrar histórico:', error);
   } catch(e) { console.warn('Falha ao registrar histórico:', e); }
 }
@@ -1515,7 +1515,7 @@ async function salvar(){
       if (!data || !data.length) throw new Error('Este cadastro foi alterado por outra pessoa enquanto você editava (ou foi excluído). Nada foi gravado: reabra-o pela Busca para ver a versão mais recente.');
       linha = data[0];
     } else {
-      const { data, error } = await SB.from('registros_qualidade').insert(payload).select('id, atualizado_em').single();
+      const { data, error } = await SB.from('registros_qualidade').insert({ ...payload, empresa_id: CU.empresa_id }).select('id, atualizado_em').single();
       if (error) throw error;
       linha = data; S.id = Number(data.id);
     }
