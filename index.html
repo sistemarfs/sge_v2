@@ -528,7 +528,12 @@ tr:hover td{background:var(--bg)}
   .fg2{grid-template-columns:1fr}.fg2 .fg.s2{grid-column:span 1}
   .rep-grid{grid-template-columns:1fr}
   .mod-menu{position:fixed;top:60px;left:8px;right:8px;min-width:0}
-  nav{padding:0 8px}.nb span{display:none}
+  /* Menu (nav) vira uma faixa rolável — com tantos botões de ícone, em telas
+     estreitas nem todos cabem; antes ficavam cortados sem jeito de acessar */
+  nav{padding:0 8px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  nav::-webkit-scrollbar{display:none}
+  nav>*{flex-shrink:0}
+  .nb span{display:none}
   .nav-un,.nav-ur{display:none}
 
   /* Cabeçalho de página: empilha título e botões, evita cortar/espremer */

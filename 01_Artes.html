@@ -281,7 +281,10 @@ textarea.form-input{resize:vertical;min-height:80px}
 
 /* ── MOBILE ── */
 @media(max-width:640px){
-  nav{padding:0 8px}.nb span,.ni-btn span{display:none}
+  nav{padding:0 8px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  nav::-webkit-scrollbar{display:none}
+  nav>*{flex-shrink:0}
+  .nb span,.ni-btn span{display:none}
   .nav-un,.nav-ur{display:none}
   .ph{flex-wrap:wrap;padding:12px 14px 10px;gap:8px}
   .ph h2{font-size:16px}
