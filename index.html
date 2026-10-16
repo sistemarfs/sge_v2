@@ -1212,7 +1212,7 @@ tr:hover td{background:var(--bg)}
       </div>
     </div>
     <div class="mf">
-      <button class="btn btn-ghost btn-sm adm" id="btn-arquivar-estampa" onclick="toggleArquivarEstampa()" style="display:none">
+      <button class="btn btn-ghost btn-sm" id="btn-arquivar-estampa" onclick="toggleArquivarEstampa()" style="display:none">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
         <span id="btn-arquivar-txt">Arquivar</span>
       </button>
@@ -3441,7 +3441,7 @@ async function editEst(id) {
   renderP(); renderTL(); renderMalha(); renderTingimento();
   document.getElementById('tab-kanban-btn').style.display = e.tipo==='Digital' ? '' : 'none';
   const btnArq = document.getElementById('btn-arquivar-estampa');
-  btnArq.style.display = '';
+  btnArq.style.display = canEditEstampa() ? '' : 'none';
   document.getElementById('btn-arquivar-txt').textContent = e.arquivado ? 'Restaurar' : 'Arquivar';
   document.getElementById('m-est-title').textContent = 'Editar Estampa';
   document.querySelectorAll('#m-estampa .tab').forEach((t,i)=>t.classList.toggle('active',i===0));
@@ -3450,7 +3450,7 @@ async function editEst(id) {
 }
 
 async function toggleArquivarEstampa() {
-  if (!isAdm() || !editEstId) return;
+  if (!canEditEstampa() || !editEstId) return;
   const e = estCache.find(x=>x.id===editEstId); if(!e) return;
   const novoEstado = !e.arquivado;
   const label = novoEstado ? 'arquivar' : 'restaurar';
