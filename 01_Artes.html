@@ -1133,7 +1133,7 @@ function novaFicha(silencioso){
 // nome/imagem quando ainda não existe ficha técnica salva pra essa referência no Artes.
 async function buscarNoCatalogo(ref) {
   try {
-    const { data } = await SB.from('estampas').select('ref, nome, img_url').ilike('ref', ref).order('created_at', { ascending: false }).limit(1);
+    const { data } = await SB.from('estampas').select('ref, nome, img_url, pantones').ilike('ref', ref).order('created_at', { ascending: false }).limit(1);
     return (data && data[0]) || null;
   } catch(e) { return null; }
 }
@@ -1167,9 +1167,14 @@ async function carregarFicha(ref){
         if (state.estampas && state.estampas[0] && !state.estampas[0].image && !state.estampas[0].description) {
           state.estampas[0].image = cat.img_url || null;
           state.estampas[0].description = cat.nome || '';
+          // Pantones: só substitui se a ficha ainda não tiver nenhum pantone preenchido
+          const pantonesCat = (cat.pantones || []).filter(p => p.nome || p.receita);
+          if (pantonesCat.length && state.estampas[0].pantones.every(pantoneVazio)) {
+            state.estampas[0].pantones = pantonesCat.map(p => ({ id: uid(), color: p.cor || COR_PADRAO, code: p.nome || '', ink: p.receita || '', fabric: '' }));
+          }
           renderAll();
         }
-        showToast(`"${cat.nome || ref}" encontrada no catálogo de Estampas, mas ainda não tem ficha técnica aqui no Artes. Imagem e nome foram pré-preenchidos — complete e salve para criar a ficha.`);
+        showToast(`"${cat.nome || ref}" encontrada no catálogo de Estampas, mas ainda não tem ficha técnica aqui no Artes. Imagem, nome e pantones (quando houver) foram pré-preenchidos — complete e salve para criar a ficha.`);
       } else {
         mostrarCatalogPreview(null);
         showToast(`Ainda não há ficha salva para "${ref}". O que está na tela foi mantido: salve para criar essa ficha, ou use Nova ficha para começar do zero.`);

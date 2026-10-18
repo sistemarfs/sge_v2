@@ -1538,9 +1538,10 @@ tr:hover td{background:var(--bg)}
           <input type="text" class="form-input" id="op-numero" placeholder="Ex: 0143">
         </div>
         <div id="op-vel-hint" style="font-size:11px;color:var(--ink3);margin-top:8px"></div>
-        <div class="fg s3" style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <div class="fg s3" style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px">
           <div><label class="fl">Quilos a produzir *</label><input type="number" class="form-input" id="op-kg" min="0" step="0.1" placeholder="200" oninput="opAtualizarPrevia()"></div>
           <div><label class="fl">Rendimento (m/kg) *</label><input type="number" class="form-input" id="op-rendimento" min="0" step="0.01" placeholder="2.70" oninput="opAtualizarPrevia()"></div>
+          <div><label class="fl">Metros (calculado)</label><input type="text" class="form-input" id="op-metros" readonly disabled style="background:#F3F7F3;font-weight:700"></div>
           <div><label class="fl">Nº de rolos *</label><input type="number" class="form-input" id="op-rolos" min="1" step="1" placeholder="4" oninput="opAtualizarPrevia()"></div>
         </div>
         <div id="op-previa-tempo" style="font-size:12px;color:var(--navy);font-weight:700;margin-top:8px"></div>
@@ -1568,9 +1569,10 @@ tr:hover td{background:var(--bg)}
         <label class="fl">Número da OB *</label>
         <input type="text" class="form-input" id="edit-op-numero" placeholder="Ex: 0143">
       </div>
-      <div class="fg s3" style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-        <div><label class="fl">Quilos a produzir *</label><input type="number" class="form-input" id="edit-op-kg" min="0" step="0.1" placeholder="200"></div>
-        <div><label class="fl">Rendimento (m/kg) *</label><input type="number" class="form-input" id="edit-op-rendimento" min="0" step="0.01" placeholder="2.70"></div>
+      <div class="fg s3" style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px">
+        <div><label class="fl">Quilos a produzir *</label><input type="number" class="form-input" id="edit-op-kg" min="0" step="0.1" placeholder="200" oninput="editOpAtualizarMetros()"></div>
+        <div><label class="fl">Rendimento (m/kg) *</label><input type="number" class="form-input" id="edit-op-rendimento" min="0" step="0.01" placeholder="2.70" oninput="editOpAtualizarMetros()"></div>
+        <div><label class="fl">Metros (calculado)</label><input type="text" class="form-input" id="edit-op-metros" readonly disabled style="background:#F3F7F3;font-weight:700"></div>
         <div><label class="fl">Nº de rolos *</label><input type="number" class="form-input" id="edit-op-rolos" min="1" step="1" placeholder="4"></div>
       </div>
       <div class="fg" style="margin-top:12px">
@@ -4613,6 +4615,7 @@ function openAddOP() {
   document.getElementById('op-kg').value = '';
   document.getElementById('op-rendimento').value = '';
   document.getElementById('op-rolos').value = '';
+  document.getElementById('op-metros').value = '';
   document.getElementById('op-vel-hint').innerHTML = '';
   document.getElementById('op-previa-tempo').innerHTML = '';
   document.getElementById('op-step-search').style.display = 'block';
@@ -4662,9 +4665,18 @@ function opAtualizarPrevia() {
   const kg = Number(document.getElementById('op-kg').value) || 0;
   const rend = Number(document.getElementById('op-rendimento').value) || 0;
   const rolos = Number(document.getElementById('op-rolos').value) || 0;
+  const metrosEl = document.getElementById('op-metros');
+  if (metrosEl) metrosEl.value = (kg && rend) ? (kg * rend).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' m' : '';
   if (!vel || !kg || !rend || !rolos) { box.innerHTML = ''; return; }
   const minutos = (kg * rend / vel) * 60 + rolos * MIN_TROCA_ROLO;
   box.innerHTML = `≈ ${formatarDuracaoMin(minutos)} de máquina (impressão + troca de rolos; não conta eventual troca de estampa na fila)`;
+}
+// Mesmo cálculo de metros (Quilos × Rendimento), usado no modal de Editar OB.
+function editOpAtualizarMetros() {
+  const kg = Number(document.getElementById('edit-op-kg').value) || 0;
+  const rend = Number(document.getElementById('edit-op-rendimento').value) || 0;
+  const metrosEl = document.getElementById('edit-op-metros');
+  if (metrosEl) metrosEl.value = (kg && rend) ? (kg * rend).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' m' : '';
 }
 
 async function confirmarNovaOP() {
@@ -4737,6 +4749,7 @@ function openEditOP(id) {
   document.getElementById('edit-op-kg').value = op.quantidade_kg || '';
   document.getElementById('edit-op-rendimento').value = op.rendimento_m_kg || '';
   document.getElementById('edit-op-rolos').value = op.num_rolos || '';
+  editOpAtualizarMetros();
   document.getElementById('edit-op-responsavel').value = op.responsavel_op || '';
   document.getElementById('edit-op-etapa').value = op.etapa || OP_STAGES[0];
   openM('m-edit-op');
