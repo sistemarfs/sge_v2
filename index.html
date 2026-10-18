@@ -1081,6 +1081,13 @@ tr:hover td{background:var(--bg)}
           <div class="fg"><label class="fl">Nome / Descrição</label><input type="text" class="form-input" id="e-nome"></div>
           <div class="fg"><label class="fl">Tipo *</label><select class="form-input" id="e-tipo" onchange="eTipoChanged()"><option value="">Selecione...</option><option>Rotativa</option><option>Digital</option><option>Sublimação</option><option>DTF</option><option>TPU</option><option>Flocagem/Silkscreen</option></select></div>
           <div class="fg"><label class="fl">Status</label><select class="form-input" id="e-status"><option>Em andamento</option><option>Aguardando</option><option>Aprovada</option><option>Pedido</option></select></div>
+          <div class="fg">
+            <label class="fl">Estampa Localizada?</label>
+            <div style="display:flex;align-items:center;gap:8px;height:38px">
+              <input type="checkbox" id="e-localizada" style="width:18px;height:18px;cursor:pointer">
+              <span style="font-size:12px;color:var(--ink3)">Tem ficha técnica no módulo Artes (silk/tampografia/tagless)</span>
+            </div>
+          </div>
           <div class="fg"><label class="fl">Rapport / Dimensões</label><input type="text" class="form-input" id="e-dim" placeholder="Ex: 32cm"></div>
           <div class="fg"><label class="fl">Nº de Cores</label><input type="number" class="form-input" id="e-ncores" min="1"></div>
           <div class="fg"><label class="fl">Artigo (Tecido)</label><input type="text" class="form-input" id="e-artigo" placeholder="Ex: Meia Malha"></div>
@@ -2903,6 +2910,7 @@ function openNovaEstampa() {
   document.getElementById('e-img-prev').style.display = 'none';
   document.getElementById('e-img-prev').src = '';
   document.getElementById('e-em-kanban').checked = false;
+  document.getElementById('e-localizada').checked = false;
   document.getElementById('e-cobertura-pct').value = '';
   document.getElementById('e-resolucao-outra').value = '';
   const histBox = document.getElementById('e-historico-list');
@@ -2969,6 +2977,7 @@ async function saveEstampa() {
     perfil_cor: gv('e-perfil-cor')||null,
     largura_tecido: gv('e-largura-tecido')||null,
     velocidade_impressao: gv('e-velocidade')||null,
+    localizada: document.getElementById('e-localizada').checked,
     updated_by:CU?.nome,
     empresa_id: CU?.empresa_id
   };
@@ -3313,6 +3322,7 @@ async function renderEstampas() {
         <div class="sc2-name">${e.nome||'—'}</div>
         <div class="sc2-tags">
           ${e.tipo?`<span class="tag t-type">${e.tipo}</span>`:''}
+          ${e.localizada?`<span class="tag t-type">${ic('mapPin',11)} Localizada</span>`:''}
           ${e.status==='Aprovada'?`<span class="tag t-ok">${ic('check',11)} Aprovada</span>`:e.status==='Pedido'?`<span class="tag t-type">${ic('clipboardList',11)} Pedido</span>`:e.status==='Em andamento'?`<span class="tag t-pend">${ic('clock',11)} Em andamento</span>`:e.status?`<span class="tag t-pend">${e.status}</span>`:''}
         </div>
         ${e.fornecedor_est?`<div style="font-size:11px;color:var(--ink3);margin-top:5px;font-weight:600">${ic('mapPin',11)} ${e.fornecedor_est}</div>`:''}
@@ -3432,6 +3442,7 @@ async function editEst(id) {
     document.getElementById('e-resolucao-outra').value = '';
   }
   document.getElementById('e-em-kanban').checked = !!e.em_kanban;
+  document.getElementById('e-localizada').checked = !!e.localizada;
   covImgData = null; covBgColor = null;
   document.getElementById('cov-no-image').style.display = 'block';
   document.getElementById('cov-content').style.display = 'none';

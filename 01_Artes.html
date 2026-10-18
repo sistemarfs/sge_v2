@@ -395,6 +395,13 @@ body.dark .res-ref{color:var(--navy-text)}
         <span class="ref-status" id="refStatus"></span>
       </div>
 
+      <div id="catalogPreview" style="display:none;align-items:center;gap:10px;background:#F3F7F3;border:1px solid var(--border);border-radius:10px;padding:8px 12px;margin-top:-8px;margin-bottom:14px">
+        <img id="catalogPreviewImg" style="width:40px;height:40px;object-fit:cover;border-radius:6px;display:none">
+        <div style="font-size:12.5px;color:var(--ink2)">
+          <strong id="catalogPreviewNome"></strong> encontrada no catálogo de Estampas — ainda sem ficha técnica aqui no Artes.
+        </div>
+      </div>
+
       <div class="at-toolbar">
         <div>
           <h3>Estampas e tagless</h3>
@@ -1116,9 +1123,28 @@ function novaFicha(silencioso){
   meta = { fichaId: null, loadedRef: null, atualizadoEm: null, atualizadoPor: null, offline: false };
   marcarLimpo();
   $('#refInput').value = '';
+  mostrarCatalogPreview(null);
   hideOfflineBanner(); updateConnectionIndicator();
   renderAll(); renderHistorico();
   if (!silencioso) showToast('Ficha em branco.');
+}
+
+// Busca a estampa correspondente no catálogo geral (tabela 'estampas'), para preencher
+// nome/imagem quando ainda não existe ficha técnica salva pra essa referência no Artes.
+async function buscarNoCatalogo(ref) {
+  try {
+    const { data } = await SB.from('estampas').select('ref, nome, img_url').ilike('ref', ref).order('created_at', { ascending: false }).limit(1);
+    return (data && data[0]) || null;
+  } catch(e) { return null; }
+}
+function mostrarCatalogPreview(cat) {
+  const box = $('#catalogPreview');
+  if (!box) return;
+  if (!cat) { box.style.display = 'none'; return; }
+  $('#catalogPreviewNome').textContent = cat.nome || cat.ref;
+  const img = $('#catalogPreviewImg');
+  if (cat.img_url) { img.src = cat.img_url; img.style.display = 'block'; } else { img.style.display = 'none'; }
+  box.style.display = 'flex';
 }
 
 async function carregarFicha(ref){
@@ -1132,12 +1158,27 @@ async function carregarFicha(ref){
     if (seq !== loadSeq) return false;
     if (error) throw error;
     if (!data) {
+      const cat = await buscarNoCatalogo(ref);
       uld();
-      showToast(`Ainda não há ficha salva para "${ref}". O que está na tela foi mantido: salve para criar essa ficha, ou use Nova ficha para começar do zero.`);
+      if (cat) {
+        mostrarCatalogPreview(cat);
+        // Pré-preenche a 1ª estampa localizada com a imagem/nome do catálogo, só quando ela
+        // ainda está vazia — não sobrescreve o que o usuário já tiver preenchido na tela.
+        if (state.estampas && state.estampas[0] && !state.estampas[0].image && !state.estampas[0].description) {
+          state.estampas[0].image = cat.img_url || null;
+          state.estampas[0].description = cat.nome || '';
+          renderAll();
+        }
+        showToast(`"${cat.nome || ref}" encontrada no catálogo de Estampas, mas ainda não tem ficha técnica aqui no Artes. Imagem e nome foram pré-preenchidos — complete e salve para criar a ficha.`);
+      } else {
+        mostrarCatalogPreview(null);
+        showToast(`Ainda não há ficha salva para "${ref}". O que está na tela foi mantido: salve para criar essa ficha, ou use Nova ficha para começar do zero.`);
+      }
       meta.loadedRef = null; meta.fichaId = null; meta.atualizadoEm = null; meta.atualizadoPor = null;
       renderRefStatus(); renderHistorico();
       return false;
     }
+    mostrarCatalogPreview(null);
     offlineCacheSet('ficha_' + ref, { id: data.id, dados: data.dados, atualizado_em: data.atualizado_em });
     aplicarFicha(ref, data);
     hideOfflineBanner();
