@@ -1099,7 +1099,7 @@ tr:hover td{background:var(--bg)}
             <label class="fl">Imagem da Estampa</label>
             <div class="iu" onclick="document.getElementById('e-img-in').click()">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A9A7C" stroke-width="1.5" style="margin:0 auto"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-              <p>Clique para selecionar imagem (enviada ao Supabase Storage)</p>
+              <p>Clique para selecionar imagem (enviada a Nuvem)</p>
               <div class="iu-prog" id="e-img-prog">⏳ Enviando imagem...</div>
               <img class="img-prev" id="e-img-prev">
               <input type="file" id="e-img-in" accept="image/*" onchange="handleImg(this)" style="display:none">
@@ -1538,11 +1538,11 @@ tr:hover td{background:var(--bg)}
           <input type="text" class="form-input" id="op-numero" placeholder="Ex: 0143">
         </div>
         <div id="op-vel-hint" style="font-size:11px;color:var(--ink3);margin-top:8px"></div>
-        <div class="fg s3" style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px">
-          <div><label class="fl">Quilos a produzir *</label><input type="number" class="form-input" id="op-kg" min="0" step="0.1" placeholder="200" oninput="opAtualizarPrevia()"></div>
-          <div><label class="fl">Rendimento (m/kg) *</label><input type="number" class="form-input" id="op-rendimento" min="0" step="0.01" placeholder="2.70" oninput="opAtualizarPrevia()"></div>
-          <div><label class="fl">Metros (calculado)</label><input type="text" class="form-input" id="op-metros" readonly disabled style="background:#F3F7F3;font-weight:700"></div>
-          <div><label class="fl">Nº de rolos *</label><input type="number" class="form-input" id="op-rolos" min="1" step="1" placeholder="4" oninput="opAtualizarPrevia()"></div>
+        <div class="fg s3" style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;align-items:end">
+          <div style="display:flex;flex-direction:column"><label class="fl" style="min-height:28px">Quilos a produzir *</label><input type="number" class="form-input" id="op-kg" min="0" step="0.1" placeholder="200" oninput="opAtualizarPrevia()"></div>
+          <div style="display:flex;flex-direction:column"><label class="fl" style="min-height:28px">Rendimento (m/kg) *</label><input type="number" class="form-input" id="op-rendimento" min="0" step="0.01" placeholder="2.70" oninput="opAtualizarPrevia()"></div>
+          <div style="display:flex;flex-direction:column"><label class="fl" style="min-height:28px">Metros (calculado)</label><input type="text" class="form-input" id="op-metros" readonly disabled style="background:#F3F7F3;font-weight:700"></div>
+          <div style="display:flex;flex-direction:column"><label class="fl" style="min-height:28px">Nº de rolos *</label><input type="number" class="form-input" id="op-rolos" min="1" step="1" placeholder="4" oninput="opAtualizarPrevia()"></div>
         </div>
         <div id="op-previa-tempo" style="font-size:12px;color:var(--navy);font-weight:700;margin-top:8px"></div>
         <div class="fg" style="margin-top:12px">
@@ -1569,11 +1569,11 @@ tr:hover td{background:var(--bg)}
         <label class="fl">Número da OB *</label>
         <input type="text" class="form-input" id="edit-op-numero" placeholder="Ex: 0143">
       </div>
-      <div class="fg s3" style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px">
-        <div><label class="fl">Quilos a produzir *</label><input type="number" class="form-input" id="edit-op-kg" min="0" step="0.1" placeholder="200" oninput="editOpAtualizarMetros()"></div>
-        <div><label class="fl">Rendimento (m/kg) *</label><input type="number" class="form-input" id="edit-op-rendimento" min="0" step="0.01" placeholder="2.70" oninput="editOpAtualizarMetros()"></div>
-        <div><label class="fl">Metros (calculado)</label><input type="text" class="form-input" id="edit-op-metros" readonly disabled style="background:#F3F7F3;font-weight:700"></div>
-        <div><label class="fl">Nº de rolos *</label><input type="number" class="form-input" id="edit-op-rolos" min="1" step="1" placeholder="4"></div>
+      <div class="fg s3" style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;align-items:end">
+        <div style="display:flex;flex-direction:column"><label class="fl" style="min-height:28px">Quilos a produzir *</label><input type="number" class="form-input" id="edit-op-kg" min="0" step="0.1" placeholder="200" oninput="editOpAtualizarMetros()"></div>
+        <div style="display:flex;flex-direction:column"><label class="fl" style="min-height:28px">Rendimento (m/kg) *</label><input type="number" class="form-input" id="edit-op-rendimento" min="0" step="0.01" placeholder="2.70" oninput="editOpAtualizarMetros()"></div>
+        <div style="display:flex;flex-direction:column"><label class="fl" style="min-height:28px">Metros (calculado)</label><input type="text" class="form-input" id="edit-op-metros" readonly disabled style="background:#F3F7F3;font-weight:700"></div>
+        <div style="display:flex;flex-direction:column"><label class="fl" style="min-height:28px">Nº de rolos *</label><input type="number" class="form-input" id="edit-op-rolos" min="1" step="1" placeholder="4"></div>
       </div>
       <div class="fg" style="margin-top:12px">
         <label class="fl">Responsável pelo Cartão</label>
