@@ -4038,7 +4038,14 @@ async function renderPublicFicha(id) {
   document.getElementById('app').style.display = 'none';
   document.getElementById('public-ficha-view').style.display = 'block';
   ld('Carregando ficha...');
-  const { data: e } = await SB.from('estampas').select('*').eq('id', id).single();
+  // Visitante do QR Code não tem login (sem empresa_id no token), então a leitura direta da
+  // tabela é bloqueada pela segurança multiempresa. Usa a função pública ficha_publica(id).
+  let e = null;
+  try {
+    const { data, error } = await SB.rpc('ficha_publica', { p_id: id });
+    if (error) throw error;
+    e = data || null;
+  } catch(err) { console.warn('Falha ao carregar ficha pública:', err); }
   uld();
   const content = document.getElementById('pf-content');
   content.innerHTML = e ? buildFichaHtml(e) : '<p style="text-align:center;color:var(--ink3);padding:40px">Estampa não encontrada, ou o link está incorreto.</p>';
